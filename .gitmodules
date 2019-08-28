@@ -1,0 +1,9 @@
+[submodule "YareEngine/ThirdParty/glew"]
+	path = YareEngine/ThirdParty/glew
+	url = https://github.com/omniavinco/glew-cmake
+[submodule "YareEngine/ThirdParty/glfw"]
+	path = YareEngine/ThirdParty/glfw
+	url = https://github.com/glfw/glfw
+[submodule "YareEngine/ThirdParty/glm"]
+	path = YareEngine/ThirdParty/glm
+	url = https://github.com/g-truc/glm
