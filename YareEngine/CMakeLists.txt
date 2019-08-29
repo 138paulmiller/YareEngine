@@ -12,6 +12,9 @@ source_group(Yare\\GL REGULAR_EXPRESSION "Yare/GL/.*")
 
 add_library(${PROJECT_NAME} ${YARE_SOURCE} ${YARE_HEADERS} )
 
+
+# Macros
+target_compile_definitions(${PROJECT_NAME} PUBLIC YARE_DEBUG=1)
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

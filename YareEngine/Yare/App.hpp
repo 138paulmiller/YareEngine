@@ -3,8 +3,16 @@
 #pragma once
 
 #include <string>
-
 struct GLFWwindow;
+
+#include <cstdlib>
+#include <fstream>
+
+#include <iostream>
+#include <stdexcept>
+#include <vector>
+// file reading - move to os layer
+void getFileContents(const std::string& filename, std::string& contents);
 
 class App {
  public:

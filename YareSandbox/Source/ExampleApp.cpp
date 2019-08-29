@@ -44,11 +44,12 @@ VertexType getHeightMap(const glm::vec2 position) {
   return v;
 }
 
-ExampleApp::ExampleApp()
-    : App(),
-      vertexShader(SHADER_DIR "/shader.vert", GL_VERTEX_SHADER),
-      fragmentShader(SHADER_DIR "/shader.frag", GL_FRAGMENT_SHADER),
-      shaderProgram({vertexShader, fragmentShader}) {
+ExampleApp::ExampleApp(){
+
+	std::string vertSource, fragSource;
+	getFileContents( SHADER_DIR "/shader.vert",vertSource );
+	getFileContents(SHADER_DIR "/shader.frag", fragSource );
+	shaderProgram.compile(vertSource, fragSource);
 
   // creation of the mesh ------------------------------------------------------
   std::vector<VertexType> vertices;

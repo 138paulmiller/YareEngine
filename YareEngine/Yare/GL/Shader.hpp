@@ -8,26 +8,6 @@
 #include <map>
 #include <string>
 
-class Shader;
-class ShaderProgram;
-
-// Loads a shader from a file into OpenGL.
-class Shader {
- public:
-  // Load Shader from a file
-  Shader(const std::string& filename, GLenum type);
-
-  // provide opengl shader identifiant.
-  GLuint getHandle() const;
-
-  ~Shader();
-
- private:
-  // opengl program identifiant
-  GLuint handle;
-
-  friend class ShaderProgram;
-};
 
 // A shader program is a set of shader (for instance vertex shader + pixel
 // shader) defining the rendering pipeline.
@@ -36,51 +16,59 @@ class Shader {
 // using GLM objects.
 class ShaderProgram {
  public:
-  // constructor
-  ShaderProgram(std::initializer_list<Shader> shaderList);
+	 enum ShaderStage {
+		 
+		FRAGMENT_SHADER = 0,
+		VERTEX_SHADER ,
+		SHADER_STAGE_COUNT
+	};
 
-  // bind the program
-  void use() const;
-  void unuse() const;
+	// constructor
+	ShaderProgram();
 
-  // provide the opengl identifiant
-  GLuint getHandle() const;
+	~ShaderProgram();
 
-  // clang-format off
-  // provide attributes informations.
-  GLint attribute(const std::string& name);
-  void setAttribute(const std::string& name, GLint size, GLsizei stride, GLuint offset, GLboolean normalize, GLenum type);
-  void setAttribute(const std::string& name, GLint size, GLsizei stride, GLuint offset, GLboolean normalize);
-  void setAttribute(const std::string& name, GLint size, GLsizei stride, GLuint offset, GLenum type); 
-  void setAttribute(const std::string& name, GLint size, GLsizei stride, GLuint offset);
-  // clang-format on
+	void compile(const std::string& vertSource, const std::string& fragSource);
 
-  // provide uniform location
-  GLint uniform(const std::string& name);
-  GLint operator[](const std::string& name);
+	// bind the program
+	void use() const;
+	void unuse() const;
 
-  // affect uniform
-  void setUniform(const std::string& name, float x, float y, float z);
-  void setUniform(const std::string& name, const glm::vec3& v);
-  void setUniform(const std::string& name, const glm::dvec3& v);
-  void setUniform(const std::string& name, const glm::vec4& v);
-  void setUniform(const std::string& name, const glm::dvec4& v);
-  void setUniform(const std::string& name, const glm::dmat4& m);
-  void setUniform(const std::string& name, const glm::mat4& m);
-  void setUniform(const std::string& name, const glm::mat3& m);
-  void setUniform(const std::string& name, float val);
-  void setUniform(const std::string& name, int val);
 
-  ~ShaderProgram();
+	// clang-format off
+	// provide attributes informations.
+	GLint getAttribute(const std::string& name);
+	void setAttribute(const std::string& name, GLint size, GLsizei stride, GLuint offset, GLboolean normalize, GLenum type);
+	void setAttribute(const std::string& name, GLint size, GLsizei stride, GLuint offset, GLboolean normalize);
+	void setAttribute(const std::string& name, GLint size, GLsizei stride, GLuint offset, GLenum type); 
+	void setAttribute(const std::string& name, GLint size, GLsizei stride, GLuint offset);
+	// clang-format on
 
- private:
-  ShaderProgram();
+	// provide uniform location
+	GLint getUniform(const std::string& name);
+ 
+	// affect uniform
+	void setUniform(const std::string& name, float x, float y, float z);
+	void setUniform(const std::string& name, const glm::vec3& v);
+	void setUniform(const std::string& name, const glm::dvec3& v);
+	void setUniform(const std::string& name, const glm::vec4& v);
+	void setUniform(const std::string& name, const glm::dvec4& v);
+	void setUniform(const std::string& name, const glm::dmat4& m);
+	void setUniform(const std::string& name, const glm::mat4& m);
+	void setUniform(const std::string& name, const glm::mat3& m);
+	void setUniform(const std::string& name, float val);
+	void setUniform(const std::string& name, int val);
 
-  std::map<std::string, GLint> uniforms;
-  std::map<std::string, GLint> attributes;
 
-  // opengl id
-  GLuint handle;
+private:
 
-  void link();
+	//Cached names
+	std::map<std::string, GLint> uniforms;
+	std::map<std::string, GLint> attributes;
+
+
+	GLuint shaderStages[SHADER_STAGE_COUNT];
+	// opengl id
+	GLuint program;
+
 };

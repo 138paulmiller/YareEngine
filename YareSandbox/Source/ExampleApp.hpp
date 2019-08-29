@@ -24,8 +24,7 @@ class ExampleApp : public App {
   const int size = 100;
 
   // shader
-  Shader vertexShader;
-  Shader fragmentShader;
+
   ShaderProgram shaderProgram;
 
   // shader matrix uniform
