@@ -14,9 +14,9 @@
 //
 // This class provide an interface to define the OpenGL uniforms and attributes
 // using GLM objects.
-class ShaderProgram {
+class Shader {
  public:
-	 enum ShaderStage {
+	 enum Stage {
 		 
 		FRAGMENT_SHADER = 0,
 		VERTEX_SHADER ,
@@ -24,15 +24,18 @@ class ShaderProgram {
 	};
 
 	// constructor
-	ShaderProgram();
+	 Shader();
 
-	~ShaderProgram();
+	~Shader();
+
+	//Destroy program
+	void destroy();
 
 	void compile(const std::string& vertSource, const std::string& fragSource);
 
 	// bind the program
-	void use() const;
-	void unuse() const;
+	void bind() const;
+	void unbind() const;
 
 
 	// clang-format off
@@ -60,15 +63,22 @@ class ShaderProgram {
 	void setUniform(const std::string& name, int val);
 
 
+protected:
+
+	void cacheAttributeAndUniforms();
+	GLuint compileStage(const std::string& source, GLenum type);
+
 private:
 
-	//Cached names
+	//name to location Cache to avoid querying drivers for program info
 	std::map<std::string, GLint> uniforms;
 	std::map<std::string, GLint> attributes;
-
-
-	GLuint shaderStages[SHADER_STAGE_COUNT];
+	
+	//handles to attached shader stages
+	GLuint stages[SHADER_STAGE_COUNT];
 	// opengl id
 	GLuint program;
+
+	bool isValid;
 
 };

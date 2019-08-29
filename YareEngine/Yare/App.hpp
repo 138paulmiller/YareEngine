@@ -12,6 +12,7 @@ struct GLFWwindow;
 #include <stdexcept>
 #include <vector>
 // file reading - move to os layer
+//To do create a window manager ! App can spawn and manage windowes c classes
 void getFileContents(const std::string& filename, std::string& contents);
 
 class App {
@@ -27,7 +28,7 @@ class App {
   void exit();
 
   // delta time between frame and time from beginning
-  float getFrameDeltaTime() const;
+  float getDeltaTime() const;
   float getTime() const;
 
   // App run
@@ -38,8 +39,7 @@ class App {
   int getWidth();
   int getHeight();
   float getWindowRatio();
-  bool windowDimensionChanged();
-
+  void resizeWindow(int newWidth, int newHeight);
  private:
   enum State { stateReady, stateRun, stateExit };
 
@@ -47,6 +47,7 @@ class App {
 
   App& operator=(const App&) { return *this; }
 
+  //TODO Move to window class
   GLFWwindow* window;
 
   // Time:
@@ -56,14 +57,17 @@ class App {
   // Dimensions:
   int width;
   int height;
-  bool dimensionChanged;
-  void detectWindowDimensionChange();
+
+  void detectWindowResize();
 
  protected:
-  App(const App&){};
+  //The Event Interface
+  virtual void onRender();
+ 
+  // By default resizes viewport 
+  virtual void onWindowResize(int newWidth, int newHeigh);
 
   std::string title;
 
-  virtual void loop();
 };
 

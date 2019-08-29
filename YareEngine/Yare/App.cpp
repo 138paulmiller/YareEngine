@@ -1,10 +1,4 @@
-/**
- * App.hpp
- * Contributors:
- *      * Arthur Sonzogni (author)
- * Licence:
- *      * MIT
- */
+
 
 #include "App.hpp"
 
@@ -105,7 +99,7 @@ void App::exit() {
   state = stateExit;
 }
 
-float App::getFrameDeltaTime() const {
+float App::getDeltaTime() const {
   return deltaTime;
 }
 
@@ -128,10 +122,10 @@ void App::run() {
     time = t;
 
     // detech window related changes
-    detectWindowDimensionChange();
+	detectWindowResize();
 
     // execute the frame code
-    loop();
+    onRender();
 
     // Swap Front and Back buffers (double buffering)
     glfwSwapBuffers(window);
@@ -143,18 +137,31 @@ void App::run() {
   glfwTerminate();
 }
 
-void App::detectWindowDimensionChange() {
-  int w, h;
-  glfwGetWindowSize(getWindow(), &w, &h);
-  dimensionChanged = (w != width || h != height);
-  if (dimensionChanged) {
-    width = w;
-    height = h;
-    glViewport(0, 0, width, height);
-  }
+
+void App::detectWindowResize()
+{
+	int newWidth, newHeight;
+	glfwGetWindowSize(getWindow(), &newWidth, &newHeight);
+	bool dimensionChanged = (newWidth != width || newHeight != height);
+	if (dimensionChanged) {
+
+		onWindowResize(newWidth, newHeight);
+	}
+
+}
+void App::resizeWindow(int newWidth, int newHeight) {
+	width = newWidth;
+	height = newHeight;
+	glViewport(0, 0, width, height);
 }
 
-void App::loop() {
+
+// Interface Events
+void App::onWindowResize(int newWidth, int newHeight) {
+	resizeWindow(newWidth, newHeight);
+}
+
+void App::onRender() {
   cout << "[INFO] : loop" << endl;
 }
 
@@ -170,6 +177,3 @@ float App::getWindowRatio() {
   return float(width) / float(height);
 }
 
-bool App::windowDimensionChanged() {
-  return dimensionChanged;
-}

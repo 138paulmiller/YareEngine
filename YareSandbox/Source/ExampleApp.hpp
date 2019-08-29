@@ -1,10 +1,3 @@
-/**
- * MyApp.hpp skeleton
- * Contributors:
- *      * Arthur Sonzogni
- * Licence:
- *      * MIT
- */
 
 #ifndef OPENGL_CMAKE_SKELETON_MYApp
 #define OPENGL_CMAKE_SKELETON_MYApp
@@ -17,7 +10,7 @@ class ExampleApp : public App {
   ExampleApp();
 
  protected:
-  virtual void loop();
+  virtual void onRender() override;
 
  private:
   float time = 0.f;
@@ -25,7 +18,7 @@ class ExampleApp : public App {
 
   // shader
 
-  ShaderProgram shaderProgram;
+  Shader shaderProgram;
 
   // shader matrix uniform
   glm::mat4 projection = glm::mat4(1.0);

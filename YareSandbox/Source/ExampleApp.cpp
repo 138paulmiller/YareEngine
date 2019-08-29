@@ -1,10 +1,4 @@
-/**
- * MyApp.cpp
- * Contributors:
- *      * Arthur Sonzogni (author)
- * Licence:
- *      * MIT
- */
+
 #include "ExampleApp.hpp"
 
 #include <GLFW/glfw3.h>
@@ -114,7 +108,7 @@ ExampleApp::ExampleApp(){
   glBindVertexArray(0);
 }
 
-void ExampleApp::loop() {
+void ExampleApp::onRender() {
   // exit on window close button pressed
   if (glfwWindowShouldClose(getWindow()))
     exit();
@@ -131,7 +125,7 @@ void ExampleApp::loop() {
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  shaderProgram.use();
+  shaderProgram.bind();
 
   // send uniforms
   shaderProgram.setUniform("projection", projection);
@@ -150,5 +144,5 @@ void ExampleApp::loop() {
 
   glBindVertexArray(0);
 
-  shaderProgram.unuse();
+  shaderProgram.unbind();
 }

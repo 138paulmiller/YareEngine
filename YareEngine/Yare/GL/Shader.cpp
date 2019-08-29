@@ -16,66 +16,87 @@
 using namespace glm;
 
 
-GLuint compileShaderStage(const std::string& source, GLenum type) {
-  // file loading
-	
-  // creation
-	GLuint program = glCreateShader(type);
-	if (program == 0)
-		throw std::runtime_error("[Error] Impossible to create a new Shader");
 
-	const char* sourceArr = &source[0] ;
-  // code source assignation
-  glShaderSource(program, 1, (const GLchar**)&sourceArr, NULL);
-
-  // compilation
-  glCompileShader(program);
-  glCheckError();
-  // compilation check
-  GLint compile_status;
-  glGetShaderiv(program, GL_COMPILE_STATUS, &compile_status);
-  if (compile_status != GL_TRUE) {
-    GLsizei logsize = 0;
-    glGetShaderiv(program, GL_INFO_LOG_LENGTH, &logsize);
-
-    char* log = new char[logsize + sizeof(char)];
-    glGetShaderInfoLog(program, logsize, &logsize, log);
-
-	std::cout << "[Error] compilation error: " << std::endl;
-	std::cout << log << std::endl;
-
-	program = 0;
-	delete [] log;
-
-  } else {
-  }
-  return program;
-}
-
-
-ShaderProgram::ShaderProgram()
-	:shaderStages{0}  {
+Shader::Shader()
+	:stages{0}  
+{
   program = 0;
+  isValid = false;
 }
-ShaderProgram::~ShaderProgram() {
+
+Shader::~Shader()
+{
+	destroy();
+}
+
+void Shader::destroy() 
+{
+	if (program == 0) return;
+	isValid = false;
+	attributes.clear();
+	uniforms.clear();
+	//Link the compiled stages
+	for (int i = 0; i < SHADER_STAGE_COUNT; i++)
+	{
+		glDetachShader(program, stages[i]);
+	}
 	glDeleteProgram(program);
 }
+GLuint Shader::compileStage(const std::string& source, GLenum type)
+{
+	// creation
+	GLuint stage = glCreateShader(type);
+	if (stage == 0)
+		throw std::runtime_error("[Error] Driver could not allocate new shader stage");
 
-void ShaderProgram::compile(const std::string& vertSource, const std::string& fragSource)
+	const char* sourceArr = &source[0];
+	// code source assignation
+	glShaderSource(stage, 1, (const GLchar * *)& sourceArr, NULL);
+
+	// compilation
+	glCompileShader(stage);
+	glCheckError();
+	// compilation check
+	GLint status;
+	glGetShaderiv(stage, GL_COMPILE_STATUS, &status);
+	if (status != GL_TRUE) {
+		GLsizei logsize = 0;
+		glGetShaderiv(stage, GL_INFO_LOG_LENGTH, &logsize);
+
+		char* log = new char[logsize + sizeof(char)];
+		glGetShaderInfoLog(stage, logsize, &logsize, log);
+
+		std::cout << "[Error] Stage Compilation error: " << std::endl;
+		std::cout << log << std::endl;
+
+		stage = 0;
+		delete[] log;
+		return -1;
+
+	}
+	else {
+	}
+	return stage;
+}
+
+
+
+void Shader::compile(const std::string& vertSource, const std::string& fragSource)
 {
 	if (program != 0) {
-		glDeleteProgram(program);
+		destroy();
 	}
 	program = glCreateProgram();
 	if (!program)
-		throw std::runtime_error("Impossible to create a new shader program");
+		throw std::runtime_error("[Error] Driver could not allocate new shader stage");
 
-	shaderStages[VERTEX_SHADER] = compileShaderStage(vertSource, GL_VERTEX_SHADER);
-	shaderStages[FRAGMENT_SHADER] = compileShaderStage(fragSource, GL_FRAGMENT_SHADER);
+	stages[VERTEX_SHADER] = compileStage(vertSource, GL_VERTEX_SHADER);
+	stages[FRAGMENT_SHADER] = compileStage(fragSource, GL_FRAGMENT_SHADER);
     
-	for (int i = 0; i < SHADER_STAGE_COUNT; i++) {
-	
-		glAttachShader(program, shaderStages[i]);
+	//Link the compiled stages
+	for (int i = 0; i < SHADER_STAGE_COUNT; i++) 
+	{
+		glAttachShader(program, stages[i]);
 	}
 
 	//link the compile shader stages
@@ -94,32 +115,62 @@ void ShaderProgram::compile(const std::string& vertSource, const std::string& fr
 		std::cout << log << std::endl;
 	}
 	glCheckError();
+
+
+	cacheAttributeAndUniforms();
 }
 
-GLint ShaderProgram::getUniform(const std::string& name) {
+
+void Shader::cacheAttributeAndUniforms()
+{
+	GLint i;
+	GLint count;
+	GLint size; // size of the variable
+	GLenum type; // type of the variable (float, vec3 or mat4, etc)
+	// maximum name length is 16
+	GLchar name[16]; // variable name in GLSL
+	GLsizei length; // name length
+	glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &count);
+	
+	for (int i = 0; i < count; i++)
+	{
+		glGetActiveAttrib(program, (GLuint)i, sizeof(name)/sizeof(GLchar), &length, &size, &type, name);
+		//cache its location
+		attributes[name] = glGetAttribLocation(program, name);
+		printf("Attribute #%d Type: %u Name: %s\n", i, type, name);
+	}
+	glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+	for (int i = 0; i < count; i++)
+	{
+		glGetActiveUniform(program, (GLuint)i, sizeof(name) / sizeof(GLchar), &length, &size, &type, name);
+		//cache its location
+		uniforms[name] = glGetUniformLocation(program, name);
+		printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
+	}
+}
+
+GLint Shader::getUniform(const std::string& name) 
+{
   auto it = uniforms.find(name);
   if (it == uniforms.end()) {
-    // uniform that is not referenced
-    GLint loc = glGetUniformLocation(program, name.c_str());
-    if (loc == GL_INVALID_OPERATION || loc < 0)
-		std::cout << "[Error] uniform " << name << " doesn't exist in program" << std::endl;
-    // add it anyways
-    uniforms[name] = loc;
+ 	std::cout << "[Error] uniform " << name << " doesn't exist in program" << std::endl;
+    return -1;
 
-    return loc;
   } 
   return it->second;
 }
 
-GLint ShaderProgram::getAttribute(const std::string& name) {
-  GLint attrib = glGetAttribLocation(program, name.c_str());
-  if (attrib == GL_INVALID_OPERATION || attrib < 0)
-	  std::cout << "[Error] Attribute " << name << " doesn't exist in program" << std::endl;
-
-  return attrib;
+GLint Shader::getAttribute(const std::string& name) 
+{
+	auto it = attributes.find(name);
+	if (it == attributes.end()) {
+		std::cout << "[Error] attributes " << name << " doesn't exist in program" << std::endl;
+		return -1;
+	}
+	return it->second;
 }
 
-void ShaderProgram::setAttribute(const std::string& name,
+void Shader::setAttribute(const std::string& name,
                                  GLint size,
                                  GLsizei stride,
                                  GLuint offset,
@@ -131,7 +182,7 @@ void ShaderProgram::setAttribute(const std::string& name,
                         reinterpret_cast<void*>(offset));
 }
 
-void ShaderProgram::setAttribute(const std::string& name,
+void Shader::setAttribute(const std::string& name,
                                  GLint size,
                                  GLsizei stride,
                                  GLuint offset,
@@ -139,7 +190,7 @@ void ShaderProgram::setAttribute(const std::string& name,
   setAttribute(name, size, stride, offset, normalize, GL_FLOAT);
 }
 
-void ShaderProgram::setAttribute(const std::string& name,
+void Shader::setAttribute(const std::string& name,
                                  GLint size,
                                  GLsizei stride,
                                  GLuint offset,
@@ -147,61 +198,61 @@ void ShaderProgram::setAttribute(const std::string& name,
   setAttribute(name, size, stride, offset, false, type);
 }
 
-void ShaderProgram::setAttribute(const std::string& name,
+void Shader::setAttribute(const std::string& name,
                                  GLint size,
                                  GLsizei stride,
                                  GLuint offset) {
   setAttribute(name, size, stride, offset, false, GL_FLOAT);
 }
 
-void ShaderProgram::setUniform(const std::string& name,
+void Shader::setUniform(const std::string& name,
                                float x,
                                float y,
                                float z) {
   glUniform3f(getUniform(name), x, y, z);
 }
 
-void ShaderProgram::setUniform(const std::string& name, const vec3& v) {
+void Shader::setUniform(const std::string& name, const vec3& v) {
   glUniform3fv(getUniform(name), 1, value_ptr(v));
 }
 
-void ShaderProgram::setUniform(const std::string& name, const dvec3& v) {
+void Shader::setUniform(const std::string& name, const dvec3& v) {
   glUniform3dv(getUniform(name), 1, value_ptr(v));
 }
 
-void ShaderProgram::setUniform(const std::string& name, const vec4& v) {
+void Shader::setUniform(const std::string& name, const vec4& v) {
   glUniform4fv(getUniform(name), 1, value_ptr(v));
 }
 
-void ShaderProgram::setUniform(const std::string& name, const dvec4& v) {
+void Shader::setUniform(const std::string& name, const dvec4& v) {
   glUniform4dv(getUniform(name), 1, value_ptr(v));
 }
 
-void ShaderProgram::setUniform(const std::string& name, const dmat4& m) {
+void Shader::setUniform(const std::string& name, const dmat4& m) {
   glUniformMatrix4dv(getUniform(name), 1, GL_FALSE, value_ptr(m));
 }
 
-void ShaderProgram::setUniform(const std::string& name, const mat4& m) {
+void Shader::setUniform(const std::string& name, const mat4& m) {
   glUniformMatrix4fv(getUniform(name), 1, GL_FALSE, value_ptr(m));
 }
 
-void ShaderProgram::setUniform(const std::string& name, const mat3& m) {
+void Shader::setUniform(const std::string& name, const mat3& m) {
   glUniformMatrix3fv(getUniform(name), 1, GL_FALSE, value_ptr(m));
 }
 
-void ShaderProgram::setUniform(const std::string& name, float val) {
+void Shader::setUniform(const std::string& name, float val) {
   glUniform1f(getUniform(name), val);
 }
 
-void ShaderProgram::setUniform(const std::string& name, int val) {
+void Shader::setUniform(const std::string& name, int val) {
   glUniform1i(getUniform(name), val);
 }
 
 
-void ShaderProgram::use() const {
+void Shader::bind() const {
   glUseProgram(program);
 }
-void ShaderProgram::unuse() const {
+void Shader::unbind() const {
   glUseProgram(0);
 }
 
