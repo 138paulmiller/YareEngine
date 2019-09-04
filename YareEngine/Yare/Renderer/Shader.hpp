@@ -1,13 +1,10 @@
 
 #pragma once
-
-#define GLM_FORCE_RADIANS
-#include <GL/glew.h>
 #include <glm/glm.hpp>
-#include <initializer_list>
-#include <map>
 #include <string>
 
+namespace yare
+{
 
 // Shader Interface
 class Shader {
@@ -33,8 +30,10 @@ class Shader {
 	virtual void setUniform(const std::string& name, const glm::dmat4& m) = 0;
 	virtual void setUniform(const std::string& name, const glm::mat4& m)  = 0;
 	virtual void setUniform(const std::string& name, const glm::mat3& m)  = 0;
-	virtual void setUniform(const std::string& name, float val) =0;
-	virtual void setUniform(const std::string& name, int val)   =0;
+	virtual void setUniform(const std::string& name, float val) = 0;
+	virtual void setUniform(const std::string& name, int val  ) = 0;
 
 
 };
+
+}

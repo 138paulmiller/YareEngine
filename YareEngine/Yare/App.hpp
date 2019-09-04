@@ -15,6 +15,10 @@ struct GLFWwindow;
 //To do create a window manager ! App can spawn and manage windowes c classes
 void getFileContents(const std::string& filename, std::string& contents);
 
+namespace yare
+{
+
+
 class App {
  public:
   App();
@@ -40,25 +44,6 @@ class App {
   int getHeight();
   float getWindowRatio();
   void resizeWindow(int newWidth, int newHeight);
- private:
-  enum State { stateReady, stateRun, stateExit };
-
-  State state;
-
-  App& operator=(const App&) { return *this; }
-
-  //TODO Move to window class
-  GLFWwindow* window;
-
-  // Time:
-  float time;
-  float deltaTime;
-
-  // Dimensions:
-  int width;
-  int height;
-
-  void detectWindowResize();
 
  protected:
   //The Event Interface
@@ -66,8 +51,31 @@ class App {
  
   // By default resizes viewport 
   virtual void onWindowResize(int newWidth, int newHeigh);
+  void detectWindowResize();
 
-  std::string title;
+
+private:
+	enum State { stateReady, stateRun, stateExit };
+
+	State _state;
+
+	App& operator=(const App&) { return *this; }
+
+	//TODO Move to window class
+	GLFWwindow* _window;
+
+	// Time:
+	float _time;
+	float _deltaTime;
+
+	// Dimensions:
+	int _width;
+	int _height;
+	std::string _title;
+
+
 
 };
+
+}
 

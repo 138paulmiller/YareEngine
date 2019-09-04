@@ -2,6 +2,8 @@
 #include "Platform.hpp"
 #include "Error.hpp"
 #include "OpenGL/OpenGLVertexArray.hpp"
+namespace yare
+{
 
 VertexArray* VertexArray::Create()
 {
@@ -40,3 +42,4 @@ const std::unique_ptr<IndexBuffer>& VertexArray::getIndexBuffer() const
 	return _indexBuffer;
 }
 
+}

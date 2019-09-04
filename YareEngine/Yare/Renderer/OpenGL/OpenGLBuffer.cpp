@@ -1,26 +1,28 @@
 #include "OpenGLBuffer.hpp"
 #include "OpenGLCommon.hpp"
+namespace yare
+{
 
 OpenGLVertexBuffer::OpenGLVertexBuffer(const BufferLayout & layout)
 	:_layout(layout)
 {
-	glCreateBuffers(1, &_buffer);
+	glCreateBuffers(1, &_vbo);
 
 }
 OpenGLVertexBuffer::~OpenGLVertexBuffer()
 {
-	glDeleteBuffers(1, &_buffer);
+	glDeleteBuffers(1, &_vbo);
 }
 
 void OpenGLVertexBuffer::setData(void* data, unsigned int size, bool isDynamic )
 {
-	glBindBuffer(GL_ARRAY_BUFFER, _buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glBufferData(GL_ARRAY_BUFFER, size, data, isDynamic ? GL_DYNAMIC_DRAW  : GL_STATIC_DRAW);
 }
 
 void OpenGLVertexBuffer::bind() const
 {
-	glBindBuffer(GL_ARRAY_BUFFER, _buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 }
 void OpenGLVertexBuffer::unbind() const
 {
@@ -42,18 +44,18 @@ OpenGLIndexBuffer::OpenGLIndexBuffer()
 
 {
 	_count = 0;
-	glCreateBuffers(1, &_buffer);
+	glCreateBuffers(1, &_ibo);
 
 }
 OpenGLIndexBuffer::~OpenGLIndexBuffer()
 {
-	glDeleteBuffers(1, &_buffer);
+	glDeleteBuffers(1, &_ibo);
 }
 
 void OpenGLIndexBuffer::setData(unsigned int * data, unsigned int count)
 {
 	_count = count;
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
 }
 
@@ -63,7 +65,7 @@ unsigned int OpenGLIndexBuffer::getIndexCount() const
 }
 void OpenGLIndexBuffer::bind() const
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
 }
 void OpenGLIndexBuffer::unbind() const
 {
@@ -73,3 +75,4 @@ void OpenGLIndexBuffer::unbind() const
 
 
 
+}

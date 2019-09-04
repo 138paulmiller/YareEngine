@@ -5,6 +5,8 @@
 #include <iostream>
 #include <string>
 
+namespace yare
+{
 
 void _OpenGLCheckError(const char* file, unsigned int line, std::ostream & out )
 {  GLenum errorCode = glGetError();
@@ -30,3 +32,4 @@ void _OpenGLCheckError(const char* file, unsigned int line, std::ostream & out )
   }
 }
 
+}

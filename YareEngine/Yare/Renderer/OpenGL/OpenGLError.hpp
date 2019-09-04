@@ -1,6 +1,9 @@
 
 #pragma once
 #include <iostream>
+
+namespace  yare
+{
 // Ask Opengl for errors:
 void _OpenGLCheckError(const char* file, unsigned int line, std::ostream & out = std::cout);
 
@@ -10,3 +13,6 @@ void _OpenGLCheckError(const char* file, unsigned int line, std::ostream & out =
 #define OpenGLCheckError() 
 
 #endif 
+
+}
+

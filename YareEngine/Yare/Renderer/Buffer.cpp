@@ -2,6 +2,8 @@
 #include "Error.hpp"
 #include "Platform.hpp"
 #include "OpenGL/OpenGLBuffer.hpp"
+namespace yare
+{
 
 
 ////////////////////////// BufferElement  /////////////////////////////////////
@@ -85,3 +87,4 @@ IndexBuffer* IndexBuffer::Create()
 }
 
 
+}

@@ -1,6 +1,8 @@
 #pragma once
 #include <Yare/Renderer/VertexArray.hpp>
 #include <memory>
+namespace yare
+{
 
 class OpenGLVertexArray : public VertexArray
 {
@@ -14,6 +16,11 @@ public:
 protected : 
 private:
 	unsigned int _vao; //handle to the vertex array object
-	unsigned int _vertexBufferIndex;  //current vertex buffer index., Used to maintain index offset when multiple buffers or woven buffers are added
-
+	//For each element describes and attribute. 
+	//This holds the next available attribute location
+	unsigned int _vertexAttributeIndex; 
+	
 };
+
+
+}

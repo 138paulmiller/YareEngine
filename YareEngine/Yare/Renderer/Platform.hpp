@@ -1,5 +1,8 @@
 #pragma once
 
+namespace yare
+{
+
 enum class Platform
 {
 	None = 0,
@@ -7,3 +10,5 @@ enum class Platform
 };
 void SetPlatform(Platform platform);
 Platform CurrentPlatform();
+
+}

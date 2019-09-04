@@ -7,29 +7,10 @@
 #include <iostream>
 #include <stdexcept>
 
- // file reading - move to os layer
-void getFileContents(const std::string& filename, std::string& contents) {
-	std::ifstream file(filename, std::ios_base::binary);
-	if (file) {
-		file.seekg(0, std::ios_base::end);
-		std::streamsize size = file.tellg();
-		if (size > 0) {
-			file.seekg(0, std::ios_base::beg);
-			contents.resize(static_cast<size_t>(size));
-			file.read(&contents[0], size);
-		}
-		contents.push_back('\0');
-	}
-	else {
-		throw std::invalid_argument(std::string("The file ") + filename +
-			" doesn't exists");
-	}
-}
 
 
-
-
-using namespace std;
+namespace yare
+{
 
 App* currentApp = NULL;
 
@@ -41,10 +22,10 @@ App& App::getInstance() {
 }
 
 App::App()
-    : state(stateReady), width(640), height(480), title("App") {
+    : _state(stateReady), _width(640), _height(480), _title("App") {
   currentApp = this;
 
-  cout << "[Info] GLFW initialisation" << endl;
+  std::cout << "[Info] GLFW initialisation" << std::endl;
 
   // initialize the GLFW library
   if (!glfwInit()) {
@@ -60,28 +41,28 @@ App::App()
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   // create the window
-  window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
-  if (!window) {
+  _window = glfwCreateWindow(_width, _height, _title.c_str(), NULL, NULL);
+  if (!_window) {
     glfwTerminate();
     throw std::runtime_error("Couldn't create a window");
   }
 
-  glfwMakeContextCurrent(window);
+  glfwMakeContextCurrent(_window);
 
   glewExperimental = GL_TRUE;
   GLenum err = glewInit();
 
   if (err != GLEW_OK) {
     glfwTerminate();
-    throw std::runtime_error(string("Could initialize GLEW, error = ") +
+    throw std::runtime_error(std::string("Could initialize GLEW, error = ") +
                              (const char*)glewGetErrorString(err));
   }
 
   // get version info
   const GLubyte* renderer = glGetString(GL_RENDERER);
   const GLubyte* version = glGetString(GL_VERSION);
-  cout << "Renderer: " << renderer << endl;
-  cout << "OpenGL version supported " << version << endl;
+  std::cout << "Renderer: " << renderer << std::endl;
+  std::cout << "OpenGL version supported " << version << std::endl;
 
   // opengl configuration
   glEnable(GL_DEPTH_TEST);  // enable depth-testing
@@ -92,34 +73,41 @@ App::App()
 }
 
 GLFWwindow* App::getWindow() const {
-  return window;
+  return _window;
 }
 
 void App::exit() {
-  state = stateExit;
+  _state = stateExit;
 }
 
 float App::getDeltaTime() const {
-  return deltaTime;
+  return _deltaTime;
 }
 
 float App::getTime() const {
-  return time;
+  return _time;
 }
 
 void App::run() {
-  state = stateRun;
+  _state = stateRun;
 
   // Make the window's context current
-  glfwMakeContextCurrent(window);
+  glfwMakeContextCurrent(_window);
 
-  time = glfwGetTime();
+  _time = glfwGetTime();
 
-  while (state == stateRun) {
+  while (_state == stateRun) {
+
+	  // exit on window close button pressed
+	  if (glfwWindowShouldClose(_window))
+	  {
+		  break;
+	  }
+
     // compute new time and delta time
     float t = glfwGetTime();
-    deltaTime = t - time;
-    time = t;
+    _deltaTime = t - _time;
+    _time = t;
 
     // detech window related changes
 	detectWindowResize();
@@ -128,7 +116,7 @@ void App::run() {
     onRender();
 
     // Swap Front and Back buffers (double buffering)
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(_window);
 
     // Pool and process events
     glfwPollEvents();
@@ -142,7 +130,7 @@ void App::detectWindowResize()
 {
 	int newWidth, newHeight;
 	glfwGetWindowSize(getWindow(), &newWidth, &newHeight);
-	bool dimensionChanged = (newWidth != width || newHeight != height);
+	bool dimensionChanged = (newWidth != _width || newHeight != _height);
 	if (dimensionChanged) {
 
 		onWindowResize(newWidth, newHeight);
@@ -150,9 +138,9 @@ void App::detectWindowResize()
 
 }
 void App::resizeWindow(int newWidth, int newHeight) {
-	width = newWidth;
-	height = newHeight;
-	glViewport(0, 0, width, height);
+	_width = newWidth;
+	_height = newHeight;
+	glViewport(0, 0, _width, _height);
 }
 
 
@@ -162,18 +150,19 @@ void App::onWindowResize(int newWidth, int newHeight) {
 }
 
 void App::onRender() {
-  cout << "[INFO] : loop" << endl;
+	std::cout << "[INFO] : loop" << std::endl;
 }
 
 int App::getWidth() {
-  return width;
+  return _width;
 }
 
 int App::getHeight() {
-  return height;
+  return _height;
 }
 
 float App::getWindowRatio() {
-  return float(width) / float(height);
+  return float(_width) / float(_height);
 }
 
+}

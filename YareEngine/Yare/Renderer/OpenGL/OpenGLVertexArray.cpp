@@ -1,6 +1,8 @@
 #include "OpenGLVertexArray.hpp"
 #include "OpenGLCommon.hpp"
 #include <Yare/Renderer/Error.hpp>
+namespace yare
+{
 
 static unsigned int BufferElementTypeToOpenGLType(BufferElementType type)
 {
@@ -26,7 +28,7 @@ static unsigned int BufferElementTypeToOpenGLType(BufferElementType type)
 OpenGLVertexArray::OpenGLVertexArray()
 {
 	glCreateVertexArrays(1, &_vao);
-	_vertexBufferIndex = 0;
+	_vertexAttributeIndex = 0;
 }
 
 OpenGLVertexArray::~OpenGLVertexArray()
@@ -50,24 +52,25 @@ void OpenGLVertexArray::unbind() const
 
 void OpenGLVertexArray::addVertexBuffer(VertexBuffer* buffer) 
 {
-	VertexArray::addVertexBuffer(buffer);
-
+	
 	bind();
 	buffer->bind();
 
 	const BufferLayout& layout = buffer->getLayout();
-
 	for (const BufferElement& element : layout.getElements())
 	{
-		std::cout << element.offset << "\n";
-		glEnableVertexAttribArray(_vertexBufferIndex);
-		glVertexAttribPointer(_vertexBufferIndex,
+		glEnableVertexAttribArray(_vertexAttributeIndex);
+		glVertexAttribPointer(_vertexAttributeIndex,
 			element.componentCount,
 			BufferElementTypeToOpenGLType(element.type),
 			element.isNormalized ? GL_TRUE : GL_FALSE,
 			layout.getStride(),
 			reinterpret_cast<void*>(element.offset));
-		_vertexBufferIndex++;
+		_vertexAttributeIndex++;
 	}
 	OpenGLCheckError();
+	VertexArray::addVertexBuffer(buffer);
+
+}
+
 }

@@ -1,4 +1,6 @@
 #include "Platform.hpp"
+namespace yare
+{
 
 static Platform _currentPlatform = Platform::None;
 
@@ -10,4 +12,6 @@ void SetPlatform(Platform platform)
 Platform CurrentPlatform()
 {
 	return _currentPlatform;
+}
+
 }

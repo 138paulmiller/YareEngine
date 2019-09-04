@@ -2,9 +2,8 @@
 #include "OpenGLShader.hpp"
 
 #include "OpenGLError.hpp"
-#include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "OpenGLCommon.hpp"
+
 
 #include <cstdlib>
 #include <fstream>
@@ -12,6 +11,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <vector>
+namespace yare
+{
 
 
 OpenGLShader::OpenGLShader()
@@ -198,3 +199,4 @@ void OpenGLShader::setUniform(const std::string& name, int val) {
 }
 
 
+}

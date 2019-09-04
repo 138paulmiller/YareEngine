@@ -40,3 +40,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC libglew_static)
 add_subdirectory(ThirdParty/glm EXCLUDE_FROM_ALL)
 target_link_libraries(${PROJECT_NAME} PUBLIC glm)
 
+
+target_include_directories(${PROJECT_NAME} PUBLIC "ThirdParty/stb")
+

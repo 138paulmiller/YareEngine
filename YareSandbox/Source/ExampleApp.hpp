@@ -3,9 +3,12 @@
 #define OPENGL_CMAKE_SKELETON_MYApp
 
 #include <Yare/App.hpp>
+#include <Yare/FileSystem.hpp>
 #include <Yare/Renderer/Shader.hpp>
 #include <Yare/Renderer/Platform.hpp>
 #include <Yare/Renderer/VertexArray.hpp>
+
+using namespace yare;
 
 class ExampleApp : public App {
  public:

@@ -1,5 +1,7 @@
 #pragma once
 #include  <Yare/Renderer/Buffer.hpp>
+namespace yare
+{
 
 class OpenGLVertexBuffer : public VertexBuffer
 {
@@ -16,8 +18,9 @@ public:
 	void setLayout(const BufferLayout& layout) override;
 
 private: 
-	//opengl buffer handle
-	unsigned int _buffer;
+	
+	//handle to Vertex Buffer Object
+	unsigned int _vbo;
 	BufferLayout _layout;
 };
 
@@ -35,8 +38,9 @@ public:
 	void bind() const override;
 	void unbind() const override;
 private:
-	//opengl buffer handle
-	unsigned int _buffer;
+	//handle to index Buffer Object
+	unsigned int _ibo;
 	unsigned int _count;
 };
 
+}

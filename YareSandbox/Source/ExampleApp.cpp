@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_operation.hpp>
+
 #include <iostream>
 #include <vector>
 
@@ -43,8 +44,8 @@ ExampleApp::ExampleApp(){
 	SetPlatform(Platform::OpenGL);
 
 	std::string vertSource, fragSource;
-	getFileContents( SHADER_DIR "/shader.vert",vertSource );
-	getFileContents(SHADER_DIR "/shader.frag", fragSource );
+	FileSystem::readFile( SHADER_DIR "/shader.vert",vertSource );
+	FileSystem::readFile(SHADER_DIR "/shader.frag", fragSource );
 
 	simpleShader = std::shared_ptr<Shader>(Shader::Create());
 
@@ -78,7 +79,7 @@ ExampleApp::ExampleApp(){
 
 	// creation of the vertex array buffer----------------------------------------
 	//1 . Create VAO, then VBO, then IBO
-	vertexArray= std::shared_ptr< VertexArray> (VertexArray::Create());
+	vertexArray = std::shared_ptr< VertexArray>(VertexArray::Create());
 	vertexArray->bind();
 
 	BufferLayout vertexLayout = {
@@ -89,10 +90,13 @@ ExampleApp::ExampleApp(){
 	};
 	VertexBuffer * vertexBuffer = VertexBuffer::Create(vertexLayout);
 	vertexBuffer->setData(&vertices[0], vertices.size() * sizeof(VertexType));
-	vertexArray->addVertexBuffer(vertexBuffer);
-
+	
+	
 	IndexBuffer* indexBuffer = IndexBuffer::Create();
 	indexBuffer->setData(&indices[0], indices.size() );
+	
+
+	vertexArray->addVertexBuffer(vertexBuffer);
 	vertexArray->setIndexBuffer(indexBuffer);
 
 	vertexArray->unbind();
@@ -100,9 +104,7 @@ ExampleApp::ExampleApp(){
 }
 #include <Yare/Renderer/OpenGL/OpenGLError.hpp>
 void ExampleApp::onRender() {
-  // exit on window close button pressed
-  if (glfwWindowShouldClose(getWindow()))
-    exit();
+  
 
   float t = getTime();
   // set matrix : projection + view
