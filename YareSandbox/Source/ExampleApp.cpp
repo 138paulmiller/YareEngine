@@ -41,7 +41,7 @@ VertexType getHeightMap(const glm::vec2 position) {
 
 ExampleApp::ExampleApp(){
 
-	SetPlatform(Platform::OpenGL);
+	Platform::Current().setRenderer(PlatformRenderer::OpenGL);
 
 	std::string vertSource, fragSource;
 	FileSystem::readFile( SHADER_DIR "/shader.vert",vertSource );

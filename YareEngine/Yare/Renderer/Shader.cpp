@@ -11,10 +11,12 @@ namespace yare
 
 Shader * Shader::Create()
 {
-	switch (CurrentPlatform())
+	switch (Platform::Current().getRenderer())
 	{
-	case Platform::OpenGL: return new OpenGLShader();
-	default: YARE_ASSERT(false, "No Render platform selected! "); return 0;
+	case PlatformRenderer::OpenGL:
+		return new OpenGLShader();
+	default: 
+		YARE_ASSERT(false, "No Render platform selected! "); return 0;
 	}
 }
 

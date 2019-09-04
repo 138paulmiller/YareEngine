@@ -65,9 +65,9 @@ VertexBuffer* VertexBuffer::Create(const BufferLayout& layout)
 		YARE_ASSERT(false, " Failed to add Vertex Buffer. You must set the layout!");
 		return 0 ;
 	}
-	switch (CurrentPlatform())
+	switch (Platform::Current().getRenderer())
 	{
-	case Platform::OpenGL: 
+	case PlatformRenderer::OpenGL: 
 		return new OpenGLVertexBuffer(layout);
 	default: 
 		YARE_ASSERT(false, "No Render platform selected! "); return 0;
@@ -77,9 +77,9 @@ VertexBuffer* VertexBuffer::Create(const BufferLayout& layout)
 
 IndexBuffer* IndexBuffer::Create()
 {
-	switch (CurrentPlatform())
+	switch (Platform::Current().getRenderer())
 	{
-	case Platform::OpenGL: 
+	case PlatformRenderer::OpenGL:
 		return new OpenGLIndexBuffer();
 	default: 
 		YARE_ASSERT(false, "No Render platform selected! "); return 0;

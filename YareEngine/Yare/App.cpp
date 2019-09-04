@@ -144,15 +144,6 @@ void App::resizeWindow(int newWidth, int newHeight) {
 }
 
 
-// Interface Events
-void App::onWindowResize(int newWidth, int newHeight) {
-	resizeWindow(newWidth, newHeight);
-}
-
-void App::onRender() {
-	std::cout << "[INFO] : loop" << std::endl;
-}
-
 int App::getWidth() {
   return _width;
 }
@@ -164,5 +155,21 @@ int App::getHeight() {
 float App::getWindowRatio() {
   return float(_width) / float(_height);
 }
+
+// Interface Events
+void App::onWindowResize(int newWidth, int newHeight) {
+	resizeWindow(newWidth, newHeight);
+}
+
+void App::onRender() {
+	std::cout << "[INFO] : loop" << std::endl;
+}
+
+void App::onLoad(const AppConfig& config)
+{
+
+	std::cout << "[INFO] : Loaded" << std::endl;
+}
+
 
 }

@@ -2,16 +2,16 @@
 namespace yare
 {
 
-static Platform _currentPlatform = Platform::None;
 
-void SetPlatform(Platform platform)
-{
-	_currentPlatform = platform;
-}
+	Platform& Platform::Current()
+	{
+		static Platform _currentPlatform;
+		return _currentPlatform;
+	}
 
-Platform CurrentPlatform()
-{
-	return _currentPlatform;
-}
+	Platform::Platform()
+	{
+		_renderer = PlatformRenderer::None;
+	}
 
 }

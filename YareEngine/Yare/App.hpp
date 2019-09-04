@@ -18,6 +18,9 @@ void getFileContents(const std::string& filename, std::string& contents);
 namespace yare
 {
 
+	struct AppConfig 
+	{
+	};
 
 class App {
  public:
@@ -46,6 +49,9 @@ class App {
   void resizeWindow(int newWidth, int newHeight);
 
  protected:
+  //The Event Interface
+  virtual void onLoad(const AppConfig & config );
+
   //The Event Interface
   virtual void onRender();
  

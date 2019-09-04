@@ -7,9 +7,9 @@ namespace yare
 
 VertexArray* VertexArray::Create()
 {
-	switch (CurrentPlatform())
+	switch (Platform::Current().getRenderer())
 	{
-	case Platform::OpenGL: return new OpenGLVertexArray();
+	case PlatformRenderer::OpenGL: return new OpenGLVertexArray();
 	default: YARE_ASSERT(false, "No Render platform selected! "); return 0;
 	}
 }
