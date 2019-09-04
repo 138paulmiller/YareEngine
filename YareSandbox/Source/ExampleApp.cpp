@@ -51,18 +51,19 @@ ExampleApp::ExampleApp(){
 	simpleShader->compile(vertSource, fragSource);
 
   // creation of the mesh ------------------------------------------------------
-  std::vector<VertexType> vertices;
-  std::vector<unsigned int> indices;
+	std::vector<VertexType> vertices;
+	std::vector<unsigned int> indices;
+  
 
-  for (int y = 0; y <= size; ++y)
-    for (int x = 0; x <= size; ++x) {
-      float xx = (x - size / 2) * 0.1f;
-      float yy = (y - size / 2) * 0.1f;
-      vertices.push_back(getHeightMap({xx, yy}));
-    }
+	for (int y = 0; y <= size; ++y)
+		for (int x = 0; x <= size; ++x) {
+			float xx = (x - size / 2) * 0.1f;
+			float yy = (y - size / 2) * 0.1f;
+			vertices.push_back(getHeightMap({xx, yy}));
+	}
 
-  for (int y = 0; y < size; ++y)
-    for (int x = 0; x < size; ++x) {
+	for (int y = 0; y < size; ++y)
+	for (int x = 0; x < size; ++x) {
 		indices.push_back((x + 0) + (size + 1) * (y + 0));
 		indices.push_back((x + 1) + (size + 1) * (y + 0));
 		indices.push_back((x + 1) + (size + 1) * (y + 1));
@@ -70,34 +71,34 @@ ExampleApp::ExampleApp(){
 		indices.push_back((x + 1) + (size + 1) * (y + 1));
 		indices.push_back((x + 0) + (size + 1) * (y + 1));
 		indices.push_back((x + 0) + (size + 1) * (y + 0));
-    }
+	}
 
-  std::cout << "vertices=" << vertices.size() << std::endl;
-  std::cout << "index=" << indices.size() << std::endl;
+	std::cout << "vertices=" << vertices.size() << std::endl;
+	std::cout << "index=" << indices.size() << std::endl;
 
-  // creation of the vertex array buffer----------------------------------------
-  //1 . Create VAO, then VBO, then IBO
-  vertexArray= std::shared_ptr< VertexArray> (VertexArray::Create());
-  vertexArray->bind();
+	// creation of the vertex array buffer----------------------------------------
+	//1 . Create VAO, then VBO, then IBO
+	vertexArray= std::shared_ptr< VertexArray> (VertexArray::Create());
+	vertexArray->bind();
 
-  BufferLayout vertexLayout = {
+	BufferLayout vertexLayout = {
 
-	  {BufferElementType::Float3, "position"},
-	  {BufferElementType::Float3, "normal"},
-	  {BufferElementType::Float3, "color"},
-  };
-  VertexBuffer * vertexBuffer = VertexBuffer::Create(vertexLayout);
-  vertexBuffer->setData(&vertices[0], vertices.size() * sizeof(VertexType));
-  vertexArray->addVertexBuffer(vertexBuffer);
+		{BufferElementType::Float3, "position"},
+		{BufferElementType::Float3, "normal"},
+		{BufferElementType::Float4, "color"},
+	};
+	VertexBuffer * vertexBuffer = VertexBuffer::Create(vertexLayout);
+	vertexBuffer->setData(&vertices[0], vertices.size() * sizeof(VertexType));
+	vertexArray->addVertexBuffer(vertexBuffer);
 
-  IndexBuffer* indexBuffer = IndexBuffer::Create();
-  vertexBuffer->setData(&indices[0], indices.size() );
-  vertexArray->setIndexBuffer(indexBuffer);
+	IndexBuffer* indexBuffer = IndexBuffer::Create();
+	indexBuffer->setData(&indices[0], indices.size() );
+	vertexArray->setIndexBuffer(indexBuffer);
 
-  vertexArray->unbind();
+	vertexArray->unbind();
 
 }
-
+#include <Yare/Renderer/OpenGL/OpenGLError.hpp>
 void ExampleApp::onRender() {
   // exit on window close button pressed
   if (glfwWindowShouldClose(getWindow()))
@@ -117,19 +118,15 @@ void ExampleApp::onRender() {
 
   simpleShader->bind();
 
-  // send uniforms
+  
   simpleShader->setUniform("projection", projection);
   simpleShader->setUniform("view", view);
-  
-  
   vertexArray->bind();
-
   glDrawElements(GL_TRIANGLES,         // mode
-	  vertexArray->getIndexBuffer()->getIndexCount(),  // count
+	  vertexArray->getIndexBuffer()->getIndexCount() ,  // count
                  GL_UNSIGNED_INT,      // type
                  NULL                  // element array buffer offset
   );
-
   vertexArray->unbind();
 
   simpleShader->unbind();

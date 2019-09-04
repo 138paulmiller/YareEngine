@@ -14,7 +14,7 @@ OpenGLVertexBuffer::~OpenGLVertexBuffer()
 
 void OpenGLVertexBuffer::setData(void* data, unsigned int size, bool isDynamic )
 {
-	bind();
+	glBindBuffer(GL_ARRAY_BUFFER, _buffer);
 	glBufferData(GL_ARRAY_BUFFER, size, data, isDynamic ? GL_DYNAMIC_DRAW  : GL_STATIC_DRAW);
 }
 
@@ -52,8 +52,8 @@ OpenGLIndexBuffer::~OpenGLIndexBuffer()
 
 void OpenGLIndexBuffer::setData(unsigned int * data, unsigned int count)
 {
-	bind();
 	_count = count;
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _buffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
 }
 

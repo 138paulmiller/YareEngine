@@ -59,13 +59,15 @@ void OpenGLVertexArray::addVertexBuffer(VertexBuffer* buffer)
 
 	for (const BufferElement& element : layout.getElements())
 	{
+		std::cout << element.offset << "\n";
 		glEnableVertexAttribArray(_vertexBufferIndex);
 		glVertexAttribPointer(_vertexBufferIndex,
 			element.componentCount,
 			BufferElementTypeToOpenGLType(element.type),
 			element.isNormalized ? GL_TRUE : GL_FALSE,
 			layout.getStride(),
-			(const void*)(&element.offset));
+			reinterpret_cast<void*>(element.offset));
 		_vertexBufferIndex++;
 	}
+	OpenGLCheckError();
 }

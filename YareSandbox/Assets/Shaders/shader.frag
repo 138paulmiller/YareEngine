@@ -2,7 +2,7 @@
 
 in vec4 fPosition;
 in vec4 fColor;
-vec4 fLightPosition;
+in vec4 fLightPosition;
 in vec3 fNormal;
 
 // output

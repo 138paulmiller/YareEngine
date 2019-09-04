@@ -71,6 +71,7 @@ unsigned int  OpenGLShader::compileStage(const std::string& source, GLenum type)
 
 	}
 	else {
+		
 	}
 	return stage;
 }
@@ -109,6 +110,10 @@ void OpenGLShader::compile(const std::string& vertSource, const std::string& fra
 		glGetProgramInfoLog(program, logsize, &logsize, log);
 
 		std::cout << log << std::endl;
+	}
+	else
+	{
+		std::cout << "Compiled" << std::endl << vertSource << std::endl << fragSource << std::endl;
 	}
 	OpenGLCheckError();
 
