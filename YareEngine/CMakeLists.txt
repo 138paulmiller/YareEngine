@@ -8,7 +8,10 @@ file(GLOB_RECURSE YARE_HEADERS CONFIGURE_DEPENDS "Yare/*.hpp")
 file(GLOB_RECURSE YARE_SOURCE  CONFIGURE_DEPENDS "Yare/*.cpp")
 
 source_group(Yare REGULAR_EXPRESSION "Yare/.*")
-source_group(Yare\\GL REGULAR_EXPRESSION "Yare/GL/.*")
+source_group(Yare\\System REGULAR_EXPRESSION "Yare/System/.*")
+
+source_group(Yare\\Renderer REGULAR_EXPRESSION "Yare/Renderer/.*")
+source_group(Yare\\Renderer\\OpenGL REGULAR_EXPRESSION "Yare/Renderer/OpenGL/.*")
 
 add_library(${PROJECT_NAME} ${YARE_SOURCE} ${YARE_HEADERS} )
 

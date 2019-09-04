@@ -40,14 +40,19 @@ VertexType getHeightMap(const glm::vec2 position) {
 
 ExampleApp::ExampleApp(){
 
+	SetPlatform(Platform::OpenGL);
+
 	std::string vertSource, fragSource;
 	getFileContents( SHADER_DIR "/shader.vert",vertSource );
 	getFileContents(SHADER_DIR "/shader.frag", fragSource );
-	shaderProgram.compile(vertSource, fragSource);
+
+	simpleShader = std::shared_ptr<Shader>(Shader::Create());
+
+	simpleShader->compile(vertSource, fragSource);
 
   // creation of the mesh ------------------------------------------------------
   std::vector<VertexType> vertices;
-  std::vector<GLuint> index;
+  std::vector<unsigned int> indices;
 
   for (int y = 0; y <= size; ++y)
     for (int x = 0; x <= size; ++x) {
@@ -58,54 +63,39 @@ ExampleApp::ExampleApp(){
 
   for (int y = 0; y < size; ++y)
     for (int x = 0; x < size; ++x) {
-      index.push_back((x + 0) + (size + 1) * (y + 0));
-      index.push_back((x + 1) + (size + 1) * (y + 0));
-      index.push_back((x + 1) + (size + 1) * (y + 1));
+		indices.push_back((x + 0) + (size + 1) * (y + 0));
+		indices.push_back((x + 1) + (size + 1) * (y + 0));
+		indices.push_back((x + 1) + (size + 1) * (y + 1));
 
-      index.push_back((x + 1) + (size + 1) * (y + 1));
-      index.push_back((x + 0) + (size + 1) * (y + 1));
-      index.push_back((x + 0) + (size + 1) * (y + 0));
+		indices.push_back((x + 1) + (size + 1) * (y + 1));
+		indices.push_back((x + 0) + (size + 1) * (y + 1));
+		indices.push_back((x + 0) + (size + 1) * (y + 0));
     }
 
   std::cout << "vertices=" << vertices.size() << std::endl;
-  std::cout << "index=" << index.size() << std::endl;
+  std::cout << "index=" << indices.size() << std::endl;
 
   // creation of the vertex array buffer----------------------------------------
+  //1 . Create VAO, then VBO, then IBO
+  vertexArray= std::shared_ptr< VertexArray> (VertexArray::Create());
+  vertexArray->bind();
 
-  // vbo
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VertexType),
-               vertices.data(), GL_STATIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  BufferLayout vertexLayout = {
 
-  // ibo
-  glGenBuffers(1, &ibo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, index.size() * sizeof(GLuint),
-               index.data(), GL_STATIC_DRAW);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	  {BufferElementType::Float3, "position"},
+	  {BufferElementType::Float3, "normal"},
+	  {BufferElementType::Float3, "color"},
+  };
+  VertexBuffer * vertexBuffer = VertexBuffer::Create(vertexLayout);
+  vertexBuffer->setData(&vertices[0], vertices.size() * sizeof(VertexType));
+  vertexArray->addVertexBuffer(vertexBuffer);
 
-  // vao
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
+  IndexBuffer* indexBuffer = IndexBuffer::Create();
+  vertexBuffer->setData(&indices[0], indices.size() );
+  vertexArray->setIndexBuffer(indexBuffer);
 
-  // bind vbo
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  vertexArray->unbind();
 
-  // map vbo to shader attributes
-  shaderProgram.setAttribute("position", 3, sizeof(VertexType),
-                             offsetof(VertexType, position));
-  shaderProgram.setAttribute("normal", 3, sizeof(VertexType),
-                             offsetof(VertexType, normal));
-  shaderProgram.setAttribute("color", 4, sizeof(VertexType),
-                             offsetof(VertexType, color));
-
-  // bind the ibo
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-
-  // vao end
-  glBindVertexArray(0);
 }
 
 void ExampleApp::onRender() {
@@ -125,24 +115,22 @@ void ExampleApp::onRender() {
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  shaderProgram.bind();
+  simpleShader->bind();
 
   // send uniforms
-  shaderProgram.setUniform("projection", projection);
-  shaderProgram.setUniform("view", view);
-
-  glBindVertexArray(vao);
-
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+  simpleShader->setUniform("projection", projection);
+  simpleShader->setUniform("view", view);
+  
+  
+  vertexArray->bind();
 
   glDrawElements(GL_TRIANGLES,         // mode
-                 size * size * 2 * 3,  // count
+	  vertexArray->getIndexBuffer()->getIndexCount(),  // count
                  GL_UNSIGNED_INT,      // type
                  NULL                  // element array buffer offset
   );
 
-  glBindVertexArray(0);
+  vertexArray->unbind();
 
-  shaderProgram.unbind();
+  simpleShader->unbind();
 }

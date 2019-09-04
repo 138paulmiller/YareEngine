@@ -3,7 +3,9 @@
 #define OPENGL_CMAKE_SKELETON_MYApp
 
 #include <Yare/App.hpp>
-#include <Yare/GL/Shader.hpp>
+#include <Yare/Renderer/Shader.hpp>
+#include <Yare/Renderer/Platform.hpp>
+#include <Yare/Renderer/VertexArray.hpp>
 
 class ExampleApp : public App {
  public:
@@ -18,14 +20,14 @@ class ExampleApp : public App {
 
   // shader
 
-  Shader shaderProgram;
+  std::shared_ptr<Shader > simpleShader;
 
   // shader matrix uniform
   glm::mat4 projection = glm::mat4(1.0);
   glm::mat4 view = glm::mat4(1.0);
 
   // VBO/VAO/ibo
-  GLuint vao, vbo, ibo;
+  std::shared_ptr<VertexArray> vertexArray;
 };
 
 #endif  // OPENGL_CMAKE_SKELETON_MYApp
