@@ -30,6 +30,7 @@ OpenGLShader::~OpenGLShader()
 void OpenGLShader::destroy()
 {
 	if (program == 0) return;
+	glUseProgram(0);
 	isValid = false;
 	uniforms.clear();
 	//Link the compiled stages
@@ -114,7 +115,7 @@ void OpenGLShader::compile(const std::string& vertSource, const std::string& fra
 	}
 	else
 	{
-		std::cout << "Compiled" << std::endl << vertSource << std::endl << fragSource << std::endl;
+		std::cout << "Compiled!";	
 	}
 	OpenGLCheckError();
 

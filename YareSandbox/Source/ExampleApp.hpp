@@ -6,6 +6,7 @@
 #include <Yare/FileSystem.hpp>
 #include <Yare/Renderer/Shader.hpp>
 #include <Yare/Renderer/Platform.hpp>
+#include <Yare/Renderer/Texture.hpp>
 #include <Yare/Renderer/VertexArray.hpp>
 
 using namespace yare;
@@ -31,6 +32,7 @@ class ExampleApp : public App {
 
   // VBO/VAO/ibo
   std::shared_ptr<VertexArray> vertexArray;
+  std::shared_ptr<Texture> texture;
 };
 
 #endif  // OPENGL_CMAKE_SKELETON_MYApp

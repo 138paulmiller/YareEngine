@@ -15,14 +15,14 @@
 struct VertexType {
   glm::vec3 position;
   glm::vec3 normal;
-  glm::vec4 color;
+  glm::vec2 uv;
 };
 
 float heightMap(const glm::vec2 position) {
   return 2.0 * sin(position.x) * sin(position.y);
 }
 
-VertexType getHeightMap(const glm::vec2 position) {
+VertexType getHeightMap(const glm::vec2 position, const glm::vec2 uv) {
   const glm::vec2 dx(1.0, 0.0);
   const glm::vec2 dy(0.0, 1.0);
 
@@ -35,7 +35,7 @@ VertexType getHeightMap(const glm::vec2 position) {
   v.normal = glm::normalize(glm::vec3(-hx, -hy, 1.0));
 
   float c = sin(h * 5.f) * 0.5 + 0.5;
-  v.color = glm::vec4(c, 1.0 - c, 1.0, 1.0);
+  v.uv = uv;
   return v;
 }
 
@@ -51,7 +51,7 @@ ExampleApp::ExampleApp(){
 
 	simpleShader->compile(vertSource, fragSource);
 
-  // creation of the mesh ------------------------------------------------------
+	// creation of the mesh ------------------------------------------------------
 	std::vector<VertexType> vertices;
 	std::vector<unsigned int> indices;
   
@@ -60,7 +60,7 @@ ExampleApp::ExampleApp(){
 		for (int x = 0; x <= size; ++x) {
 			float xx = (x - size / 2) * 0.1f;
 			float yy = (y - size / 2) * 0.1f;
-			vertices.push_back(getHeightMap({xx, yy}));
+			vertices.push_back(getHeightMap({ xx, yy }, { x/(float)size, y / (float)size }));
 	}
 
 	for (int y = 0; y < size; ++y)
@@ -86,20 +86,32 @@ ExampleApp::ExampleApp(){
 
 		{BufferElementType::Float3, "position"},
 		{BufferElementType::Float3, "normal"},
-		{BufferElementType::Float4, "color"},
+		{BufferElementType::Float2, "uv"},
 	};
 	VertexBuffer * vertexBuffer = VertexBuffer::Create(vertexLayout);
-	vertexBuffer->setData(&vertices[0], vertices.size() * sizeof(VertexType));
+	vertexBuffer->load(&vertices[0], vertices.size() * sizeof(VertexType));
 	
 	
 	IndexBuffer* indexBuffer = IndexBuffer::Create();
-	indexBuffer->setData(&indices[0], indices.size() );
+	indexBuffer->load(&indices[0], indices.size() );
 	
 
 	vertexArray->addVertexBuffer(vertexBuffer);
 	vertexArray->setIndexBuffer(indexBuffer);
 
 	vertexArray->unbind();
+
+	// Load some textures ----------------------------------------
+
+	unsigned char  * data;
+	int width; int height;
+	TextureFormat format;
+
+	Texture::ReadFile("Assets/Models/alliance.png", &data, width, height, format);
+	texture = std::shared_ptr < Texture>(Texture::Create() );
+	texture->load(format, data, 0, width, height);
+	delete data;
+
 
 }
 #include <Yare/Renderer/OpenGL/OpenGLError.hpp>
@@ -123,12 +135,16 @@ void ExampleApp::onRender() {
   
   simpleShader->setUniform("projection", projection);
   simpleShader->setUniform("view", view);
+
+  texture->bind(0);
   vertexArray->bind();
   glDrawElements(GL_TRIANGLES,         // mode
 	  vertexArray->getIndexBuffer()->getIndexCount() ,  // count
                  GL_UNSIGNED_INT,      // type
                  NULL                  // element array buffer offset
   );
+
+  texture->unbind();
   vertexArray->unbind();
 
   simpleShader->unbind();

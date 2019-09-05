@@ -9,7 +9,7 @@ public:
 	OpenGLVertexBuffer(const BufferLayout & layout);
 	virtual ~OpenGLVertexBuffer();
 
-	void setData(void* data, unsigned int size, bool isDynamic = false) override;
+	void load(void* data, unsigned int size, bool isDynamic = false) override;
 	
 	void bind() const override;
 	void unbind() const override;
@@ -32,7 +32,7 @@ public:
 	OpenGLIndexBuffer();
 	virtual ~OpenGLIndexBuffer();
 
-	void setData(unsigned int* data, unsigned int count) override;
+	void load(unsigned int* data, unsigned int count) override;
 
 	unsigned int getIndexCount() const override;
 	void bind() const override;

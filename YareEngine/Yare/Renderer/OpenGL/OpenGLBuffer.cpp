@@ -11,10 +11,11 @@ OpenGLVertexBuffer::OpenGLVertexBuffer(const BufferLayout & layout)
 }
 OpenGLVertexBuffer::~OpenGLVertexBuffer()
 {
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &_vbo);
 }
 
-void OpenGLVertexBuffer::setData(void* data, unsigned int size, bool isDynamic )
+void OpenGLVertexBuffer::load(void* data, unsigned int size, bool isDynamic )
 {
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 	glBufferData(GL_ARRAY_BUFFER, size, data, isDynamic ? GL_DYNAMIC_DRAW  : GL_STATIC_DRAW);
@@ -49,10 +50,12 @@ OpenGLIndexBuffer::OpenGLIndexBuffer()
 }
 OpenGLIndexBuffer::~OpenGLIndexBuffer()
 {
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &_ibo);
 }
 
-void OpenGLIndexBuffer::setData(unsigned int * data, unsigned int count)
+void OpenGLIndexBuffer::load(unsigned int * data, unsigned int count)
 {
 	_count = count;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
