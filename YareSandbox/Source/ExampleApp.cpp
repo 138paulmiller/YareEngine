@@ -25,7 +25,7 @@ VertexType getHeightMap(const glm::vec2 position, const glm::vec2 uv) {
   float hx = 100.f * (heightMap(position + 0.01f * dx) - h);
   float hy = 100.f * (heightMap(position + 0.01f * dy) - h);
 
-  v.position = glm::vec3(position, h);
+  v.position = glm::vec3(position.x, h, position.y);
   v.normal = glm::normalize(glm::vec3(-hx, -hy, 1.0));
 
   float c = sin(h * 5.f) * 0.5 + 0.5;
@@ -37,13 +37,13 @@ ExampleApp::ExampleApp(){
 
 	Platform::Current().setRenderer(PlatformRenderer::OpenGL);
 
-	_skybox.reset(new SkySphere());
+	_skySphere.reset(new SkySphere());
 
 
 	////////////////////////////// Demo Heightmap ////////////////////////////////
 	std::string vertSource, fragSource;
-	FileSystem::readFile(YARE_ASSET("Shaders/shader.vert") ,vertSource );
-	FileSystem::readFile(YARE_ASSET("Shaders/shader.frag") , fragSource );
+	FileSystem::readFile(YARESANDBOX_ASSET("Shaders/shader.vert") ,vertSource );
+	FileSystem::readFile(YARESANDBOX_ASSET("Shaders/shader.frag") , fragSource );
 
 	simpleShader = std::shared_ptr<Shader>(Shader::Create());
 
@@ -104,40 +104,38 @@ ExampleApp::ExampleApp(){
 	texture = std::shared_ptr < Texture>(Texture::Create() );
 
 	TexturePixels pixels;
-	Texture::ReadFile(YARE_ASSET("Models/alliance.png"), pixels);
+	Texture::ReadFile(YARESANDBOX_ASSET("Models/alliance.png"), pixels);
 	TexturePixels pixelsRegion;
 	texture->load(pixels);
 	texture->generateMipMaps();
 
 }
-#include <Yare/Renderer/OpenGL/OpenGLError.hpp>
+
 void ExampleApp::onRender() {
 
 
 	float t = getTime();
 	// set matrix : projection + view
-	projection = glm::perspective(float(2.0 * atan(getHeight() / 1920.f)),
-		getWindowRatio(), 0.1f, 100.f);
-	view = glm::lookAt(glm::vec3(20.0 * sin(t), 20.0 * cos(t), 20.0),
-		glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 0.0, 1.0));
+	projection = glm::perspective(45.0f,getWindowRatio(), 0.1f, 100.f);
 
+	camera.setPosition({ 10.0 * sin(t), 0, 10.0 * cos(t) });
+	camera.lookAt({ 0,0,0 });
 	// clear
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//Create a render config manager for each pass
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
 
 
 
 	simpleShader->bind();
-	model = glm::scale(glm::vec3( 1,1,1 ));
-  
+	
   simpleShader->setUniform("projection", projection);
-  simpleShader->setUniform("view", view);
-  simpleShader->setUniform("model", model);
+  simpleShader->setUniform("view", camera.getView());
+  simpleShader->setUniform("model", glm::mat4(1));
   
   texture->bind(0);
   vertexArray->bind();
@@ -153,15 +151,12 @@ void ExampleApp::onRender() {
   simpleShader->unbind();
   /////////////////////////redner skybox
 
-  _skybox->setModel(glm::scale(glm::vec3(1, 1, 1)));
-  glCullFace(GL_FRONT);
+  model = glm::translate(camera.getPosition());
+  _skySphere->setModel(model);
+
   //glDepthMask(GL_FALSE);
-
-  glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-
-
-  _skybox->render(projection, view);
-  glCullFace(GL_BACK);
+  //glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+  _skySphere->render(projection, camera.getView());
   //glDepthMask(GL_TRUE);
-  glDepthFunc(GL_LESS);
-}
+  //glDepthFunc(GL_LESS);
+} 

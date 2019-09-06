@@ -11,9 +11,6 @@ struct GLFWwindow;
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-// file reading - move to os layer
-//To do create a window manager ! App can spawn and manage windowes c classes
-void getFileContents(const std::string& filename, std::string& contents);
 
 namespace yare
 {
