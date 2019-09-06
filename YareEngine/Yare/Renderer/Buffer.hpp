@@ -74,7 +74,7 @@ public:
 	//Load raw data into the buffer
 	//data is pointer to beginning of data array
 	//size is size of buffer in bytes
-	virtual void load(unsigned int* data, unsigned int count) = 0;
+	virtual void load(unsigned int* data, unsigned int size) = 0;
 	virtual void bind() const = 0;
 	virtual void unbind()const = 0;
 

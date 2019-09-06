@@ -8,7 +8,8 @@ namespace yare
 
 	enum class TextureFormat
 	{
-		R8=0, RG8, RGB8, RGBA8
+		None = 0,
+		R8, RG8, RGB8, RGBA8
 	};
 	enum class TextureType
 	{
@@ -17,39 +18,89 @@ namespace yare
 
 	};
 
+	struct TexturePixels
+	{
+		TexturePixels(
+			unsigned char* data=0,
+			int width=0, int height = 0,
+			TextureFormat format = TextureFormat::None
+		);
+		~TexturePixels();
+		unsigned char * data; //raw image data
+		int width, height; //
+		TextureFormat format; //format tpye and components
+	};
+
+	struct TextureRegion
+	{
+		TextureRegion(
+		int width  =0, int height  = 0,
+		int xoffset=0, int yoffset = 0
+		);
+
+		int width, height;
+		int xoffset, yoffset;
+	};
+
+
+	/*
+	Cubmap_n
+		  ------     +y
+		 /  y / |    |__ +x
+		------ x|   /
+		| z  | /   +z
+		|____|/
+		x is right(+) left(-)
+		y is up(+) down(-)
+		z is front(+) back(-)
+	- Faces are in order right, left, up, down, back, front
+	*/
+	enum class TextureFace
+	{
+		Right=0, Left, Top, Bottom, Front, Back, Count
+	};
 
 	class Texture
 	{
 		public:
 			static Texture* Create(TextureType type = TextureType::Image, TextureFormat internalFormat = TextureFormat::RGBA8);
 
-			static void ReadFile(const std::string & filepath, unsigned char ** data, int & width, int & height, TextureFormat & format);
+			static void ReadFile(const std::string & filepath, TexturePixels & pixels);
+			static void ReadRegion(
+				const TexturePixels & pixelsIn,
+				TexturePixels & pixelsOut,
+				const TextureRegion & region 
+			);
 
 			~Texture() = default;
-			
-			/*
-			Cubmap_n
-				  ------     +y
-				 /  y / |    |__ +x
-				------ x|   /
-				| z  | /   +z
-				|____|/
-				x is right(+) left(-)
-				y is up(+) down(-)
-				z is front(+) back(-)
-			- Faces are in order right, left, up, down, back, front
-			*/
+
 
 			virtual void load(
-				TextureFormat sourceFormat,  
-				const void * data,    int level,
-				int width,   int height,
-				int face = 0,
-				int xoff = 0, int yoff = 0
+				const TexturePixels & pixels,
+				TextureFace face = TextureFace::Right, 
+				int level = 0
 			) = 0;
 	
+			virtual void generateMipMaps()=0;
 			virtual void bind(unsigned int unit = 0) = 0;
 			virtual void unbind() = 0;
+
+	};
+
+	/*
+		Abstract a textured quad .
+	
+	*/
+	class Image
+	{
+	public:
+	//	Image(const std::string & imagepath);
+
+
+	private:
+		TexturePixels _pixels;
+		TextureRegion _region;
+
 	};
 
 }

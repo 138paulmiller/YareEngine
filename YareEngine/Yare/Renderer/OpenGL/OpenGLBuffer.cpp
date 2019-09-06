@@ -55,11 +55,11 @@ OpenGLIndexBuffer::~OpenGLIndexBuffer()
 	glDeleteBuffers(1, &_ibo);
 }
 
-void OpenGLIndexBuffer::load(unsigned int * data, unsigned int count)
+void OpenGLIndexBuffer::load(unsigned int * data, unsigned int size)
 {
-	_count = count;
+	_count = size / sizeof(data[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(unsigned int), data, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size , data, GL_STATIC_DRAW);
 }
 
 unsigned int OpenGLIndexBuffer::getIndexCount() const 

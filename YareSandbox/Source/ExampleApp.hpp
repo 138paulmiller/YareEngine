@@ -1,6 +1,5 @@
 
-#ifndef OPENGL_CMAKE_SKELETON_MYApp
-#define OPENGL_CMAKE_SKELETON_MYApp
+#pragma once
 
 #include <Yare/App.hpp>
 #include <Yare/FileSystem.hpp>
@@ -8,25 +7,32 @@
 #include <Yare/Renderer/Platform.hpp>
 #include <Yare/Renderer/Texture.hpp>
 #include <Yare/Renderer/VertexArray.hpp>
+#include <Yare/Renderer/Primitives.hpp>
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_operation.hpp>
-
+#include <glm/gtx/transform.hpp>
 //YARE_PROJECT_DIR defined by cmake
 #define YARE_ASSET(path) YARE_PROJECT_DIR "/Assets/" path
 
 
 using namespace yare;
+struct Vertex
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec2 uv;
+};
 
-
-class SkyBox
+class SkySphere
 {
 public:
-	SkyBox()
+
+
+	SkySphere()
 	{
-		//Create Cube VertexArray
+		/*
 		glm::vec3 vertices[8] = {
 			//front
 			{-0.5, -0.5,  0.5 },
@@ -59,18 +65,27 @@ public:
 			3, 2, 6,
 			6, 7, 3
 		};
+		*/
+		//use sphere
+		std::vector<SphereVertex> vertices;
+		std::vector<unsigned int> indices;
+		CreateSphere(vertices, indices, 20, 20);
 
 		_vertexArray.reset(VertexArray::Create());
 		_vertexArray->bind();
 
 		BufferLayout vertexLayout = {
 			{BufferElementType::Float3, "position"},
+			{BufferElementType::Float3, "normal"},
+			{BufferElementType::Float2, "uv"},
 		};
 		VertexBuffer* vertexBuffer = VertexBuffer::Create(vertexLayout);
-		vertexBuffer->load(&vertices[0], sizeof(vertices));
+		//vertexBuffer->load(&vertices[0], sizeof(vertices));
+		vertexBuffer->load(&vertices[0], vertices.size() * sizeof(vertices[0]));
 
 		IndexBuffer* indexBuffer = IndexBuffer::Create();
-		indexBuffer->load(&indices[0], sizeof(indices));
+		//indexBuffer->load(&indices[0], sizeof(indices));
+		indexBuffer->load(&indices[0], indices.size() * sizeof(indices[0]));
 
 		_vertexArray->addVertexBuffer(vertexBuffer);
 		_vertexArray->setIndexBuffer(indexBuffer);
@@ -96,54 +111,68 @@ public:
 			
 		*/
 
-		unsigned char* data;
-		int width; int height;
-		int level = 0;
-		int faceWidth; int faceHeight;
-		TextureFormat format;
-		format = Texture::ReadFile(YARE_ASSET("Images/skybox.png") , &data, width, height);
-		faceWidth  = width / 4 ;
-		faceHeight = height / 3;
 
+
+		TexturePixels pixels;
+		TextureFormat format;
+		Texture::ReadFile(YARE_ASSET("Images/skybox.png") , pixels);
+		
+		int faceWidth; int faceHeight;
+		faceWidth  = pixels.width / 4 ;
+		faceHeight = pixels.height / 3;
+
+
+		//right=0, left, up, down, back, front
+		
 		_texture.reset(Texture::Create(TextureType::CubeMap));
 		TextureRegion region;
-		region.width = width;
-		region.height = height;
-		//Must load entire texture into each face. Then can read 
-
-
-		//right, left, up, down, back, front
 		region.width = faceWidth;
 		region.height = faceHeight;
-		//load right face
-		region.yOffset = faceWidth * 2;
-		region.xOffset = faceHeight * 1;
-		_texture->load(data, width, height, format, region, TextureFace::Right);
-		//load left face
-		region.yOffset = faceWidth * 0;
-		region.xOffset = faceHeight * 1;
-		_texture->load(data, width, height, format, region, TextureFace::Left);
-		//load up face
-		region.yOffset = faceWidth * 1;
-		region.xOffset = faceHeight * 0;
-		_texture->load(data, width, height, format, region, TextureFace::Up);
-		//load down face
-		region.yOffset = faceWidth * 1;
-		region.xOffset = faceHeight * 2;
-		_texture->load(data, width, height, format, region, TextureFace::Down);
-		//load back face
-		region.yOffset = faceWidth * 3;
-		region.xOffset = faceHeight * 1;
-		_texture->load(data, width, height, format, region, TextureFace::Back);
-		//load front face
-		region.yOffset = faceWidth * 1;
-		region.xOffset = faceHeight * 1;
-		_texture->load(data, width, height, format, region, TextureFace::Front);
 
+		
+		//load right face
+		region.xoffset = faceWidth * 2;
+		region.yoffset = faceHeight * 1;
+		Texture::ReadRegion(pixels, _faces[0], region);
+		_texture->load(_faces[0], TextureFace::Right);
+		
+		//load left face
+		region.xoffset = faceWidth * 0;
+		region.yoffset = faceHeight * 1;
+		Texture::ReadRegion(pixels, _faces[1], region);
+		_texture->load(_faces[1], TextureFace::Left);
+
+		//load up face
+		region.xoffset = faceWidth * 1;
+		region.yoffset = faceHeight * 0;
+		Texture::ReadRegion(pixels, _faces[2], region);
+		_texture->load(_faces[2], TextureFace::Top);
+
+		//load down face
+		region.xoffset = faceWidth * 1;
+		region.yoffset = faceHeight * 2;
+		Texture::ReadRegion(pixels, _faces[3], region);
+		_texture->load(_faces[3], TextureFace::Bottom);
+
+
+		//load front face
+		region.xoffset = faceWidth * 1;
+		region.yoffset = faceHeight * 1;
+		Texture::ReadRegion(pixels, _faces[4], region);
+		_texture->load(_faces[4], TextureFace::Front);
+
+		//load back face
+		region.xoffset = faceWidth * 3;
+		region.yoffset = faceHeight * 1;
+		Texture::ReadRegion(pixels, _faces[5], region);
+		_texture->load(_faces[5], TextureFace::Back);
+
+
+		_texture->generateMipMaps();
 
 	}
 
-	~SkyBox()
+	~SkySphere()
 	{
 	}
 
@@ -152,6 +181,7 @@ public:
 		_shader->bind();
 		
 		_shader->setUniform("projection", projection);
+		_shader->setUniform("model", _model);
 		_shader->setUniform("view", view);
 
 			_texture->bind(0);
@@ -165,10 +195,22 @@ public:
 			_texture->unbind();
 		_shader->unbind();
 	}
+	
+	glm::mat4 & getModel()
+	{
+		return _model;
+	}
+	void setModel(glm::mat4 & model)
+	{
+		_model = model;
+	}
+
 private:
 	std::unique_ptr<VertexArray>  _vertexArray;
 	std::unique_ptr<Shader > _shader;
 	std::unique_ptr<Texture> _texture;
+	TexturePixels _faces[6];
+	glm::mat4 _model;
 	
 };
 
@@ -189,13 +231,12 @@ class ExampleApp : public App {
 
   // shader matrix uniform
   glm::mat4 projection = glm::mat4(1.0);
+  glm::mat4 model = glm::mat4(1.0); 
   glm::mat4 view = glm::mat4(1.0);
 
   // VBO/VAO/ibo
   std::shared_ptr<VertexArray> vertexArray;
   std::shared_ptr<Texture> texture;
-  std::unique_ptr<SkyBox> _skybox;
+  std::unique_ptr<SkySphere> _skybox;
 
 };
-
-#endif  // OPENGL_CMAKE_SKELETON_MYApp

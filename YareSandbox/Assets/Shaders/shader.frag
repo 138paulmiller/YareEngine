@@ -23,5 +23,5 @@ void main(void)
     float specular = 0.6*pow(max(0.0,-dot(r,l)),4.0);
 
     color = texture(tex0, frag_uv) * ( ambient + diffus + specular );
-
+	
 }

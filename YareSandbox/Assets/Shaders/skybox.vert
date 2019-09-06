@@ -1,14 +1,17 @@
 #version 330
 in vec3 position;
+in vec3 normal;
+in vec2 uv;
 
 uniform mat4 projection;
+uniform mat4 model;
 uniform mat4 view;
 
-out vec4 frag_position;
-out vec4 light_pos;
+out vec3 uvw;
 
 void main(void)
 {    
-	frag_position = view * vec4(position,1.0);
-    gl_Position = projection * frag_position;
+	uvw = position.xyz ;
+    vec4 frag_position = projection * view * model * vec4(position,1.0);
+	gl_Position = frag_position.xyww;
 }

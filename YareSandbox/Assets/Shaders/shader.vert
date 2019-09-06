@@ -5,6 +5,7 @@
 
 uniform mat4 projection;
 uniform mat4 view;
+uniform mat4 model;
 
 out vec4 frag_position;
 out vec3 frag_normal;
@@ -17,9 +18,8 @@ void main(void)
     
     light_pos = view * vec4(0.0,0.0,1.0,1.0);
 
-    frag_normal = vec3(view * vec4(normal,0.0));
     frag_uv = uv;
-
-	frag_position = view * vec4(position,1.0);
+    frag_normal = vec3(view * model * vec4(normal,0.0));
+	frag_position =view * model * vec4(position,1.0);
     gl_Position = projection * frag_position;
 }

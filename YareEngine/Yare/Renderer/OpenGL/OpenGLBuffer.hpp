@@ -32,7 +32,7 @@ public:
 	OpenGLIndexBuffer();
 	virtual ~OpenGLIndexBuffer();
 
-	void load(unsigned int* data, unsigned int count) override;
+	void load(unsigned int* data, unsigned int size) override;
 
 	unsigned int getIndexCount() const override;
 	void bind() const override;

@@ -26,8 +26,8 @@ void _OpenGLCheckError(const char* file, unsigned int line, std::ostream & out )
     }
     // clang-format on
 
-	out << "OpenglError : file=" << file << " line=" << line
-         << " error:" << error << std::endl;
+	out << "OpenglError : file="<< std::endl << file << " line=" << line
+         << std::endl << "[" << error << "]" <<std::endl;
     errorCode = glGetError();
   }
 }
