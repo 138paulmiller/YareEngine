@@ -1,16 +1,10 @@
 
 #include "ExampleApp.hpp"
 
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/matrix_operation.hpp>
 
 #include <iostream>
 #include <vector>
 
-
-#define SHADER_DIR YARE_PROJECT_DIR "/Assets/Shaders/"
 
 struct VertexType {
   glm::vec3 position;
@@ -43,9 +37,13 @@ ExampleApp::ExampleApp(){
 
 	Platform::Current().setRenderer(PlatformRenderer::OpenGL);
 
+	_skybox.reset(new SkyBox());
+
+
+	////////////////////////////// Demo Heightmap ////////////////////////////////
 	std::string vertSource, fragSource;
-	FileSystem::readFile( SHADER_DIR "/shader.vert",vertSource );
-	FileSystem::readFile(SHADER_DIR "/shader.frag", fragSource );
+	FileSystem::readFile(YARE_ASSET("Shaders/shader.vert") ,vertSource );
+	FileSystem::readFile(YARE_ASSET("Shaders/shader.frag") , fragSource );
 
 	simpleShader = std::shared_ptr<Shader>(Shader::Create());
 
@@ -93,7 +91,7 @@ ExampleApp::ExampleApp(){
 	
 	
 	IndexBuffer* indexBuffer = IndexBuffer::Create();
-	indexBuffer->load(&indices[0], indices.size() );
+	indexBuffer->load(&indices[0], indices.size() * sizeof(unsigned int ));
 	
 
 	vertexArray->addVertexBuffer(vertexBuffer);
@@ -105,14 +103,21 @@ ExampleApp::ExampleApp(){
 
 	unsigned char  * data;
 	int width; int height;
+	int level = 0;
 	TextureFormat format;
-
-	Texture::ReadFile("Assets/Models/alliance.png", &data, width, height, format);
+	format = Texture::ReadFile(YARE_ASSET("Models/alliance.png"), &data, width, height);
 	texture = std::shared_ptr < Texture>(Texture::Create() );
-	texture->load(format, data, 0, width, height);
-	delete data;
+
+	TextureRegion region;
 
 
+	region.width = width / 2;
+	region.height = height / 2;
+	
+	region.xOffset = 1 * region.width ;
+	region.yOffset = 1 * region.height;
+
+	texture->load(data,width, height, format, region);
 }
 #include <Yare/Renderer/OpenGL/OpenGLError.hpp>
 void ExampleApp::onRender() {
@@ -130,6 +135,7 @@ void ExampleApp::onRender() {
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  _skybox->render(view, projection);
   simpleShader->bind();
 
   
@@ -144,8 +150,9 @@ void ExampleApp::onRender() {
                  NULL                  // element array buffer offset
   );
 
-  texture->unbind();
   vertexArray->unbind();
+  texture->unbind();
 
   simpleShader->unbind();
+
 }
