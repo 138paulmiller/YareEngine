@@ -72,16 +72,16 @@ void CreateSphere(
 			if (i != 0)
 			{
 				indices.push_back(k1);
-				indices.push_back(k2);
 				indices.push_back(k1 + 1);
+				indices.push_back(k2);
 			}
 
 			if (i != (sectors - 1))
 			{
 
 				indices.push_back(k1 + 1);
-				indices.push_back(k2);
 				indices.push_back(k2 + 1);
+				indices.push_back(k2);
 			}
 
 			//for wireframe mode

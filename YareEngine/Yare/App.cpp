@@ -21,8 +21,8 @@ App& App::getInstance() {
     throw std::runtime_error("There is no current App");
 }
 
-App::App()
-    : _state(stateReady), _width(640), _height(480), _title("App") {
+App::App(const AppConfig & config)
+    : _state(stateReady), _config(config) {
   currentApp = this;
 
   std::cout << "[Info] GLFW initialisation" << std::endl;
@@ -41,7 +41,7 @@ App::App()
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   // create the window
-  _window = glfwCreateWindow(_width, _height, _title.c_str(), NULL, NULL);
+  _window = glfwCreateWindow(_config.width, _config.height, _config.title.c_str(), NULL, NULL);
   if (!_window) {
     glfwTerminate();
     throw std::runtime_error("Couldn't create a window");
@@ -130,7 +130,7 @@ void App::detectWindowResize()
 {
 	int newWidth, newHeight;
 	glfwGetWindowSize(getWindow(), &newWidth, &newHeight);
-	bool dimensionChanged = (newWidth != _width || newHeight != _height);
+	bool dimensionChanged = (newWidth != _config.width || newHeight != _config.height);
 	if (dimensionChanged) {
 
 		onWindowResize(newWidth, newHeight);
@@ -138,22 +138,22 @@ void App::detectWindowResize()
 
 }
 void App::resizeWindow(int newWidth, int newHeight) {
-	_width = newWidth;
-	_height = newHeight;
-	glViewport(0, 0, _width, _height);
+	_config.width = newWidth;
+	_config.height = newHeight;
+	glViewport(0, 0, _config.width, _config.height);
 }
 
 
 int App::getWidth() {
-  return _width;
+  return _config.width;
 }
 
 int App::getHeight() {
-  return _height;
+  return _config.height;
 }
 
 float App::getWindowRatio() {
-  return float(_width) / float(_height);
+  return float(_config.width) / float(_config.height);
 }
 
 // Interface Events

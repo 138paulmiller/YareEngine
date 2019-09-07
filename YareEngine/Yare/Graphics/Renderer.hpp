@@ -1,10 +1,21 @@
 #pragma once
 #include "Graphics.hpp"
+#include "Camera.hpp"
 YARE_GRAPHICS_MODULE_BEG
+
+class Renderable
+{
+	virtual ~Renderable()= 0;
+	virtual void render(const glm::mat4& projection, const glm::mat4& view)=0;
+
+
+	unsigned int _shaderId;
+};
+
 
 struct RenderCommand
 {
-	//camera, shader, scene, framebuffer, options (faceculling etc...) 
+	//camera, shader, scene[octree of renderables], framebuffer, options (faceculling etc...) 
 
 };
 

@@ -17,11 +17,14 @@ namespace yare
 
 	struct AppConfig 
 	{
+		
+		std::string title;
+		int width, height;
 	};
 
 class App {
  public:
-  App();
+	 App(const AppConfig & config = {"Yare App", 1920 , 1080 });
 
   static App& getInstance();
 
@@ -71,12 +74,7 @@ private:
 	float _time;
 	float _deltaTime;
 
-	// Dimensions:
-	int _width;
-	int _height;
-	std::string _title;
-
-
+	AppConfig _config;
 
 };
 

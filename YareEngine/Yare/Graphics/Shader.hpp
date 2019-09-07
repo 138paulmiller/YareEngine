@@ -37,4 +37,9 @@ class Shader {
 
 };
 
+class ShaderManager
+{
+
+};
+
 YARE_GRAPHICS_MODULE_END

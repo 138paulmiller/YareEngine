@@ -127,7 +127,7 @@ void ExampleApp::onRender() {
 	//Create a render config manager for each pass
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
-
+	glFrontFace(GL_CW);
 
 
 
@@ -153,10 +153,5 @@ void ExampleApp::onRender() {
 
   model = glm::translate(camera.getPosition());
   _skySphere->setModel(model);
-
-  //glDepthMask(GL_FALSE);
-  //glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
   _skySphere->render(projection, camera.getView());
-  //glDepthMask(GL_TRUE);
-  //glDepthFunc(GL_LESS);
 } 
