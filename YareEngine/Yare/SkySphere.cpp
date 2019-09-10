@@ -100,26 +100,19 @@ using namespace system;
 
 		_texture->generateMipMaps();
 
+		_sphereMesh->setTexture(_texture, 0);
+		_sphereMesh->setShader(_shader);
 	}
 
 	SkySphere::~SkySphere()
 	{
 	}
 
-	void SkySphere::render(const glm::mat4& projection, const glm::mat4& view)
+	void SkySphere::render(const Renderer * renderer)
 	{
 
 		glCullFace(GL_FRONT);// should POP last state
-		_shader->bind();
-
-		_shader->setUniform("projection", projection);
-		_shader->setUniform("model", _sphereMesh->getModel());
-		_shader->setUniform("view", view);
-
-		_texture->bind(0);
-		_sphereMesh->render(projection, view);
-		_texture->unbind();
-		_shader->unbind();
+		
 
 		glCullFace(GL_BACK);
 	}

@@ -125,14 +125,19 @@ SphereMesh::SphereMesh(
 	_vertexArray->setIndexBuffer(indexBuffer);
 	_vertexArray->unbind();
 
+	//Command
+	_command.mode = RenderMode::IndexedMesh;
+	_command.vertexArray = _vertexArray.get();
 }
 
 SphereMesh::~SphereMesh()
 {
 }
 
-void SphereMesh::render(const glm::mat4& projection, const glm::mat4& view)
+void SphereMesh::render(const Renderer * renderer)
 {
+	_command.uniformBuffer.setUniform("model", _model);
+
 	_vertexArray->bind();
 	glDrawElements(GL_TRIANGLES,         // mode
 		_vertexArray->getIndexBuffer()->getIndexCount(),  // count
@@ -149,6 +154,18 @@ glm::mat4& SphereMesh::getModel()
 void SphereMesh::setModel(glm::mat4& model)
 {
 	_model = model;
+}
+
+void SphereMesh::setShader(const std::shared_ptr<Shader> & shader)
+{
+	_shader = shader;
+	_command.shader = _shader.get();
+}
+
+void SphereMesh::setTexture(const std::shared_ptr<Texture> & texture, int i)
+{
+	_textures[i] = texture;
+	_command.textures[i] = _textures[i].get();
 }
 
 YARE_GRAPHICS_MODULE_END

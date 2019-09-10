@@ -2,8 +2,7 @@
 #pragma once
 #include <vector>
 #include <glm/glm.hpp>
-#include "VertexArray.hpp"
-#include "Shader.hpp"
+#include "Renderer.hpp"
 /*
 
 	Primitives are abstracted vertex arrays. There are not meshes as they do not store shader 
@@ -19,7 +18,7 @@ struct SphereVertex {
 
 };
 
-class SphereMesh
+class SphereMesh : public Renderable
 {
 public:
 
@@ -27,13 +26,22 @@ public:
 		float radius = 10,
 		int sectors = 20);
 	~SphereMesh();
-	void render(const glm::mat4& projection, const glm::mat4& view);
+	void render(const Renderer * renderer) override ;
 	glm::mat4& getModel();
 	void setModel(glm::mat4& model);
+	
+	void setShader(const std::shared_ptr<Shader> & shader);
+	void setTexture(const std::shared_ptr<Texture> & texture, int i);
+
 	//rebuild sphere option with different radius and sector?
 private:
 	std::unique_ptr<VertexArray>  _vertexArray;
+	std::shared_ptr<Shader> _shader;
+	std::shared_ptr<Texture> _textures[TEXTURE_MAX];
+
 	glm::mat4 _model;
+	RenderCommand _command;
+
 };
 
 

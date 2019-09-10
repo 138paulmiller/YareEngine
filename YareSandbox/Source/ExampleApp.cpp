@@ -117,7 +117,8 @@ void ExampleApp::onRender() {
 	float t = getTime();
 	// set matrix : projection + view
 	projection = glm::perspective(45.0f,getWindowRatio(), 0.1f, 100.f);
-
+	
+	camera.setProjection(projection);
 	camera.setPosition({ 10.0 * sin(t), 0, 10.0 * cos(t) });
 	camera.lookAt({ 0,0,0 });
 	// clear
@@ -133,7 +134,7 @@ void ExampleApp::onRender() {
 
 	simpleShader->bind();
 	
-  simpleShader->setUniform("projection", projection);
+  simpleShader->setUniform("projection", camera.getProjection());
   simpleShader->setUniform("view", camera.getView());
   simpleShader->setUniform("model", glm::mat4(1));
   

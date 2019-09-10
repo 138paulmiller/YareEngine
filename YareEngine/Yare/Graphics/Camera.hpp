@@ -17,9 +17,16 @@ public:
 	{
 		_position = position;
 	}
-	const glm::vec3& getPosition() { return _position; }
 
-	const glm::mat4& getView() { return _view; }
+	void setProjection(const glm::mat4& projection)
+	{
+		_projection = projection;
+	}
+
+	const glm::vec3& getPosition()const { return _position; }
+
+	const glm::mat4& getProjection() const { return _projection; }
+	const glm::mat4& getView() const { return _view; }
 	void lookAt(const glm::vec3& target) { _view = glm::lookAt(_position, target, _up); }
 
 private:
@@ -27,6 +34,6 @@ private:
 	glm::vec3 _up;
 	glm::vec3 _right;
 	glm::mat4 _view;
-	//Have camera handle projection as well
+	glm::mat4 _projection;
 };
 YARE_GRAPHICS_MODULE_END
