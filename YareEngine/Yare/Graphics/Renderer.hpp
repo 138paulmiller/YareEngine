@@ -8,7 +8,8 @@
 #include "Texture.hpp"
 #include "Shader.hpp"
 #include "VertexArray.hpp"
-#include "UniformBuffer.hpp"
+
+#include "UniformBlock.hpp"
 
 
 
@@ -56,10 +57,10 @@ enum class RenderMode {
 //overload == to only update if changed 
 struct RenderState
 {
-	RenderCullFace cullFace;
-	RenderWinding  winding;
-	RenderTestFunc depthFunc;
-	RenderTestFunc stencilFunc;
+	RenderCullFace cullFace = RenderCullFace::Back;
+	RenderWinding  winding = RenderWinding::Clockwise;
+	RenderTestFunc depthFunc = RenderTestFunc::Less;
+	RenderTestFunc stencilFunc = RenderTestFunc::Less;
 };
 
 
@@ -68,14 +69,14 @@ struct RenderCommand
 {
 	//Render Targets 
 	//Viewport
-	UniformBuffer uniformBuffer;
+	UniformBlock uniformBuffer;
 	VertexArray * vertexArray = 0;
 	Shader * shader = 0;
 	Texture * textures[TEXTURE_MAX] = { 0 };
-	RenderMode mode;
-	RenderPrimitive primitive;
+	RenderMode mode = RenderMode::IndexedMesh;
+	RenderPrimitive primitive = RenderPrimitive::Triangles;
+	RenderState state;
 };
-
 
 
 class Renderer;
@@ -97,10 +98,8 @@ public:
 	static Renderer *GetInstance();
 
 	virtual ~Renderer() = default;
-	void submit(const RenderCommand & command) ;
+	void submit(RenderCommand * command) ;
 	void present();
-	void pushState(RenderState & state);
-	void popState();
 	void beginScene(const Camera * camera);
 	void endScene();
 	inline RenderAPI getAPI() { return _api; }
@@ -112,7 +111,7 @@ protected:
 		cached config state. render command only updates if different
 	*/
 private:
-	std::queue<RenderCommand> _commandQueue;
+	std::queue<RenderCommand * > _commandQueue;
 	std::stack<RenderState> _stateStack;
 	
 	const Camera * _camera; //current 

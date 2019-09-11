@@ -10,12 +10,11 @@ file(GLOB_RECURSE YARE_HEADERS CONFIGURE_DEPENDS "Yare/*.hpp")
 file(GLOB_RECURSE YARE_SOURCE  CONFIGURE_DEPENDS "Yare/*.cpp")
 
 source_group(Yare REGULAR_EXPRESSION "Yare/.*")
-source_group(Yare\\System REGULAR_EXPRESSION "Yare/System/.*")
-
-source_group(Yare\\System REGULAR_EXPRESSION "Yare/System/.*")
-source_group(Yare\\Memory REGULAR_EXPRESSION "Yare/Memory/.*")
-source_group(Yare\\Graphics REGULAR_EXPRESSION "Yare/Graphics/.*")
-    source_group(Yare\\Graphics\\OpenGL REGULAR_EXPRESSION "Yare/Graphics/OpenGL/.*")
+    source_group(Yare\\System REGULAR_EXPRESSION "Yare/System/.*")
+    source_group(Yare\\Memory REGULAR_EXPRESSION "Yare/Memory/.*")
+    source_group(Yare\\Graphics REGULAR_EXPRESSION "Yare/Graphics/.*")
+        source_group(Yare\\Graphics\\OpenGL REGULAR_EXPRESSION "Yare/Graphics/OpenGL/.*")
+        source_group(Yare\\Graphics\\Components REGULAR_EXPRESSION "Yare/Graphics/Components.*")
 
 add_library(${PROJECT_NAME} ${YARE_SOURCE} ${YARE_HEADERS} )
 target_compile_definitions(${PROJECT_NAME} PUBLIC YARE_PROJECT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")

@@ -8,8 +8,8 @@ class OpenGLRenderer : public Renderer
 {
 public:
 	
-	void renderIndexedMesh(const VertexArray * vertexArray) ;
-	void updateState(const RenderState & state) ;
+	void renderIndexedMesh(const VertexArray * vertexArray) override;
+	void updateState(const RenderState & state) override ;
 
 	//add cull face, depoth test vars etc...
 };

@@ -138,7 +138,7 @@ SphereMesh::~SphereMesh()
 void SphereMesh::render(Renderer* renderer)
 {
 	_command.uniformBuffer.setUniform("model", _model);
-	renderer->submit(_command);
+	renderer->submit(&_command);
 }
 
 glm::mat4& SphereMesh::getModel()

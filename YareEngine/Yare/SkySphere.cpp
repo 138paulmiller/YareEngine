@@ -105,7 +105,8 @@ namespace yare{
 		_sphereMesh->setTexture(_texture, 0);
 		_sphereMesh->setShader(_shader);
 
-		_state.cullFace = RenderCullFace::Front;
+		RenderState & state = _sphereMesh->getRenderCommand().state;
+		state.cullFace = RenderCullFace::Front;
 
 	}
 
@@ -115,9 +116,7 @@ namespace yare{
 
 	void SkySphere::render(Renderer * renderer)
 	{
-		renderer->pushState(_state);
 		_sphereMesh->render(renderer);
-		renderer->popState();
 	}
 
 	glm::mat4& SkySphere::getModel()

@@ -39,53 +39,53 @@ Renderer* Renderer::GetInstance()
 
 
 
-void Renderer::submit(const RenderCommand & command)
+void Renderer::submit(RenderCommand * command)
 {
 	_commandQueue.push(command);
 	
 	if (_camera) 
 	{
-		RenderCommand & newestCommand = _commandQueue.back();
+		RenderCommand * newestCommand = _commandQueue.back();
 		//if a camera is bound. load it uniforms
 		//use UBOs and render views for this
-		newestCommand.uniformBuffer.setUniform("view", _camera->getView());
-		newestCommand.uniformBuffer.setUniform("projection", _camera->getProjection());
+		newestCommand->uniformBuffer.setUniform("view", _camera->getView());
+		newestCommand->uniformBuffer.setUniform("projection", _camera->getProjection());
 	}
 }
 
 void Renderer::present()
 {
-
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
 	while (!_commandQueue.empty())
 	{
-		RenderCommand  & command = _commandQueue.front();
+		RenderCommand  * command = _commandQueue.front();
 		_commandQueue.pop();
 		
-		command.shader->bind();
+		updateState(command->state);
 
+		command->shader->bind();
+		command->uniformBuffer.load(command->shader);
 		
 		int i = 0;
-		Texture * texture = command.textures[i];
+		Texture * texture = command->textures[i];
 		while (texture)
 		{
 			texture->bind(i);
 			i++;
-			texture = command.textures[i];
+			texture = command->textures[i];
 		}
 
-		command.uniformBuffer.load(command.shader);
 
-		command.vertexArray->bind();
-		switch (command.mode)
+		command->vertexArray->bind();
+		switch (command->mode)
 		{
 		case RenderMode::IndexedMesh:
-			renderIndexedMesh(command.vertexArray);
+			renderIndexedMesh(command->vertexArray);
 		break;
 		}
-		command.vertexArray->unbind();
+		command->vertexArray->unbind();
 
-		command.shader->unbind();
+		command->shader->unbind();
 	}
 }
 
@@ -98,19 +98,6 @@ void Renderer::endScene()
 {
 
 	_camera = 0;
-}
-
-void Renderer::pushState(RenderState & state)
-{
-	updateState(state);
-	_stateStack.push(state);
-}
-
-void Renderer::popState()
-{
-	RenderState & state = _stateStack.top();
-	updateState(state);
-	_stateStack.pop();
 }
 
 

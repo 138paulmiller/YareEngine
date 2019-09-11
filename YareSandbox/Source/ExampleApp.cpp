@@ -49,31 +49,31 @@ void ExampleApp::onEnter()
 	FileSystem::readFile(YARESANDBOX_ASSET("Shaders/shader.vert") ,vertSource );
 	FileSystem::readFile(YARESANDBOX_ASSET("Shaders/shader.frag") , fragSource );
 
-	simpleShader = std::shared_ptr<Shader>(Shader::Create());
+	_simpleShader = std::shared_ptr<Shader>(Shader::Create());
 
-	simpleShader->compile(vertSource, fragSource);
+	_simpleShader->compile(vertSource, fragSource);
 
 	// creation of the mesh ------------------------------------------------------
 	std::vector<VertexType> vertices;
 	std::vector<unsigned int> indices;
   
 
-	for (int y = 0; y <= size; ++y)
-		for (int x = 0; x <= size; ++x) {
-			float xx = (x - size / 2) * 0.1f;
-			float yy = (y - size / 2) * 0.1f;
-			vertices.push_back(getHeightMap({ xx, yy }, { x/(float)size, y / (float)size }));
+	for (int y = 0; y <= _size; ++y)
+		for (int x = 0; x <= _size; ++x) {
+			float xx = (x - _size / 2) * 0.1f;
+			float yy = (y - _size / 2) * 0.1f;
+			vertices.push_back(getHeightMap({ xx, yy }, { x/(float)_size, y / (float)_size }));
 	}
 
-	for (int y = 0; y < size; ++y)
-	for (int x = 0; x < size; ++x) {
-		indices.push_back((x + 0) + (size + 1) * (y + 0));
-		indices.push_back((x + 1) + (size + 1) * (y + 0));
-		indices.push_back((x + 1) + (size + 1) * (y + 1));
+	for (int y = 0; y < _size; ++y)
+	for (int x = 0; x < _size; ++x) {
+		indices.push_back((x + 0) + (_size + 1) * (y + 0));
+		indices.push_back((x + 1) + (_size + 1) * (y + 0));
+		indices.push_back((x + 1) + (_size + 1) * (y + 1));
 
-		indices.push_back((x + 1) + (size + 1) * (y + 1));
-		indices.push_back((x + 0) + (size + 1) * (y + 1));
-		indices.push_back((x + 0) + (size + 1) * (y + 0));
+		indices.push_back((x + 1) + (_size + 1) * (y + 1));
+		indices.push_back((x + 0) + (_size + 1) * (y + 1));
+		indices.push_back((x + 0) + (_size + 1) * (y + 0));
 	}
 
 	std::cout << "vertices=" << vertices.size() << std::endl;
@@ -81,8 +81,8 @@ void ExampleApp::onEnter()
 
 	// creation of the vertex array buffer----------------------------------------
 	//1 . Create VAO, then VBO, then IBO
-	vertexArray = std::shared_ptr< VertexArray>(VertexArray::Create());
-	vertexArray->bind();
+	_vertexArray = std::shared_ptr< VertexArray>(VertexArray::Create());
+	_vertexArray->bind();
 
 	BufferLayout vertexLayout = {
 
@@ -98,10 +98,10 @@ void ExampleApp::onEnter()
 	indexBuffer->load(&indices[0], indices.size() * sizeof(unsigned int ));
 	
 
-	vertexArray->addVertexBuffer(vertexBuffer);
-	vertexArray->setIndexBuffer(indexBuffer);
+	_vertexArray->addVertexBuffer(vertexBuffer);
+	_vertexArray->setIndexBuffer(indexBuffer);
 
-	vertexArray->unbind();
+	_vertexArray->unbind();
 
 	// Load some textures ----------------------------------------
 
@@ -125,41 +125,60 @@ void ExampleApp::onRender(Renderer* renderer) {
 
 	float t = getTime();
 	// set matrix : projection + view
-	projection = glm::perspective(45.0f,getWindowRatio(), 0.1f, 100.f);
+	_projection = glm::perspective(45.0f,getWindowRatio(), 0.1f, 100.f);
 	
-	camera.setProjection(projection);
-	camera.setPosition({ 10.0 * sin(t), 0, 10.0 * cos(t) });
-	camera.lookAt({ 0,0,0 });
+	_camera.setProjection(_projection);
+	_camera.setPosition({ 10.0 * sin(t), 0, 10.0 * cos(t) });
+	_camera.lookAt({ 0,0,0 });
 	// clear
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+	_command.uniformBuffer.setUniform("projection", _camera.getProjection());
+	_command.uniformBuffer.setUniform("view", _camera.getView());
+	_command.uniformBuffer.setUniform("model", glm::mat4(1));
+	_command.vertexArray = _vertexArray.get();
+	_command.shader = _simpleShader.get();
+	_command.textures[0] = texture.get();
+	_command.mode = RenderMode::IndexedMesh;
+	_command.primitive = RenderPrimitive::Triangles;
+	_command.state = {
+		RenderCullFace::Back,
+		RenderWinding::Clockwise,
+		RenderTestFunc::Less,
+		RenderTestFunc::Less,
+	};
 
-	simpleShader->bind();
+	renderer->beginScene(&_camera);
 	
-	simpleShader->setUniform("projection", camera.getProjection());
-	simpleShader->setUniform("view", camera.getView());
-	simpleShader->setUniform("model", glm::mat4(1));
-  
-	texture->bind(0);
-	vertexArray->bind();
-	glDrawElements(GL_TRIANGLES,         // mode
-		vertexArray->getIndexBuffer()->getIndexCount() ,  // count
-					GL_UNSIGNED_INT,      // type
-					NULL                  // element array buffer offset
-	);
+	renderer->submit(&_command);
 
-	vertexArray->unbind();
-	texture->unbind();
+	renderer->endScene();
 
-simpleShader->unbind();
+	//simpleShader->bind();
+	//
+	//simpleShader->setUniform("projection", camera.getProjection());
+	//simpleShader->setUniform("view", camera.getView());
+	//simpleShader->setUniform("model", glm::mat4(1));
+  	//
+	//texture->bind(0);
+	//vertexArray->bind();
+	//glDrawElements(GL_TRIANGLES,         // mode
+	//	vertexArray->getIndexBuffer()->getIndexCount() ,  // count
+	//				GL_UNSIGNED_INT,      // type
+	//				NULL                  // element array buffer offset
+	//);
+	//
+	//vertexArray->unbind();
+	//texture->unbind();
+	//simpleShader->unbind();
   
 
   // Rendering API
-  renderer->beginScene(&camera);
-	  model = glm::translate(camera.getPosition());
-	  _skySphere->setModel(model);
+  renderer->beginScene(&_camera);
+	  _model = glm::translate(_camera.getPosition());
+	  _skySphere->setModel(_model);
 	  _skySphere->render(renderer);
 
   renderer->endScene();

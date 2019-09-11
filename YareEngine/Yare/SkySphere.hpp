@@ -27,6 +27,6 @@ namespace yare
 		std::unique_ptr<SphereMesh>  _sphereMesh;
 		std::shared_ptr<Shader > _shader;
 		std::shared_ptr<Texture> _texture;
-		RenderState _state;
+
 	};
 }

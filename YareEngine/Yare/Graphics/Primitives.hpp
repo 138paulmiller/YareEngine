@@ -34,7 +34,9 @@ public:
 	void setShader(const std::shared_ptr<Shader> & shader);
 	void setTexture(const std::shared_ptr<Texture> & texture, int i);
 
-	//rebuild sphere option with different radius and sector?
+	//rebuild sphere option with different radius and sector
+
+	inline RenderCommand & getRenderCommand() { return _command; }
 private:
 	std::unique_ptr<VertexArray>  _vertexArray;
 	std::shared_ptr<Shader> _shader;

@@ -36,21 +36,22 @@ class ExampleApp : public App {
 
 
  private:
-	float time = 0.f;
-	const int size = 100;
+	float _time = 0.f;
+	const int _size = 100;
 
 	// shader
 
-	std::shared_ptr<Shader > simpleShader;
 
 	// shader matrix uniform
-	glm::mat4 projection = glm::mat4(1.0);
-	glm::mat4 model = glm::mat4(1.0); 
-	Camera camera;
+	glm::mat4 _projection = glm::mat4(1.0);
+	glm::mat4 _model = glm::mat4(1.0); 
+	Camera _camera;
 
-	// VBO/VAO/ibo
-	std::shared_ptr<VertexArray> vertexArray;
+	std::shared_ptr<Shader > _simpleShader;
+	std::shared_ptr<VertexArray> _vertexArray;
 	std::shared_ptr<Texture> texture;
 	std::unique_ptr<SkySphere> _skySphere;
+	RenderCommand _command;
+
 
 };
