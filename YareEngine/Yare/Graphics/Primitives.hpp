@@ -26,7 +26,8 @@ public:
 		float radius = 10,
 		int sectors = 20);
 	~SphereMesh();
-	void render(const Renderer * renderer) override ;
+	void render(Renderer* renderer) override ;
+	
 	glm::mat4& getModel();
 	void setModel(glm::mat4& model);
 	

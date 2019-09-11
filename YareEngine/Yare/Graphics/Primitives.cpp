@@ -126,25 +126,19 @@ SphereMesh::SphereMesh(
 	_vertexArray->unbind();
 
 	//Command
-	_command.mode = RenderMode::IndexedMesh;
 	_command.vertexArray = _vertexArray.get();
+	_command.primitive = RenderPrimitive::Triangles;
+	_command.mode = RenderMode::IndexedMesh;
 }
 
 SphereMesh::~SphereMesh()
 {
 }
 
-void SphereMesh::render(const Renderer * renderer)
+void SphereMesh::render(Renderer* renderer)
 {
 	_command.uniformBuffer.setUniform("model", _model);
-
-	_vertexArray->bind();
-	glDrawElements(GL_TRIANGLES,         // mode
-		_vertexArray->getIndexBuffer()->getIndexCount(),  // count
-		GL_UNSIGNED_INT,      // type
-		NULL                  // element array buffer offset
-	);
-	_vertexArray->unbind();
+	renderer->submit(_command);
 }
 
 glm::mat4& SphereMesh::getModel()

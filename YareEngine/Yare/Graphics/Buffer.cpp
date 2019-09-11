@@ -1,6 +1,5 @@
 #include "Buffer.hpp"
-#include "Error.hpp"
-#include "Platform.hpp"
+#include "Renderer.hpp"
 #include "OpenGL/OpenGLBuffer.hpp"
 
 YARE_GRAPHICS_MODULE_BEG
@@ -65,9 +64,9 @@ VertexBuffer* VertexBuffer::Create(const BufferLayout& layout)
 		YARE_ASSERT(false, " Failed to add Vertex Buffer. You must set the layout!");
 		return 0 ;
 	}
-	switch (Platform::Current().getRenderer())
+	switch (Renderer::GetInstance()->getAPI())
 	{
-	case PlatformRenderer::OpenGL: 
+	case RenderAPI::OpenGL: 
 		return new OpenGLVertexBuffer(layout);
 	default: 
 		YARE_ASSERT(false, "No Render platform selected! "); return 0;
@@ -77,9 +76,9 @@ VertexBuffer* VertexBuffer::Create(const BufferLayout& layout)
 
 IndexBuffer* IndexBuffer::Create()
 {
-	switch (Platform::Current().getRenderer())
+	switch (Renderer::GetInstance()->getAPI())
 	{
-	case PlatformRenderer::OpenGL:
+	case RenderAPI::OpenGL:
 		return new OpenGLIndexBuffer();
 	default: 
 		YARE_ASSERT(false, "No Render platform selected! "); return 0;

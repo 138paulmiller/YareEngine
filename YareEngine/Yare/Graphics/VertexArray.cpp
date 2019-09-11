@@ -1,5 +1,5 @@
 
-#include "Platform.hpp"
+#include "Renderer.hpp"
 #include "Error.hpp"
 #include "OpenGL/OpenGLVertexArray.hpp"
 
@@ -8,9 +8,10 @@ YARE_GRAPHICS_MODULE_BEG
 
 VertexArray* VertexArray::Create()
 {
-	switch (Platform::Current().getRenderer())
+	switch (Renderer::GetInstance()->getAPI())
 	{
-	case PlatformRenderer::OpenGL: return new OpenGLVertexArray();
+	case RenderAPI::OpenGL: 
+		return new OpenGLVertexArray();
 	default: YARE_ASSERT(false, "No Render platform selected! "); return 0;
 	}
 }

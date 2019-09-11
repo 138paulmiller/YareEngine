@@ -1,7 +1,7 @@
 
 #include "Texture.hpp"
 
-#include "Platform.hpp"
+#include "Renderer.hpp"
 #include "Error.hpp"
 #include "OpenGL/OpenGLTexture.hpp"
 
@@ -53,9 +53,9 @@ TextureRegion::TextureRegion(
 		
 Texture* Texture::Create(TextureType type , TextureFormat internalFormat)
 {
-	switch (Platform::Current().getRenderer())
+	switch (Renderer::GetInstance()->getAPI())
 	{
-	case PlatformRenderer::OpenGL: 
+	case RenderAPI::OpenGL:
 		return new  OpenGLTexture(type, internalFormat);
 	default:
 		YARE_ASSERT(false, "No Render platform selected! "); 

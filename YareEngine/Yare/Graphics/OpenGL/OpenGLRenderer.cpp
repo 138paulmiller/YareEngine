@@ -43,10 +43,10 @@ void OpenGLRenderer::updateState(const RenderState & state)
 	glEnable(GL_CULL_FACE);
 	switch (state.cullFace)
 	{
-	case RenderCullFace::BackFace:
+	case RenderCullFace::Back:
 		glCullFace(GL_BACK);
 		break;
-	case RenderCullFace::FrontFace:
+	case RenderCullFace::Front:
 		glCullFace(GL_FRONT);
 		break;
 	}

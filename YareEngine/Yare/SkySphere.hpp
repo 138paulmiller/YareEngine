@@ -2,21 +2,21 @@
 
 #include <string>
 #include <memory>
-#include <Yare/Graphics/Renderer.hpp>
-#include <Yare/Graphics/Primitives.hpp>
-#include <Yare/Graphics/Texture.hpp>
-#include <Yare/System/FileSystem.hpp>
+#include "Graphics/Primitives.hpp"
+#include "Graphics/Texture.hpp"
+#include "System/FileSystem.hpp"
 
 
 namespace yare
 {
-	class SkySphere : public graphics::Renderable
+	using namespace graphics;
+	class SkySphere : public Renderable
 	{
 	public:
 		//Add options for atmospheric effects
 		SkySphere(int radius = 10, int sectors=30);
 		~SkySphere();
-		void render(const Renderer * renderer);
+		void render(Renderer * renderer) override;
 
 		glm::mat4& getModel();
 		
@@ -24,8 +24,9 @@ namespace yare
 		
 
 	private:
-		std::unique_ptr<graphics::SphereMesh>  _sphereMesh;
-		std::shared_ptr<graphics::Shader > _shader;
-		std::shared_ptr<graphics::Texture> _texture;
+		std::unique_ptr<SphereMesh>  _sphereMesh;
+		std::shared_ptr<Shader > _shader;
+		std::shared_ptr<Texture> _texture;
+		RenderState _state;
 	};
 }

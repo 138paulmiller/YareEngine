@@ -12,64 +12,60 @@
 namespace yare
 {
 
-App* currentApp = NULL;
-
-App& App::getInstance() {
-  if (currentApp)
-    return *currentApp;
-  else
-    throw std::runtime_error("There is no current App");
-}
 
 App::App(const AppConfig & config)
-    : _state(stateReady), _config(config) {
-  currentApp = this;
+    : _state(AppState::Ready), _time(0), _deltaTime(0), _config(config){
+	
+	_renderer = graphics::Renderer::Create(config.renderAPI);
+	
+	std::cout << "[Info] GLFW initialisation" << std::endl;
 
-  std::cout << "[Info] GLFW initialisation" << std::endl;
+	// initialize the GLFW library
+	if (!glfwInit()) {
+	throw std::runtime_error("Couldn't init GLFW");
+	}
 
-  // initialize the GLFW library
-  if (!glfwInit()) {
-    throw std::runtime_error("Couldn't init GLFW");
-  }
+	// setting the opengl version
+	int major = 3;
+	int minor = 2;
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  // setting the opengl version
-  int major = 3;
-  int minor = 2;
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// create the window
+	_window = glfwCreateWindow(_config.width, _config.height, _config.title.c_str(), NULL, NULL);
+	if (!_window) {
+		glfwTerminate();
+		throw std::runtime_error("Couldn't create a window");
+	}
 
-  // create the window
-  _window = glfwCreateWindow(_config.width, _config.height, _config.title.c_str(), NULL, NULL);
-  if (!_window) {
-    glfwTerminate();
-    throw std::runtime_error("Couldn't create a window");
-  }
+	glfwMakeContextCurrent(_window);
 
-  glfwMakeContextCurrent(_window);
+	glewExperimental = GL_TRUE;
+	GLenum err = glewInit();
 
-  glewExperimental = GL_TRUE;
-  GLenum err = glewInit();
+	if (err != GLEW_OK) {
+		glfwTerminate();
+		throw std::runtime_error(std::string("Could initialize GLEW, error = ") +
+									(const char*)glewGetErrorString(err));
+	}
 
-  if (err != GLEW_OK) {
-    glfwTerminate();
-    throw std::runtime_error(std::string("Could initialize GLEW, error = ") +
-                             (const char*)glewGetErrorString(err));
-  }
+	// get version info
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	const GLubyte* version = glGetString(GL_VERSION);
+	std::cout << "Renderer: " << renderer << std::endl;
+	std::cout << "OpenGL version supported " << version << std::endl;
 
-  // get version info
-  const GLubyte* renderer = glGetString(GL_RENDERER);
-  const GLubyte* version = glGetString(GL_VERSION);
-  std::cout << "Renderer: " << renderer << std::endl;
-  std::cout << "OpenGL version supported " << version << std::endl;
+	
+	// vsync
+	// glfwSwapInterval(false);
+}
 
-  // opengl configuration
-  glEnable(GL_DEPTH_TEST);  // enable depth-testing
-  glDepthFunc(GL_LESS);  // depth-testing interprets a smaller value as "closer"
 
-  // vsync
-  // glfwSwapInterval(false);
+App::~App()
+{
+	delete _renderer;
 }
 
 GLFWwindow* App::getWindow() const {
@@ -77,7 +73,7 @@ GLFWwindow* App::getWindow() const {
 }
 
 void App::exit() {
-  _state = stateExit;
+  _state = AppState::Exit;
 }
 
 float App::getDeltaTime() const {
@@ -89,40 +85,49 @@ float App::getTime() const {
 }
 
 void App::run() {
-  _state = stateRun;
 
-  // Make the window's context current
-  glfwMakeContextCurrent(_window);
 
-  _time = glfwGetTime();
+	onEnter();
 
-  while (_state == stateRun) {
+	_state = AppState::Running;
 
-	  // exit on window close button pressed
-	  if (glfwWindowShouldClose(_window))
-	  {
-		  break;
-	  }
+	// Make the window's context current
+	glfwMakeContextCurrent(_window);
 
-    // compute new time and delta time
-    float t = glfwGetTime();
-    _deltaTime = t - _time;
-    _time = t;
+	_time = glfwGetTime();
 
-    // detech window related changes
-	detectWindowResize();
+	while (_state == AppState::Running) {
 
-    // execute the frame code
-    onRender();
+		// exit on window close button pressed
+		if (glfwWindowShouldClose(_window))
+		{
+			break;
+		}
 
-    // Swap Front and Back buffers (double buffering)
-    glfwSwapBuffers(_window);
+		// compute new time and delta time
+		float t = glfwGetTime();
+		_deltaTime = t - _time;
+		_time = t;
 
-    // Pool and process events
-    glfwPollEvents();
-  }
+		// detech window related changes
+		detectWindowResize();
+
+		// execute the rendering
+		onRender(_renderer);
+		//present the render data
+		_renderer->present();
+
+		// Swap Front and Back buffers (double buffering)
+		glfwSwapBuffers(_window);
+
+		// Pool and process events
+		glfwPollEvents();
+	}
+
+	onExit();
 
   glfwTerminate();
+
 }
 
 
@@ -161,15 +166,7 @@ void App::onWindowResize(int newWidth, int newHeight) {
 	resizeWindow(newWidth, newHeight);
 }
 
-void App::onRender() {
-	std::cout << "[INFO] : loop" << std::endl;
-}
 
-void App::onLoad(const AppConfig& config)
-{
-
-	std::cout << "[INFO] : Loaded" << std::endl;
-}
 
 
 }

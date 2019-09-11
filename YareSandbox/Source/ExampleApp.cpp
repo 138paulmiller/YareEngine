@@ -33,10 +33,14 @@ VertexType getHeightMap(const glm::vec2 position, const glm::vec2 uv) {
   return v;
 }
 
-ExampleApp::ExampleApp(){
 
-	Platform::Current().setRenderer(PlatformRenderer::OpenGL);
+ExampleApp::ExampleApp() 
+{
+}
 
+
+void ExampleApp::onEnter()
+{
 	_skySphere.reset(new SkySphere());
 
 
@@ -111,7 +115,12 @@ ExampleApp::ExampleApp(){
 
 }
 
-void ExampleApp::onRender() {
+
+void ExampleApp::onExit()
+{
+}
+
+void ExampleApp::onRender(Renderer* renderer) {
 
 
 	float t = getTime();
@@ -125,34 +134,33 @@ void ExampleApp::onRender() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//Create a render config manager for each pass
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-	glFrontFace(GL_CW);
-
-
+	
 
 	simpleShader->bind();
 	
-  simpleShader->setUniform("projection", camera.getProjection());
-  simpleShader->setUniform("view", camera.getView());
-  simpleShader->setUniform("model", glm::mat4(1));
+	simpleShader->setUniform("projection", camera.getProjection());
+	simpleShader->setUniform("view", camera.getView());
+	simpleShader->setUniform("model", glm::mat4(1));
   
-  texture->bind(0);
-  vertexArray->bind();
-  glDrawElements(GL_TRIANGLES,         // mode
-	  vertexArray->getIndexBuffer()->getIndexCount() ,  // count
-                 GL_UNSIGNED_INT,      // type
-                 NULL                  // element array buffer offset
-  );
+	texture->bind(0);
+	vertexArray->bind();
+	glDrawElements(GL_TRIANGLES,         // mode
+		vertexArray->getIndexBuffer()->getIndexCount() ,  // count
+					GL_UNSIGNED_INT,      // type
+					NULL                  // element array buffer offset
+	);
 
-  vertexArray->unbind();
-  texture->unbind();
+	vertexArray->unbind();
+	texture->unbind();
 
-  simpleShader->unbind();
-  /////////////////////////redner skybox
+simpleShader->unbind();
+  
 
-  model = glm::translate(camera.getPosition());
-  _skySphere->setModel(model);
-  _skySphere->render(projection, camera.getView());
+  // Rendering API
+  renderer->beginScene(&camera);
+	  model = glm::translate(camera.getPosition());
+	  _skySphere->setModel(model);
+	  _skySphere->render(renderer);
+
+  renderer->endScene();
 } 

@@ -2,46 +2,55 @@
 #include <stack>
 #include <queue>
 
+#include "Error.hpp"
 #include "Graphics.hpp"
 #include "Camera.hpp"
 #include "Texture.hpp"
 #include "Shader.hpp"
 #include "VertexArray.hpp"
+#include "UniformBuffer.hpp"
 
-#include <unordered_map>
-#include <string>
+
+
+#define DEFAULT_RENDER_API RenderAPI::OpenGL
+#define TEXTURE_MAX 8
 
 YARE_GRAPHICS_MODULE_BEG
 
-class Renderable
+enum class RenderAPI
 {
-public:
-	class Renderer; //defined below
-	virtual ~Renderable()= 0;
-	virtual void render(const Renderer * renderer)=0;
+	None=0, OpenGL
 };
+
 
 //Test functions to stencil, depth, test etc....
 enum class RenderTestFunc
 {
-	Never =0 , //Always fails.
-	Always, //Always passes
-	Less,
+	Less=0,
 	LessEqual,
 	Greater,
 	GreaterEqual,
 	Equal, 
-	NotEqual
+	NotEqual,
+	Never, //Always fails.
+	Always //Always passes
 };
+
 enum class RenderWinding {
-	None =0 , Clockwise, CounterClockwise
+	Clockwise=0, CounterClockwise
 };
 
 enum class RenderCullFace {
-	None = 0, FrontFace, BackFace
+	Back = 0, Front
 };
+
+enum class RenderPrimitive {
+	Triangles=0
+};
+
+
 enum class RenderMode {
-	IndexedMesh
+	IndexedMesh = 0
 };
 
 //overload == to only update if changed 
@@ -53,101 +62,7 @@ struct RenderState
 	RenderTestFunc stencilFunc;
 };
 
-enum class UniformType
-{
-	Int, Float, Float3, Int3, Mat4
 
-};
-
-//Move to shader.hpp and use UBO
-struct Uniform
-{
-	std::string name;
-	union 
-	{
-		int i;
-		float f;
-		glm::vec3 float3;
-		glm::dvec3 int3;
-		glm::mat4 mat4;
-	}
-	value;
-	UniformType type;
-};
-struct UniformBuffer
-{
-	std::unordered_map<std::string, Uniform> uniforms;
-
-	void setUniform(const std::string & name, float i)
-	{
-		Uniform uniform;
-		uniform.name = name;
-		uniform.value.i = i;
-		uniform.type = UniformType::Int;
-		uniforms[name] = uniform;
-	}
-	void setUniform(const std::string & name, float f)
-	{
-		Uniform uniform;
-		uniform.name = name;
-		uniform.value.f = f;
-		uniform.type = UniformType::Float;
-		uniforms[name] = uniform;
-	}
-	void setUniform(const std::string & name, const glm::dvec3 & int3)
-	{
-		Uniform uniform;
-		uniform.name = name;
-		uniform.value.int3 = int3;
-		uniform.type = UniformType::Int3;
-		uniforms[name] = uniform;
-	}
-	void setUniform(const std::string & name, const glm::vec3 & float3)
-	{
-		Uniform uniform;
-		uniform.name = name;
-		uniform.value.float3 = float3;
-		uniform.type = UniformType::Float3;
-		uniforms[name] = uniform;
-	}
-
-	void setUniform(const std::string & name, const glm::mat4 & mat4)
-	{
-		Uniform uniform;
-		uniform.name = name;
-		uniform.value.mat4 = mat4;
-		uniform.type = UniformType::Mat4;
-		uniforms[name] = uniform;
-	}
-
-
-	void load(Shader * shader)
-	{
-		for (const std::pair<std::string, Uniform> & pair: uniforms)
-		{
-			switch (pair.second.type)
-			{
-			case UniformType::Int:
-				shader->setUniform(pair.first, pair.second.value.i);
-				break;
-			case UniformType::Float:
-				shader->setUniform(pair.first, pair.second.value.f);
-				break;
-			case UniformType::Float3:
-				shader->setUniform(pair.first, pair.second.value.float3);
-				break;
-			case UniformType::Int3:
-				shader->setUniform(pair.first, pair.second.value.int3);
-				break;
-			case UniformType::Mat4:
-				shader->setUniform(pair.first, pair.second.value.mat4);
-				break;
-			}
-		}
-	}
-};
-
-#define TEXTURE_MAX 8
 
 struct RenderCommand
 {
@@ -158,6 +73,18 @@ struct RenderCommand
 	Shader * shader = 0;
 	Texture * textures[TEXTURE_MAX] = { 0 };
 	RenderMode mode;
+	RenderPrimitive primitive;
+};
+
+
+
+class Renderer;
+
+class Renderable
+{
+public:
+	virtual ~Renderable() = default;
+	virtual void render(Renderer* renderer) = 0;
 };
 
 //Runs on its own thread 
@@ -165,6 +92,10 @@ struct RenderCommand
 class Renderer
 {
 public:
+
+	static Renderer* Create(RenderAPI api);
+	static Renderer *GetInstance();
+
 	virtual ~Renderer() = default;
 	void submit(const RenderCommand & command) ;
 	void present();
@@ -172,7 +103,9 @@ public:
 	void popState();
 	void beginScene(const Camera * camera);
 	void endScene();
+	inline RenderAPI getAPI() { return _api; }
 
+protected:
 	virtual void renderIndexedMesh(const VertexArray * vertexArray) = 0;
 	virtual void updateState(const RenderState & state) = 0;
 	/*
@@ -183,7 +116,7 @@ private:
 	std::stack<RenderState> _stateStack;
 	
 	const Camera * _camera; //current 
-
+	RenderAPI _api;
 };
 
 YARE_GRAPHICS_MODULE_END

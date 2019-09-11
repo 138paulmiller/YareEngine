@@ -1,10 +1,12 @@
 #include "SkySphere.hpp"
+#include "Graphics/Renderer.hpp"
 #include <GL/glew.h>
+
 
 namespace yare{
 
-using namespace graphics;
-using namespace system;
+	using namespace graphics;
+	using namespace system;
 
 
 	SkySphere::SkySphere(int radius , int sectors )
@@ -102,19 +104,20 @@ using namespace system;
 
 		_sphereMesh->setTexture(_texture, 0);
 		_sphereMesh->setShader(_shader);
+
+		_state.cullFace = RenderCullFace::Front;
+
 	}
 
 	SkySphere::~SkySphere()
 	{
 	}
 
-	void SkySphere::render(const Renderer * renderer)
+	void SkySphere::render(Renderer * renderer)
 	{
-
-		glCullFace(GL_FRONT);// should POP last state
-		
-
-		glCullFace(GL_BACK);
+		renderer->pushState(_state);
+		_sphereMesh->render(renderer);
+		renderer->popState();
 	}
 
 	glm::mat4& SkySphere::getModel()
