@@ -137,7 +137,7 @@ SphereMesh::~SphereMesh()
 
 void SphereMesh::render(Renderer* renderer)
 {
-	_command.uniformBuffer.setUniform("model", _model);
+	_command.uniformBlock.setUniform("model", _model);
 	renderer->submit(&_command);
 }
 
@@ -156,10 +156,6 @@ void SphereMesh::setShader(const std::shared_ptr<Shader> & shader)
 	_command.shader = _shader.get();
 }
 
-void SphereMesh::setTexture(const std::shared_ptr<Texture> & texture, int i)
-{
-	_textures[i] = texture;
-	_command.textures[i] = _textures[i].get();
-}
+
 
 YARE_GRAPHICS_MODULE_END

@@ -1,4 +1,4 @@
-#include "SkySphere.hpp"
+#include "SkyBox.hpp"
 #include "Graphics/Renderer.hpp"
 #include <GL/glew.h>
 
@@ -9,7 +9,7 @@ namespace yare{
 	using namespace system;
 
 
-	SkySphere::SkySphere(int radius , int sectors )
+	SkyBox::SkyBox(int radius , int sectors )
 	{
 
 		_sphereMesh.reset(new SphereMesh(radius, sectors));
@@ -102,28 +102,29 @@ namespace yare{
 
 		_texture->generateMipMaps();
 
-		_sphereMesh->setTexture(_texture, 0);
 		_sphereMesh->setShader(_shader);
+		RenderCommand& command = _sphereMesh->getRenderCommand();
+		RenderState & state = command.state;
 
-		RenderState & state = _sphereMesh->getRenderCommand().state;
+		command.textureBlock.setTexture("environment", _texture.get());
 		state.cullFace = RenderCullFace::Front;
 
 	}
 
-	SkySphere::~SkySphere()
+	SkyBox::~SkyBox()
 	{
 	}
 
-	void SkySphere::render(Renderer * renderer)
+	void SkyBox::render(Renderer * renderer)
 	{
 		_sphereMesh->render(renderer);
 	}
 
-	glm::mat4& SkySphere::getModel()
+	glm::mat4& SkyBox::getModel()
 	{
 		return _sphereMesh->getModel();
 	}
-	void SkySphere::setModel(glm::mat4& model)
+	void SkyBox::setModel(glm::mat4& model)
 	{
 		_sphereMesh->setModel(model);
 	}

@@ -8,7 +8,7 @@
 #include "Texture.hpp"
 #include "Shader.hpp"
 #include "VertexArray.hpp"
-
+#include "TextureBlock.hpp"
 #include "UniformBlock.hpp"
 
 
@@ -17,6 +17,19 @@
 #define TEXTURE_MAX 8
 
 YARE_GRAPHICS_MODULE_BEG
+
+// Abstract API
+class Renderer;
+
+class Renderable
+{
+public:
+	virtual ~Renderable() = default;
+	virtual void render(Renderer* renderer) = 0;
+};
+
+
+// End Api
 
 enum class RenderAPI
 {
@@ -69,24 +82,19 @@ struct RenderCommand
 {
 	//Render Targets 
 	//Viewport
-	UniformBlock uniformBuffer;
+	UniformBlock uniformBlock;
+	TextureBlock textureBlock;
+
 	VertexArray * vertexArray = 0;
 	Shader * shader = 0;
-	Texture * textures[TEXTURE_MAX] = { 0 };
+
 	RenderMode mode = RenderMode::IndexedMesh;
 	RenderPrimitive primitive = RenderPrimitive::Triangles;
 	RenderState state;
 };
 
 
-class Renderer;
 
-class Renderable
-{
-public:
-	virtual ~Renderable() = default;
-	virtual void render(Renderer* renderer) = 0;
-};
 
 //Runs on its own thread 
 //all render commands should be queued

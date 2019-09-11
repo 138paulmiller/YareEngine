@@ -12,9 +12,9 @@
 YARE_GRAPHICS_MODULE_BEG
 
 OpenGLShader::OpenGLShader()
-	:stages{0}  
+	:_stages{0}  
 {
-  program = 0;
+  _program = 0;
   isValid = false;
 }
 
@@ -25,16 +25,16 @@ OpenGLShader::~OpenGLShader()
 
 void OpenGLShader::destroy()
 {
-	if (program == 0) return;
+	if (_program == 0) return;
 	glUseProgram(0);
 	isValid = false;
-	uniforms.clear();
+	_uniforms.clear();
 	//Link the compiled stages
-	for (int i = 0; i < SHADER_STAGE_COUNT; i++)
+	for (int i = 0; i < (int)ShaderStage::Count; i++)
 	{
-		glDetachShader(program, stages[i]);
+		glDetachShader(_program, _stages[i]);
 	}
-	glDeleteProgram(program);
+	glDeleteProgram(_program);
 }
 unsigned int  OpenGLShader::compileStage(const std::string& source, unsigned int type)
 {
@@ -78,34 +78,34 @@ unsigned int  OpenGLShader::compileStage(const std::string& source, unsigned int
 
 void OpenGLShader::compile(const std::string& vertSource, const std::string& fragSource)
 {
-	if (program != 0) {
+	if (_program != 0) {
 		destroy();
 	}
-	program = glCreateProgram();
-	if (!program)
+	_program = glCreateProgram();
+	if (!_program)
 		throw std::runtime_error("[Error] Driver could not allocate new shader stage");
 
-	stages[VERTEX_SHADER] = compileStage(vertSource, GL_VERTEX_SHADER);
-	stages[FRAGMENT_SHADER] = compileStage(fragSource, GL_FRAGMENT_SHADER);
+	_stages[(int)ShaderStage::Vertex] = compileStage(vertSource, GL_VERTEX_SHADER);
+	_stages[(int)ShaderStage::Fragment] = compileStage(fragSource, GL_FRAGMENT_SHADER);
     
 	//Link the compiled stages
-	for (int i = 0; i < SHADER_STAGE_COUNT; i++) 
+	for (int i = 0; i < (int)ShaderStage::Count; i++)
 	{
-		glAttachShader(program, stages[i]);
+		glAttachShader(_program, _stages[i]);
 	}
 
 	//link the compile shader stages
-	glLinkProgram(program);
+	glLinkProgram(_program);
 	GLint result;
-	glGetProgramiv(program, GL_LINK_STATUS, &result);
+	glGetProgramiv(_program, GL_LINK_STATUS, &result);
 	if (result != GL_TRUE) {
 		std::cout << "[Error] linkage error" << std::endl;
 
 		GLsizei logsize = 0;
-		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logsize);
+		glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &logsize);
 
 		char* log = new char[logsize];
-		glGetProgramInfoLog(program, logsize, &logsize, log);
+		glGetProgramInfoLog(_program, logsize, &logsize, log);
 
 		std::cout << log << std::endl;
 	}
@@ -115,8 +115,10 @@ void OpenGLShader::compile(const std::string& vertSource, const std::string& fra
 	}
 	OpenGLCheckError();
 
+	glUseProgram(_program);
 
 	cacheAttributeAndUniforms();
+	
 }
 
 
@@ -127,21 +129,25 @@ void OpenGLShader::cacheAttributeAndUniforms()
 	GLint size; // size of the variable
 	GLenum type; // type of the variable (float, vec3 or mat4, etc)
 	// maximum name length is 16
-	GLchar name[16]; // variable name in GLSL
+	int uniformLen = 25;
+	//glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniformLen);
+	std::cout << "Uniform len : " << uniformLen;
+	char name[25]; // variable name in GLSL
 	GLsizei length; // name length
 
-	glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+	glGetProgramiv(_program, GL_ACTIVE_UNIFORMS, &count);
 	for (int i = 0; i < count; i++)
 	{
-		glGetActiveUniform(program, (GLuint)i, sizeof(name) / sizeof(GLchar), &length, &size, &type, name);
+		glGetActiveUniform(_program, (GLuint)i, sizeof(name) / sizeof(GLchar), &length, &size, &type, name);
 		//cache its location
-		uniforms[name] = glGetUniformLocation(program, name);
+		_uniforms[name] = glGetUniformLocation(_program, name);
 		printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
 	}
+	//delete name;
 }
 
 void OpenGLShader::bind() const {
-	glUseProgram(program);
+	glUseProgram(_program);
 }
 void OpenGLShader::unbind() const {
 	glUseProgram(0);
@@ -149,8 +155,8 @@ void OpenGLShader::unbind() const {
 
 int OpenGLShader::getUniform(const std::string& name)
 {
-  auto it = uniforms.find(name);
-  if (it == uniforms.end()) {
+  auto it = _uniforms.find(name);
+  if (it == _uniforms.end()) {
  	std::cout << "[Error] uniform " << name << " doesn't exist in program" << std::endl;
     return -1;
 

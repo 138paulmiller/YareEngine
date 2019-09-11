@@ -48,8 +48,8 @@ void Renderer::submit(RenderCommand * command)
 		RenderCommand * newestCommand = _commandQueue.back();
 		//if a camera is bound. load it uniforms
 		//use UBOs and render views for this
-		newestCommand->uniformBuffer.setUniform("view", _camera->getView());
-		newestCommand->uniformBuffer.setUniform("projection", _camera->getProjection());
+		newestCommand->uniformBlock.setUniform("view", _camera->getView());
+		newestCommand->uniformBlock.setUniform("projection", _camera->getProjection());
 	}
 }
 
@@ -64,27 +64,20 @@ void Renderer::present()
 		updateState(command->state);
 
 		command->shader->bind();
-		command->uniformBuffer.load(command->shader);
-		
-		int i = 0;
-		Texture * texture = command->textures[i];
-		while (texture)
-		{
-			texture->bind(i);
-			i++;
-			texture = command->textures[i];
-		}
+		command->uniformBlock.load(command->shader);
+		command->textureBlock.load(command->shader);
 
 
 		command->vertexArray->bind();
+		
 		switch (command->mode)
 		{
 		case RenderMode::IndexedMesh:
 			renderIndexedMesh(command->vertexArray);
 		break;
 		}
-		command->vertexArray->unbind();
 
+		command->vertexArray->unbind();
 		command->shader->unbind();
 	}
 }

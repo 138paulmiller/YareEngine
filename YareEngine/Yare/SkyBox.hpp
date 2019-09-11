@@ -9,13 +9,15 @@
 
 namespace yare
 {
+	//Instead of using sphere mesh, just cretae the vao manually
+	//To createa a sky sphere just create a sphere mesh with phong material. use spherical enviroment map and swithc front face
 	using namespace graphics;
-	class SkySphere : public Renderable
+	class SkyBox : public Renderable
 	{
 	public:
 		//Add options for atmospheric effects
-		SkySphere(int radius = 10, int sectors=30);
-		~SkySphere();
+		SkyBox(int radius = 10, int sectors=30);
+		~SkyBox();
 		void render(Renderer * renderer) override;
 
 		glm::mat4& getModel();

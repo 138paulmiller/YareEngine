@@ -49,18 +49,13 @@ protected:
 private:
 
 	//name to location Cache to avoid querying drivers for program info
-	std::map<std::string, int> uniforms;
-	enum Stage {
-
-		FRAGMENT_SHADER = 0,
-		VERTEX_SHADER,
-		SHADER_STAGE_COUNT
-	};
+	std::map<std::string, int> _uniforms;
+	
 
 	//handles to attached shader stages
-	unsigned int  stages[SHADER_STAGE_COUNT];
+	unsigned int  _stages[(int)ShaderStage::Count];
 	// opengl id
-	unsigned int  program;
+	unsigned int  _program;
 
 	bool isValid;
 

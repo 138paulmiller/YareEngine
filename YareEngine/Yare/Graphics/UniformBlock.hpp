@@ -27,80 +27,74 @@ struct Uniform
 //https://www.lighthouse3d.com/tutorials/glsl-tutorial/uniform-blocks/
 struct UniformBlock
 {
-	std::unordered_map<std::string , Uniform*> uniforms;
+	std::unordered_map<std::string , Uniform> uniforms;
 	~UniformBlock()
 	{
-		for (std::pair<std::string , Uniform * > pair : uniforms)
-		{
-			delete pair.second;
-		}
 	}
 	void setUniform(const std::string& name, int i)
 	{
-		Uniform * uniform = uniforms[name] = new Uniform();
-		uniform->name = name;
-		uniform->value.i = i;
-		uniform->type = UniformType::Int;
+		Uniform & uniform = uniforms[name];
+		uniform.name = name;
+		uniform.value.i = i;
+		uniform.type = UniformType::Int;
 	}
 	void setUniform(const std::string& name, float f)
 	{
 
-		uniforms[name] = new Uniform();
-		Uniform * uniform = uniforms[name];
-		uniform->name = name;
-		uniform->value.f = f;
-		uniform->type = UniformType::Float;
+		Uniform& uniform = uniforms[name];
+		uniform.name = name;
+		uniform.value.f = f;
+		uniform.type = UniformType::Float;
 
 	}
 	void setUniform(const std::string& name, const glm::dvec3& int3)
 	{
-		uniforms[name] = new Uniform();
-		Uniform * uniform = uniforms[name];
-		uniform->name = name;
-		uniform->value.int3 = int3;
-		uniform->type = UniformType::Int3;
+		Uniform& uniform = uniforms[name];
+		uniform.name = name;
+		uniform.value.int3 = int3;
+		uniform.type = UniformType::Int3;
 
 	}
 	void setUniform(const std::string& name, const glm::vec3& float3)
 	{
-		uniforms[name] = new Uniform();
-		Uniform * uniform = uniforms[name];
-		uniform->name = name;
-		uniform->value.float3 = float3;
-		uniform->type = UniformType::Float3;
+		Uniform& uniform = uniforms[name];
+		uniform.name = name;
+		uniform.value.float3 = float3;
+		uniform.type = UniformType::Float3;
 
 	}
 
 	void setUniform(const std::string& name, const glm::mat4& mat4)
 	{
-		uniforms[name] = new Uniform();
-		Uniform * uniform = uniforms[name];
-		uniform->name = name;
-		uniform->value.mat4 = mat4;
-		uniform->type = UniformType::Mat4;
+		Uniform& uniform = uniforms[name];
+		uniform.name = name;
+		uniform.value.mat4 = mat4;
+		uniform.type = UniformType::Mat4;
 	}
 
 
 	void load(Shader* shader)
 	{
-		for (std::pair<std::string , Uniform * > pair : uniforms)
+		for (std::pair<std::string , Uniform > pair : uniforms)
 		{
-			switch (pair.second->type)
+
+			Uniform & uniform = pair.second;
+			switch (uniform.type)
 			{
 			case UniformType::Int:
-				shader->setUniform(pair.first, pair.second->value.i);
+				shader->setUniform(pair.first, uniform.value.i);
 				break;
 			case UniformType::Float:
-				shader->setUniform(pair.first, pair.second->value.f);
+				shader->setUniform(pair.first, uniform.value.f);
 				break;
 			case UniformType::Float3:
-				shader->setUniform(pair.first, pair.second->value.float3);
+				shader->setUniform(pair.first, uniform.value.float3);
 				break;
 			case UniformType::Int3:
-				shader->setUniform(pair.first, pair.second->value.int3);
+				shader->setUniform(pair.first, uniform.value.int3);
 				break;
 			case UniformType::Mat4:
-				shader->setUniform(pair.first, pair.second->value.mat4);
+				shader->setUniform(pair.first, uniform.value.mat4);
 				break;
 			}
 		}

@@ -32,7 +32,6 @@ public:
 	void setModel(glm::mat4& model);
 	
 	void setShader(const std::shared_ptr<Shader> & shader);
-	void setTexture(const std::shared_ptr<Texture> & texture, int i);
 
 	//rebuild sphere option with different radius and sector
 
@@ -40,7 +39,6 @@ public:
 private:
 	std::unique_ptr<VertexArray>  _vertexArray;
 	std::shared_ptr<Shader> _shader;
-	std::shared_ptr<Texture> _textures[TEXTURE_MAX];
 
 	glm::mat4 _model;
 	RenderCommand _command;

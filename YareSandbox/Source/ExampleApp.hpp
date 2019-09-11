@@ -9,7 +9,7 @@
 #include <Yare/Graphics/VertexArray.hpp>
 
 
-#include <Yare/SkySphere.hpp>
+#include <Yare/SkyBox.hpp>
 
 #include <GLFW/glfw3.h>
 
@@ -49,8 +49,9 @@ class ExampleApp : public App {
 
 	std::shared_ptr<Shader > _simpleShader;
 	std::shared_ptr<VertexArray> _vertexArray;
-	std::shared_ptr<Texture> texture;
-	std::unique_ptr<SkySphere> _skySphere;
+	std::unique_ptr<Texture> _textureDiffuse;
+	std::unique_ptr<Texture> _textureSpecular;
+	std::unique_ptr<SkyBox> _skySphere;
 	RenderCommand _command;
 
 

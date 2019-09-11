@@ -41,13 +41,13 @@ ExampleApp::ExampleApp()
 
 void ExampleApp::onEnter()
 {
-	_skySphere.reset(new SkySphere());
+	_skySphere.reset(new SkyBox());
 
 
 	////////////////////////////// Demo Heightmap ////////////////////////////////
 	std::string vertSource, fragSource;
-	FileSystem::readFile(YARESANDBOX_ASSET("Shaders/shader.vert") ,vertSource );
-	FileSystem::readFile(YARESANDBOX_ASSET("Shaders/shader.frag") , fragSource );
+	FileSystem::readFile(YARE_ASSET("Shaders/phong.vert") ,vertSource );
+	FileSystem::readFile(YARE_ASSET("Shaders/phong.frag") , fragSource );
 
 	_simpleShader = std::shared_ptr<Shader>(Shader::Create());
 
@@ -105,13 +105,20 @@ void ExampleApp::onEnter()
 
 	// Load some textures ----------------------------------------
 
-	texture = std::shared_ptr < Texture>(Texture::Create() );
-
-	TexturePixels pixels;
-	Texture::ReadFile(YARESANDBOX_ASSET("Models/alliance.png"), pixels);
 	TexturePixels pixelsRegion;
-	texture->load(pixels);
-	texture->generateMipMaps();
+	TexturePixels pixels;
+
+	_textureDiffuse.reset(Texture::Create());
+	_textureSpecular.reset(Texture::Create());
+
+	Texture::ReadFile(YARE_ASSET("Images/container_diffuse.png"), pixels);
+	_textureDiffuse->load(pixels);
+	_textureDiffuse->generateMipMaps();
+
+	Texture::ReadFile(YARE_ASSET("Images/container_specular.png"), pixels);
+	_textureSpecular->load(pixels);
+	_textureSpecular->generateMipMaps();
+			
 
 }
 
@@ -135,12 +142,14 @@ void ExampleApp::onRender(Renderer* renderer) {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	_command.uniformBuffer.setUniform("projection", _camera.getProjection());
-	_command.uniformBuffer.setUniform("view", _camera.getView());
-	_command.uniformBuffer.setUniform("model", glm::mat4(1));
+	_command.uniformBlock.setUniform("projection", _camera.getProjection());
+	_command.uniformBlock.setUniform("view", _camera.getView());
+	_command.uniformBlock.setUniform("model", glm::mat4(1));
+	_command.uniformBlock.setUniform("material.shininess", 120.0f);
 	_command.vertexArray = _vertexArray.get();
 	_command.shader = _simpleShader.get();
-	_command.textures[0] = texture.get();
+	_command.textureBlock.setTexture("material.diffuse", _textureDiffuse.get());
+	_command.textureBlock.setTexture("material.specular", _textureSpecular.get());
 	_command.mode = RenderMode::IndexedMesh;
 	_command.primitive = RenderPrimitive::Triangles;
 	_command.state = {

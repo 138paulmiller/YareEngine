@@ -6,7 +6,12 @@
 
 YARE_GRAPHICS_MODULE_BEG
 
+enum class ShaderStage {
 
+	Fragment = 0,
+	Vertex,
+	Count
+};
 // Shader Interface
 class Shader {
  public:
