@@ -46,7 +46,7 @@ unsigned int  OpenGLShader::compileStage(const std::string& source, unsigned int
 	const char* sourceArr = &source[0];
 	// code source assignation
 	glShaderSource(stage, 1, (const GLchar * *)& sourceArr, NULL);
-
+	OpenGLCheckError();
 	// compilation
 	glCompileShader(stage);
 	OpenGLCheckError();
@@ -84,6 +84,7 @@ void OpenGLShader::compile(const std::string& vertSource, const std::string& fra
 	_program = glCreateProgram();
 	if (!_program)
 		throw std::runtime_error("[Error] Driver could not allocate new shader stage");
+	glUseProgram(_program);
 
 	_stages[(int)ShaderStage::Vertex] = compileStage(vertSource, GL_VERTEX_SHADER);
 	_stages[(int)ShaderStage::Fragment] = compileStage(fragSource, GL_FRAGMENT_SHADER);

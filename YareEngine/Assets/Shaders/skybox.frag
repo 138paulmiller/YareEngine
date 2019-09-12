@@ -8,4 +8,5 @@ uniform samplerCube environment;
 void main()
 {    
     color = texture(environment, uvw);
+	
 }

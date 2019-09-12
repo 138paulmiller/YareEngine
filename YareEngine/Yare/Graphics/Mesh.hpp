@@ -13,10 +13,7 @@ YARE_GRAPHICS_MODULE_BEG
 
 
 
-namespace Shapes
-{
-	std::unique_ptr<VertexArray> CreateSphere(float radius, int sectors);
-}
+
 
 class Mesh : public Renderable
 {

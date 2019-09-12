@@ -8,10 +8,10 @@
 #include <stdexcept>
 
 
-
+#include "Graphics/OpenGL/OpenGLError.hpp"
 namespace yare
 {
-
+	using namespace graphics;
 
 App::App(const AppConfig & config)
     : _state(AppState::Ready), _time(0), _deltaTime(0), _config(config){

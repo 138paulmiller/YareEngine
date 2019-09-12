@@ -1,11 +1,13 @@
 #include "SkyBox.hpp"
 #include "Graphics/Renderer.hpp"
-#include <GL/glew.h>
+#include "Geometry/Sphere.hpp"
+#include "Geometry/Box.hpp"
 
 
 namespace yare{
 
 	using namespace graphics;
+	using namespace geometry;
 	using namespace system;
 
 
@@ -16,8 +18,9 @@ namespace yare{
 
 		//use sphere
 		
-		_mesh->loadVertexArray(Shapes::CreateSphere(20, 20));
-		
+		//_mesh->loadVertexArray(Sphere::CreateVertexArray(20, 20, 20));
+		_mesh->loadVertexArray(Box::CreateVertexArray({ 20, 20, 20 }));
+
 
 
 		//Create the Skybox Shader
