@@ -1,7 +1,18 @@
-#include "Primitives.hpp"
+#include "Mesh.hpp"
 #include <GL/glew.h>
 
 YARE_GRAPHICS_MODULE_BEG
+
+
+namespace Shapes
+{
+
+struct SphereVertex {
+	glm::vec3 position, normal;
+	glm::vec2 uv;
+
+};
+
 
 void CreateSphere(
 	std::vector<SphereVertex>& vertices,
@@ -95,9 +106,8 @@ void CreateSphere(
 		}
 	}
 }
-SphereMesh::SphereMesh(
-	float radius,
-	int sectors )
+
+std::unique_ptr<VertexArray> CreateSphere(float radius, int sectors)
 {
 
 	//use sphere
@@ -105,8 +115,8 @@ SphereMesh::SphereMesh(
 	std::vector<unsigned int> indices;
 	CreateSphere(vertices, indices, 20, 20);
 
-	_vertexArray.reset(VertexArray::Create());
-	_vertexArray->bind();
+	VertexArray * vertexArray= VertexArray::Create();
+	vertexArray->bind();
 
 	BufferLayout vertexLayout = {
 		{BufferElementType::Float3, "position"},
@@ -121,9 +131,18 @@ SphereMesh::SphereMesh(
 	//indexBuffer->load(&indices[0], sizeof(indices));
 	indexBuffer->load(&indices[0], indices.size() * sizeof(indices[0]));
 
-	_vertexArray->addVertexBuffer(vertexBuffer);
-	_vertexArray->setIndexBuffer(indexBuffer);
-	_vertexArray->unbind();
+	vertexArray->addVertexBuffer(vertexBuffer);
+	vertexArray->setIndexBuffer(indexBuffer);
+	vertexArray->unbind();
+	return std::unique_ptr<VertexArray>(vertexArray);
+}
+}
+Mesh::Mesh( )
+{
+
+	
+	_vertexArray.reset(VertexArray::Create());
+	_vertexArray->bind();
 
 	//Command
 	_command.vertexArray = _vertexArray.get();
@@ -131,29 +150,30 @@ SphereMesh::SphereMesh(
 	_command.mode = RenderMode::IndexedMesh;
 }
 
-SphereMesh::~SphereMesh()
+Mesh::~Mesh()
 {
 }
 
-void SphereMesh::render(Renderer* renderer)
+
+void Mesh::loadVertexArray(std::unique_ptr<VertexArray> & vertexArray)
+{
+	_vertexArray.reset(vertexArray.release());
+	_command.vertexArray = _vertexArray.get();
+}
+
+void Mesh::render(Renderer* renderer)
 {
 	_command.uniformBlock.setUniform("model", _model);
 	renderer->submit(&_command);
 }
 
-glm::mat4& SphereMesh::getModel()
+glm::mat4& Mesh::getModel()
 {
 	return _model;
 }
-void SphereMesh::setModel(glm::mat4& model)
+void Mesh::setModel(glm::mat4& model)
 {
 	_model = model;
-}
-
-void SphereMesh::setShader(const std::shared_ptr<Shader> & shader)
-{
-	_shader = shader;
-	_command.shader = _shader.get();
 }
 
 

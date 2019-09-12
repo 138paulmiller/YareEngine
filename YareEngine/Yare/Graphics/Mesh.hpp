@@ -12,34 +12,31 @@
 YARE_GRAPHICS_MODULE_BEG
 
 
-struct SphereVertex {
-	glm::vec3 position, normal;
-	glm::vec2 uv;
 
-};
+namespace Shapes
+{
+	std::unique_ptr<VertexArray> CreateSphere(float radius, int sectors);
+}
 
-class SphereMesh : public Renderable
+class Mesh : public Renderable
 {
 public:
 
-	SphereMesh(
-		float radius = 10,
-		int sectors = 20);
-	~SphereMesh();
+	Mesh();
+	~Mesh();
 	void render(Renderer* renderer) override ;
 	
+	//Releases owwnership of the VertexArray
+	void loadVertexArray(std::unique_ptr<VertexArray>& vertexArray);
+
+
 	glm::mat4& getModel();
 	void setModel(glm::mat4& model);
 	
-	void setShader(const std::shared_ptr<Shader> & shader);
-
-	//rebuild sphere option with different radius and sector
-
+	//Render Command - contains references to 
 	inline RenderCommand & getRenderCommand() { return _command; }
 private:
 	std::unique_ptr<VertexArray>  _vertexArray;
-	std::shared_ptr<Shader> _shader;
-
 	glm::mat4 _model;
 	RenderCommand _command;
 

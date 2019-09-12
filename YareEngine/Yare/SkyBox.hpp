@@ -2,7 +2,7 @@
 
 #include <string>
 #include <memory>
-#include "Graphics/Primitives.hpp"
+#include "Graphics/Mesh.hpp"
 #include "Graphics/Texture.hpp"
 #include "System/FileSystem.hpp"
 
@@ -26,7 +26,7 @@ namespace yare
 		
 
 	private:
-		std::unique_ptr<SphereMesh>  _sphereMesh;
+		std::unique_ptr<Mesh>  _mesh;
 		std::shared_ptr<Shader > _shader;
 		std::shared_ptr<Texture> _texture;
 

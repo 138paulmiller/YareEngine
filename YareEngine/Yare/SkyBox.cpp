@@ -12,7 +12,14 @@ namespace yare{
 	SkyBox::SkyBox(int radius , int sectors )
 	{
 
-		_sphereMesh.reset(new SphereMesh(radius, sectors));
+		_mesh.reset(new Mesh());
+
+		//use sphere
+		
+		_mesh->loadVertexArray(Shapes::CreateSphere(20, 20));
+		
+
+
 		//Create the Skybox Shader
 		std::string vertSource, fragSource;
 		FileSystem::readFile(YARE_ASSET("Shaders/skybox.vert"), vertSource);
@@ -102,10 +109,10 @@ namespace yare{
 
 		_texture->generateMipMaps();
 
-		_sphereMesh->setShader(_shader);
-		RenderCommand& command = _sphereMesh->getRenderCommand();
+		RenderCommand& command = _mesh->getRenderCommand();
 		RenderState & state = command.state;
 
+		command.shader = _shader.get();
 		command.textureBlock.setTexture("environment", _texture.get());
 		state.cullFace = RenderCullFace::Front;
 
@@ -117,16 +124,16 @@ namespace yare{
 
 	void SkyBox::render(Renderer * renderer)
 	{
-		_sphereMesh->render(renderer);
+		_mesh->render(renderer);
 	}
 
 	glm::mat4& SkyBox::getModel()
 	{
-		return _sphereMesh->getModel();
+		return _mesh->getModel();
 	}
 	void SkyBox::setModel(glm::mat4& model)
 	{
-		_sphereMesh->setModel(model);
+		_mesh->setModel(model);
 	}
 
 
