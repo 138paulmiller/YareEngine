@@ -21,7 +21,9 @@ public:
 
 	Mesh();
 	~Mesh();
-	void render(Renderer* renderer) override ;
+	//Must call *Render base class methods
+	void preRender() override;
+	void postRender() override ;
 	
 	//Releases owwnership of the VertexArray
 	void loadVertexArray(std::unique_ptr<VertexArray>& vertexArray);
@@ -37,13 +39,10 @@ public:
 	glm::mat4& getModel();
 	void setModel(glm::mat4& model);
 	
-	//Render Command - contains references to 
-	inline RenderCommand & getRenderCommand() { return _command; }
 private:
 	void loadVerticesImpl(const void* vertices, const int size, const BufferLayout & vertexLayout);
 
 	glm::mat4 _model;
-	RenderCommand _command;
 
 	// VAO Specs
 	std::unique_ptr<VertexArray>  _vertexArray;

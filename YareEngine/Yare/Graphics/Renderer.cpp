@@ -4,6 +4,9 @@
 
 namespace yare { namespace graphics {  
 
+
+
+
 Renderer* _renderer = 0;
 
 Renderer* Renderer::Create(RenderAPI api)
@@ -39,46 +42,54 @@ Renderer* Renderer::GetInstance()
 
 
 
-void Renderer::submit(RenderCommand * command)
+void Renderer::submit(Renderable * renderable)
 {
-	_commandQueue.push(command);
+	_renderQueue.push(renderable);
 	
 	if (_camera) 
 	{
-		RenderCommand * newestCommand = _commandQueue.back();
+		Renderable  * newestRenderable = _renderQueue.back();
 		//if a camera is bound. load it uniforms
 		//use UBOs and render views for this
-		newestCommand->uniformBlock.setUniform("view", _camera->getView());
-		newestCommand->uniformBlock.setUniform("projection", _camera->getProjection());
+		newestRenderable->renderData.uniformBlock.setUniform("view", _camera->getView());
+		newestRenderable->renderData.uniformBlock.setUniform("projection", _camera->getProjection());
 	}
 }
 
 void Renderer::present()
 {
+	Renderable* renderable;
+	RenderData *data;
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
-	while (!_commandQueue.empty())
+	while (!_renderQueue.empty())
 	{
-		RenderCommand  * command = _commandQueue.front();
-		_commandQueue.pop();
+
+
+		renderable = _renderQueue.front();
+		data = &renderable->renderData;
+		_renderQueue.pop();
 		
-		updateState(command->state);
+		renderable->preRender();
+		updateState(data->state);
 
-		command->shader->bind();
-		command->uniformBlock.load(command->shader);
-		command->textureBlock.load(command->shader);
+		data->shader->bind();
+		data->uniformBlock.load(data->shader);
+		data->textureBlock.load(data->shader);
 
 
-		command->vertexArray->bind();
+		data->vertexArray->bind();
 		
-		switch (command->mode)
+		switch (data->mode)
 		{
 		case RenderMode::IndexedMesh:
-			renderIndexedMesh(command->vertexArray);
+			renderIndexedMesh(data->vertexArray);
 		break;
 		}
 
-		command->vertexArray->unbind();
-		command->shader->unbind();
+		data->vertexArray->unbind();
+		data->shader->unbind();
+
+		renderable->postRender();
 	}
 }
 

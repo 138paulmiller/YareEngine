@@ -14,19 +14,12 @@
 
 #define DEFAULT_RENDER_API RenderAPI::OpenGL
 #define TEXTURE_MAX 8
-
+//https://www.gamedev.net/forums/topic/645442-game-engine-layout/
+//https://www.gamedev.net/forums/topic/645295-should-game-objects-render-themselves-or-should-an-object-manager-render-them/
 namespace yare {
 	namespace graphics {
 
-		// Abstract API
-		class Renderer;
-
-	class Renderable
-	{
-	public:
-		virtual ~Renderable() = default;
-		virtual void render(Renderer* renderer) = 0;
-	};
+		
 
 
 	// End Api
@@ -77,8 +70,8 @@ namespace yare {
 	};
 
 
-
-	struct RenderCommand
+	//Should order render data.
+	struct RenderData
 	{
 		//Render Targets 
 		//Viewport
@@ -93,7 +86,14 @@ namespace yare {
 		RenderState state;
 	};
 
-
+	
+	struct Renderable
+	{
+		virtual ~Renderable() = default;
+		virtual void preRender() = 0;
+		virtual void postRender() = 0;
+		RenderData renderData;
+	};
 
 
 	//Runs on its own thread 
@@ -106,7 +106,7 @@ namespace yare {
 		static Renderer *GetInstance();
 
 		virtual ~Renderer() = default;
-		void submit(RenderCommand * command);
+		void submit(Renderable * renderable);
 		void present();
 		void beginScene(const Camera * camera);
 		void endScene();
@@ -119,10 +119,14 @@ namespace yare {
 			cached config state. render command only updates if different
 		*/
 	private:
-		std::queue<RenderCommand * > _commandQueue;
+		std::queue<Renderable * > _renderQueue;
 		std::stack<RenderState> _stateStack;
 
 		const Camera * _camera; //current 
 		RenderAPI _api;
 	};
-} }
+
+
+
+	} 
+}

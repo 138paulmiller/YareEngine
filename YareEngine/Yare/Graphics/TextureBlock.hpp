@@ -3,38 +3,24 @@
 
 #include <unordered_map>
 
-namespace yare { namespace graphics {  
+/*
+TODO - Use resource manager and only use Texture ID not the pointer
 
-//Use a uniform block to block copy uniform names to texture bindings
-//Create Uniform Buffer Layout Struct. Use this and just create a single templated set(Struct * struct)
-//https://www.lighthouse3d.com/tutorials/glsl-tutorial/uniform-blocks/
-struct TextureBlock
-{
-	std::unordered_map<std::string ,  Texture *> textures;
+*/
 
-	void setTexture(const std::string& name, Texture * texture)
+namespace yare { 
+	namespace graphics {  
+
+	//Use a uniform block to block copy uniform names to texture bindings
+	//Create Uniform Buffer Layout Struct. Use this and just create a single templated set(Struct * struct)
+	//https://www.lighthouse3d.com/tutorials/glsl-tutorial/uniform-blocks/
+	struct TextureBlock
 	{
-		textures[name] = texture;
-		
-	}
+		std::unordered_map<std::string ,  Texture *> _textures;
 
-	void load(Shader* shader)
-	{
-		int i = 0;
-		Texture* texture;
-		const  std::string * name;
-		for (std::pair<std::string ,  Texture * > pair : textures)
-		{
-			texture = pair.second;
-			name = &pair.first;
-			//bind texture to unit i
-			texture->bind(i);
-			//set sampler to this unit
-			shader->setUniform(*name, i);
-			//next unit
-			i++;
-		}
-	}
-};
+		void setTexture(const std::string& name, Texture* texture);
+		void load(Shader* shader);
+	};
 
-} } 
+	} 
+} 

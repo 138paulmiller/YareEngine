@@ -34,7 +34,8 @@ class PhongMesh : public Mesh
 {
 public:
 	PhongMesh();
-	void render(yare::graphics::Renderer * renderer)override;
+	void preRender()override;
+	void postRender()override;
 	void loadTextures(const std::string  files[(int)PhongTextureSlot::Count]);
 	
 	void setShininess(float shininess);

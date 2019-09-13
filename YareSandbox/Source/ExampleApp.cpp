@@ -43,9 +43,10 @@ PhongMesh::PhongMesh()
 	_phongShader->compile(vertSource, fragSource);
 
 }
-void PhongMesh::render(yare::graphics::Renderer * renderer)
+
+void PhongMesh::preRender()
 {
-	RenderCommand & command = Mesh::getRenderCommand();
+	RenderData& command = Mesh::renderData;
 	command.uniformBlock.setUniform("material.shininess", _shininess);
 	command.shader = _phongShader.get();
 	command.mode = RenderMode::IndexedMesh;
@@ -56,10 +57,13 @@ void PhongMesh::render(yare::graphics::Renderer * renderer)
 		RenderTestFunc::Less,
 		RenderTestFunc::Less,
 	};
-
-	Mesh::render(renderer);
+	Mesh::preRender();
 }
 
+void PhongMesh::postRender()
+{
+	Mesh::postRender();
+}
 
 const std::string PhongTextureSlotToUniformName(PhongTextureSlot slot)
 {
@@ -72,7 +76,7 @@ const std::string PhongTextureSlotToUniformName(PhongTextureSlot slot)
 
 void PhongMesh::loadTextures(const std::string files[(int)PhongTextureSlot::Count])
 {
-	RenderCommand & command = Mesh::getRenderCommand();
+	RenderData & command = Mesh::renderData;
 	TexturePixels pixelsRegion;
 	TexturePixels pixels;
 	for (int i = 0; i < (int)PhongTextureSlot::Count; i++)
@@ -89,9 +93,7 @@ void PhongMesh::loadTextures(const std::string files[(int)PhongTextureSlot::Coun
 void PhongMesh::setShininess(float shininess)
 {
 	_shininess = shininess;
-	Mesh::getRenderCommand().uniformBlock.setUniform("material.shininess", _shininess);
-
-
+	Mesh::renderData.uniformBlock.setUniform("material.shininess", _shininess);
 }
 
 
@@ -173,35 +175,16 @@ void ExampleApp::onRender(Renderer* renderer) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
+	////////// Update State ////////////////
+ 	 _model = glm::translate(_camera.getPosition());
+	_skySphere->setModel(_model);
+
+
+	//Submit Scene to be drawn 
+
 	renderer->beginScene(&_camera);
-	_phongMesh->render(renderer);
-
+		renderer->submit(_phongMesh.get());
+		renderer->submit(_skySphere.get());
 	renderer->endScene();
-
-	//simpleShader->bind();
-	//
-	//simpleShader->setUniform("projection", camera.getProjection());
-	//simpleShader->setUniform("view", camera.getView());
-	//simpleShader->setUniform("model", glm::mat4(1));
-  	//
-	//texture->bind(0);
-	//vertexArray->bind();
-	//glDrawElements(GL_TRIANGLES,         // mode
-	//	vertexArray->getIndexBuffer()->getIndexCount() ,  // count
-	//				GL_UNSIGNED_INT,      // type
-	//				NULL                  // element array buffer offset
-	//);
-	//
-	//vertexArray->unbind();
-	//texture->unbind();
-	//simpleShader->unbind();
-  
-
-  // Rendering API
-  renderer->beginScene(&_camera);
-	  _model = glm::translate(_camera.getPosition());
-	  _skySphere->setModel(_model);
-	  _skySphere->render(renderer);
-  renderer->endScene();
 } 

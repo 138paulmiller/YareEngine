@@ -4,23 +4,18 @@
 #include "Geometry/Box.hpp"
 
 
-namespace yare{
+namespace yare {
 
 	using namespace graphics;
 	using namespace geometry;
 	using namespace os;
 
 
-	SkyBox::SkyBox(int radius , int sectors )
+	SkyBox::SkyBox(int radius, int sectors)
 	{
 
-		_mesh.reset(new Mesh());
-
-		//use sphere
-		
 		//_mesh->loadVertexArray(Sphere::CreateVertexArray(20, 20, 20));
-		_mesh->loadVertexArray(Box::CreateVertexArray({ 20, 20, 20 }));
-
+		Mesh::loadVertexArray(Box::CreateVertexArray({ 20, 20, 20 }));
 
 
 		//Create the Skybox Shader
@@ -112,8 +107,8 @@ namespace yare{
 
 		_texture->generateMipMaps();
 
-		RenderCommand& command = _mesh->getRenderCommand();
-		RenderState & state = command.state;
+		RenderData& command = Mesh::renderData;
+		RenderState& state = command.state;
 
 		command.shader = _shader.get();
 		command.textureBlock.setTexture("environment", _texture.get());
@@ -125,20 +120,14 @@ namespace yare{
 	{
 	}
 
-	void SkyBox::render(Renderer * renderer)
+	void SkyBox::preRender()
 	{
-		_mesh->render(renderer);
+		Mesh::preRender();
 	}
-
-	glm::mat4& SkyBox::getModel()
+	
+	void SkyBox::postRender()
 	{
-		return _mesh->getModel();
+		Mesh::postRender();
 	}
-	void SkyBox::setModel(glm::mat4& model)
-	{
-		_mesh->setModel(model);
-	}
-
-
 
 }

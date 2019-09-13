@@ -10,12 +10,12 @@ Mesh::Mesh( )
 	
 	_vertexArray.reset(VertexArray::Create());
 
-	_command.vertexArray = _vertexArray.get();
+	Renderable::renderData.vertexArray = _vertexArray.get();
 
 	//Command
-	_command.vertexArray = _vertexArray.get();
-	_command.primitive = RenderPrimitive::Triangles;
-	_command.mode = RenderMode::IndexedMesh;
+	Renderable::renderData.vertexArray = _vertexArray.get();
+	Renderable::renderData.primitive = RenderPrimitive::Triangles;
+	Renderable::renderData.mode = RenderMode::IndexedMesh;
 
 	_model = glm::mat4(1);
 }
@@ -28,7 +28,7 @@ Mesh::~Mesh()
 void Mesh::loadVertexArray(std::unique_ptr<VertexArray> & vertexArray)
 {
 	_vertexArray.reset(vertexArray.release());
-	_command.vertexArray = _vertexArray.get();
+	Renderable::renderData.vertexArray = _vertexArray.get();
 }
 
 void Mesh::loadVerticesImpl(const void* vertices, const int size, const BufferLayout & vertexLayout)
@@ -43,8 +43,8 @@ void Mesh::loadVerticesImpl(const void* vertices, const int size, const BufferLa
 	}
 
 	_vertexArray->getVertexBuffer(0)->load(vertices, size);
-
 	_vertexArray->unbind();
+
 }
 void Mesh::loadIndices(const std::vector<unsigned int> & indices)
 {
@@ -63,11 +63,14 @@ void Mesh::loadIndices(const std::vector<unsigned int> & indices)
 }
 
 
-void Mesh::render(Renderer* renderer)
+void Mesh::preRender() 
 {
-	_command.uniformBlock.setUniform("model", _model);
-	renderer->submit(&_command);
+	Renderable::renderData.uniformBlock.setUniform("model", _model);
+} 
+void Mesh::postRender() 
+{
 }
+
 
 glm::mat4& Mesh::getModel()
 {
