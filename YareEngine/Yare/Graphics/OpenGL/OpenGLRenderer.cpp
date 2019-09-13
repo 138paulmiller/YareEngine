@@ -2,7 +2,7 @@
 #include "OpenGLRenderer.hpp"
 #include <GL/glew.h>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 void OpenGLRenderer::renderIndexedMesh(const VertexArray * vertexArray)
 {
@@ -69,4 +69,4 @@ void OpenGLRenderer::updateState(const RenderState & state)
 
 }
 
-YARE_GRAPHICS_MODULE_END
+} } 

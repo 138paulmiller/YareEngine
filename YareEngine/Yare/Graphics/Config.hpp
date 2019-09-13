@@ -1,6 +1,6 @@
 #pragma once
 #include "Renderer.hpp"
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 
 class Config
@@ -15,4 +15,4 @@ private:
 	RenderAPI _rendererAPI;
 };
 
-YARE_GRAPHICS_MODULE_END
+} } 

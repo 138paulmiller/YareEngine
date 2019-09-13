@@ -8,7 +8,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 static int FormatToComponentCount(TextureFormat format){
 	switch (format)
@@ -136,4 +136,4 @@ void Texture::ReadRegion(
 
 }
 
-YARE_GRAPHICS_MODULE_END
+} } 

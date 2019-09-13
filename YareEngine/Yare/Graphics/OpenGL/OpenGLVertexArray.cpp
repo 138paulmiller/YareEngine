@@ -1,7 +1,7 @@
 #include "OpenGLVertexArray.hpp"
 #include "OpenGLCommon.hpp"
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 static unsigned int BufferElementTypeToOpenGLType(BufferElementType type)
 {
@@ -49,7 +49,7 @@ void OpenGLVertexArray::unbind() const
 }
 
 
-void OpenGLVertexArray::addVertexBuffer(VertexBuffer* buffer) 
+void OpenGLVertexArray::attachVertexBuffer(VertexBuffer* buffer) 
 {
 	
 	bind();
@@ -68,9 +68,7 @@ void OpenGLVertexArray::addVertexBuffer(VertexBuffer* buffer)
 		_vertexAttributeIndex++;
 	}
 	OpenGLCheckError();
-	VertexArray::addVertexBuffer(buffer);
-
 }
 
 
-YARE_GRAPHICS_MODULE_END
+} } 

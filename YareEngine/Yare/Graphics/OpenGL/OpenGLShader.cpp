@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <vector>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 OpenGLShader::OpenGLShader()
 	:_stages{0}  
@@ -204,4 +204,4 @@ void OpenGLShader::setUniform(const std::string& name, int val) {
 
 
 
-YARE_GRAPHICS_MODULE_END
+} } 

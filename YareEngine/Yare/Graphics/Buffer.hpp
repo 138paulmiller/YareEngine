@@ -1,12 +1,11 @@
 
 
 #pragma once
-#include "Graphics.hpp"
 #include <initializer_list>
 #include <string>
 #include <vector>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 enum class BufferElementType { 
     None, Int, Int2, Int3, Int4, Float, Float2, Float3, Float4, Mat3, Mat4 
@@ -33,6 +32,8 @@ public:
 	BufferLayout(const std::initializer_list<BufferElement>& elements );
 	BufferLayout(const BufferLayout& other);
     
+	void setElements(std::vector<BufferElement> &elements);
+
 	inline unsigned int getStride() const { return _stride; }
 	inline const std::vector<BufferElement> & getElements() const { return _elements; }
 private:
@@ -54,7 +55,7 @@ public:
 	//Load raw data into the buffer
 	//data is pointer to beginning of data array
 	//size is size of buffer in bytes
-	virtual void load(void* data, unsigned int size, bool isDynamic = false) = 0;
+	virtual void load(const void* data, unsigned int size, bool isDynamic = false) = 0;
 	virtual void bind() const = 0;
 	virtual void unbind()const = 0;
 
@@ -74,11 +75,11 @@ public:
 	//Load raw data into the buffer
 	//data is pointer to beginning of data array
 	//size is size of buffer in bytes
-	virtual void load(unsigned int* data, unsigned int size) = 0;
+	virtual void load(const unsigned int* data, unsigned int size) = 0;
 	virtual void bind() const = 0;
 	virtual void unbind()const = 0;
 
 	virtual unsigned int getIndexCount() const = 0;
 };
 
-YARE_GRAPHICS_MODULE_END
+} } 

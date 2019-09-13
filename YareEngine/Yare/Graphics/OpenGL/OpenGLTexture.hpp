@@ -3,7 +3,7 @@
 
 #include <Yare/Graphics/Texture.hpp>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 class OpenGLTexture : public Texture
 {
@@ -34,4 +34,4 @@ private:
 };
 
 
-YARE_GRAPHICS_MODULE_END
+} } 

@@ -1,7 +1,7 @@
 #pragma once
 #include <Yare/Graphics/Renderer.hpp>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 //Maintains the state (ie pass config
 class OpenGLRenderer : public Renderer
@@ -14,4 +14,4 @@ public:
 	//add cull face, depoth test vars etc...
 };
 
-YARE_GRAPHICS_MODULE_END
+} } 

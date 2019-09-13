@@ -2,7 +2,7 @@
 #include "OpenGLCommon.hpp"
 #include <Yare/Graphics/Texture.hpp>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 OpenGLTexture::OpenGLTexture(TextureType type, TextureFormat internalFormat )
 {
@@ -141,4 +141,4 @@ void OpenGLTexture::unbind()
 	glBindTexture(_target, 0);
 }
 
-YARE_GRAPHICS_MODULE_END
+} } 

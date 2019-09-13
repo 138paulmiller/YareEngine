@@ -6,7 +6,7 @@
 #include "OpenGL/OpenGLShader.hpp"
 
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 Shader * Shader::Create()
 {
@@ -20,4 +20,4 @@ Shader * Shader::Create()
 	}
 }
 
-YARE_GRAPHICS_MODULE_END
+} } 

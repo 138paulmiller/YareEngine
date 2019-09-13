@@ -2,9 +2,8 @@
 
 #include <string>
 #include <iostream>
-#include "Graphics.hpp"
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 
 enum class TextureFormat
@@ -87,4 +86,4 @@ class Texture
 		virtual void unbind() = 0;
 
 };
-YARE_GRAPHICS_MODULE_END
+} } 

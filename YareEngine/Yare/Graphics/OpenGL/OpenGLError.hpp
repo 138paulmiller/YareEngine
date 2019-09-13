@@ -1,9 +1,8 @@
 
 #pragma once
 #include <iostream>
-#include <Yare/Graphics/Graphics.hpp>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 // Ask Opengl for errors:
 void _OpenGLCheckError(const char* file, unsigned int line, std::ostream & out = std::cout);
@@ -15,5 +14,5 @@ void _OpenGLCheckError(const char* file, unsigned int line, std::ostream & out =
 
 #endif 
 
-YARE_GRAPHICS_MODULE_END
+} } 
 

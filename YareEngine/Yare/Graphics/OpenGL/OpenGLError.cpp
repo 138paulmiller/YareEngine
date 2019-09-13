@@ -4,7 +4,7 @@
 #include "OpenGLCommon.hpp"
 
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 void _OpenGLCheckError(const char* file, unsigned int line, std::ostream & out )
 {  GLenum errorCode = glGetError();
@@ -31,4 +31,4 @@ void _OpenGLCheckError(const char* file, unsigned int line, std::ostream & out )
 }
 
 
-YARE_GRAPHICS_MODULE_END
+} } 

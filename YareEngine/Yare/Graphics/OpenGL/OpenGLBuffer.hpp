@@ -5,7 +5,7 @@
 #include <Yare/Graphics/Buffer.hpp>
 
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 class OpenGLVertexBuffer : public VertexBuffer
 {
@@ -13,7 +13,7 @@ public:
 	OpenGLVertexBuffer(const BufferLayout & layout);
 	virtual ~OpenGLVertexBuffer();
 
-	void load(void* data, unsigned int size, bool isDynamic = false) override;
+	void load(const void* data, unsigned int size, bool isDynamic = false) override;
 	
 	void bind() const override;
 	void unbind() const override;
@@ -36,7 +36,7 @@ public:
 	OpenGLIndexBuffer();
 	virtual ~OpenGLIndexBuffer();
 
-	void load(unsigned int* data, unsigned int size) override;
+	void load(const unsigned int* data, unsigned int size) override;
 
 	unsigned int getIndexCount() const override;
 	void bind() const override;
@@ -48,4 +48,4 @@ private:
 };
 
 
-YARE_GRAPHICS_MODULE_END
+} } 

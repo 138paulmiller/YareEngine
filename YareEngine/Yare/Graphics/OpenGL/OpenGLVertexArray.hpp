@@ -1,7 +1,7 @@
 #pragma once
 #include <Yare/Graphics/VertexArray.hpp>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 class OpenGLVertexArray : public VertexArray
 {
@@ -11,7 +11,7 @@ public:
 
 	virtual void bind() const override;
 	virtual void unbind() const override;
-	virtual void addVertexBuffer(VertexBuffer * buffer) override;
+	virtual void attachVertexBuffer(VertexBuffer * buffer) override;
 protected : 
 private:
 	unsigned int _vao; //handle to the vertex array object
@@ -22,4 +22,4 @@ private:
 };
 
 
-YARE_GRAPHICS_MODULE_END
+} } 

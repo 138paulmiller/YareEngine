@@ -3,7 +3,7 @@
 #include "Error.hpp"
 #include "OpenGL/OpenGLVertexArray.hpp"
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics { 
 
 
 VertexArray* VertexArray::Create()
@@ -26,10 +26,25 @@ void VertexArray::addVertexBuffer(VertexBuffer * buffer)
 {
 //If the buffer being added is an index buffer. reset the indexbufferreference
 	_vertexBuffers.push_back(std::unique_ptr<VertexBuffer>(buffer) );
+	this->attachVertexBuffer(buffer);
+
 }
+
+void VertexArray::setVertexBuffer(VertexBuffer * buffer, int i )
+{
+	//If the buffer being added is an index buffer. reset the indexbufferreference
+	_vertexBuffers[i].reset(buffer);
+	this->attachVertexBuffer(buffer);
+
+}
+
 const std::vector<std::unique_ptr<VertexBuffer>>& VertexArray::getVertexBuffers() const
 {
 	return _vertexBuffers;
+}
+const std::unique_ptr<VertexBuffer> & VertexArray::getVertexBuffer(int i) const
+{
+	return getVertexBuffers()[i];
 }
 
 void VertexArray::setIndexBuffer( IndexBuffer * buffer)
@@ -44,4 +59,4 @@ const std::unique_ptr<IndexBuffer>& VertexArray::getIndexBuffer() const
 	return _indexBuffer;
 }
 
-YARE_GRAPHICS_MODULE_END
+} } 

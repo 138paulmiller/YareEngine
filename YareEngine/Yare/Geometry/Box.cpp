@@ -62,7 +62,6 @@ std::unique_ptr<graphics::VertexArray> Box::CreateVertexArray(const glm::vec3 & 
 	vertices[7].uv = { 1, 0 };
 
 	std::vector<unsigned int> indices = {
-		//4,5,6
 		//size +z
 		0,1,2,
 		2,3,0,

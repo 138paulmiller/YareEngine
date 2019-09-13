@@ -30,7 +30,7 @@ Example Usage :
 
 
 */
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics { 
 
 class VertexArray
 {
@@ -43,15 +43,21 @@ public:
 	virtual void bind() const = 0;
 	virtual void unbind() const = 0;
 
-	virtual void addVertexBuffer(VertexBuffer * buffer);
-	virtual const std::vector<std::unique_ptr<VertexBuffer>>& getVertexBuffers() const;
+	void addVertexBuffer(VertexBuffer * buffer);
 
-	virtual void setIndexBuffer(IndexBuffer * buffer);
+	void setVertexBuffer(VertexBuffer * buffer, int i);
+	const std::vector<std::unique_ptr<VertexBuffer> >& getVertexBuffers() const;
+	const std::unique_ptr<VertexBuffer> & getVertexBuffer(int i ) const;
+
+	void setIndexBuffer(IndexBuffer * buffer);
 	const std::unique_ptr<IndexBuffer>& getIndexBuffer() const;
+
+	virtual void attachVertexBuffer(VertexBuffer * buffer)=0;
+
 
 private:
 	std::vector< std::unique_ptr<VertexBuffer>> _vertexBuffers;
 	std::unique_ptr<IndexBuffer> _indexBuffer;
 };
 
-YARE_GRAPHICS_MODULE_END
+} } 

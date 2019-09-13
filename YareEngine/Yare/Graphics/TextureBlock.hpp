@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 //Use a uniform block to block copy uniform names to texture bindings
 //Create Uniform Buffer Layout Struct. Use this and just create a single templated set(Struct * struct)
@@ -37,4 +37,4 @@ struct TextureBlock
 	}
 };
 
-YARE_GRAPHICS_MODULE_END
+} } 

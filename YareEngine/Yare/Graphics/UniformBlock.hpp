@@ -1,7 +1,7 @@
 #include "Shader.hpp"
 #include <unordered_map>
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 enum class UniformType
 {
 	Int, Float, Float3, Int3, Mat4
@@ -101,4 +101,4 @@ struct UniformBlock
 	}
 };
 
-YARE_GRAPHICS_MODULE_END
+} } 

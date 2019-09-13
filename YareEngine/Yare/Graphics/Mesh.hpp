@@ -9,7 +9,7 @@
 */
 
 //Vertex must have position ,normal and uv attributes
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 
 
@@ -26,6 +26,13 @@ public:
 	//Releases owwnership of the VertexArray
 	void loadVertexArray(std::unique_ptr<VertexArray>& vertexArray);
 
+	template <typename VertexType>
+	void loadVertices(const std::vector<VertexType> & vertices, const BufferLayout & vertexLayout)
+	{
+		loadVerticesImpl((void*)vertices.data(), sizeof(VertexType) * vertices.size(), vertexLayout);
+	}
+	
+	void loadIndices(const std::vector<unsigned int> & indices);
 
 	glm::mat4& getModel();
 	void setModel(glm::mat4& model);
@@ -33,11 +40,17 @@ public:
 	//Render Command - contains references to 
 	inline RenderCommand & getRenderCommand() { return _command; }
 private:
-	std::unique_ptr<VertexArray>  _vertexArray;
+	void loadVerticesImpl(const void* vertices, const int size, const BufferLayout & vertexLayout);
+
 	glm::mat4 _model;
 	RenderCommand _command;
 
+	// VAO Specs
+	std::unique_ptr<VertexArray>  _vertexArray;
+	//Who should own data. If neede dot be updated Should be managed by user?
+	//std::vector<void> vertices;
+	//std::vector<unsigned int>  indices;
 };
 
 
-YARE_GRAPHICS_MODULE_END
+} } 

@@ -1,7 +1,7 @@
 #include "FileSystem.hpp"
 #include <fstream>
 
-YARE_SYSTEM_MODULE_BEG
+namespace yare { namespace os { 
 
 void FileSystem::readFile(const std::string& filename, std::string& contents) {
 	std::ifstream file(filename, std::ios_base::binary);
@@ -21,4 +21,4 @@ void FileSystem::readFile(const std::string& filename, std::string& contents) {
 	}
 }
 
-YARE_SYSTEM_MODULE_END
+} }

@@ -9,7 +9,7 @@
 // This class provide an interface to define the OpenGL uniforms and attributes
 // using GLM objects.
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 class OpenGLShader  : public Shader{
  public:
@@ -62,4 +62,4 @@ private:
 };
 
 
-YARE_GRAPHICS_MODULE_END
+} } 

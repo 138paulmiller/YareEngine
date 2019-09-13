@@ -2,9 +2,8 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <string>
-#include "Graphics.hpp"
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 enum class ShaderStage {
 
@@ -47,4 +46,4 @@ class ShaderManager
 
 };
 
-YARE_GRAPHICS_MODULE_END
+} } 

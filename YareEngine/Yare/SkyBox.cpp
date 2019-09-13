@@ -8,7 +8,7 @@ namespace yare{
 
 	using namespace graphics;
 	using namespace geometry;
-	using namespace system;
+	using namespace os;
 
 
 	SkyBox::SkyBox(int radius , int sectors )

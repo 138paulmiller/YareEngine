@@ -2,7 +2,7 @@
 #include "OpenGL/OpenGLRenderer.hpp"
 #include "Error.hpp"
 
-YARE_GRAPHICS_MODULE_BEG
+namespace yare { namespace graphics {  
 
 Renderer* _renderer = 0;
 
@@ -94,4 +94,4 @@ void Renderer::endScene()
 }
 
 
-YARE_GRAPHICS_MODULE_END
+} } 

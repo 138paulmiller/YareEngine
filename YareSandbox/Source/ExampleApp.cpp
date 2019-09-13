@@ -32,6 +32,69 @@ VertexType getHeightMap(const glm::vec2 position, const glm::vec2 uv) {
   v.uv = uv;
   return v;
 }
+PhongMesh::PhongMesh()
+{
+	std::string vertSource, fragSource;
+	FileSystem::readFile(YARE_ASSET("Shaders/phong.vert"), vertSource);
+	FileSystem::readFile(YARE_ASSET("Shaders/phong.frag"), fragSource);
+
+	_phongShader.reset(Shader::Create());
+
+	_phongShader->compile(vertSource, fragSource);
+
+}
+void PhongMesh::render(yare::graphics::Renderer * renderer)
+{
+	RenderCommand & command = Mesh::getRenderCommand();
+	command.uniformBlock.setUniform("material.shininess", _shininess);
+	command.shader = _phongShader.get();
+	command.mode = RenderMode::IndexedMesh;
+	command.primitive = RenderPrimitive::Triangles;
+	command.state = {
+		RenderCullFace::Back,
+		RenderWinding::Clockwise,
+		RenderTestFunc::Less,
+		RenderTestFunc::Less,
+	};
+
+	Mesh::render(renderer);
+}
+
+
+const std::string PhongTextureSlotToUniformName(PhongTextureSlot slot)
+{
+	static const char * uniforms[PhongTextureSlot::Count] = {
+		"material.diffuse",	 //Diffuse
+		"material.specular", //Diffuse
+	};
+	return uniforms[(int)slot];
+}
+
+void PhongMesh::loadTextures(const std::string files[(int)PhongTextureSlot::Count])
+{
+	RenderCommand & command = Mesh::getRenderCommand();
+	TexturePixels pixelsRegion;
+	TexturePixels pixels;
+	for (int i = 0; i < (int)PhongTextureSlot::Count; i++)
+	{
+		Texture::ReadFile(files[i], pixels);
+		_textures[i].reset(Texture::Create());
+		_textures[i]->load(pixels);
+		_textures[i]->generateMipMaps();
+		command.textureBlock.setTexture(PhongTextureSlotToUniformName((PhongTextureSlot)i), _textures[i].get());
+
+	}
+}
+
+void PhongMesh::setShininess(float shininess)
+{
+	_shininess = shininess;
+	Mesh::getRenderCommand().uniformBlock.setUniform("material.shininess", _shininess);
+
+
+}
+
+
 
 
 ExampleApp::ExampleApp() 
@@ -45,13 +108,6 @@ void ExampleApp::onEnter()
 
 
 	////////////////////////////// Demo Heightmap ////////////////////////////////
-	std::string vertSource, fragSource;
-	FileSystem::readFile(YARE_ASSET("Shaders/phong.vert") ,vertSource );
-	FileSystem::readFile(YARE_ASSET("Shaders/phong.frag") , fragSource );
-
-	_simpleShader = std::shared_ptr<Shader>(Shader::Create());
-
-	_simpleShader->compile(vertSource, fragSource);
 
 	// creation of the mesh ------------------------------------------------------
 	std::vector<VertexType> vertices;
@@ -79,47 +135,23 @@ void ExampleApp::onEnter()
 	std::cout << "vertices=" << vertices.size() << std::endl;
 	std::cout << "index=" << indices.size() << std::endl;
 
-	// creation of the vertex array buffer----------------------------------------
-	//1 . Create VAO, then VBO, then IBO
-	_vertexArray = std::shared_ptr< VertexArray>(VertexArray::Create());
-	_vertexArray->bind();
-
 	BufferLayout vertexLayout = {
 
 		{BufferElementType::Float3, "position"},
 		{BufferElementType::Float3, "normal"},
 		{BufferElementType::Float2, "uv"},
 	};
-	VertexBuffer * vertexBuffer = VertexBuffer::Create(vertexLayout);
-	vertexBuffer->load(&vertices[0], vertices.size() * sizeof(VertexType));
+
+	std::string textureFiles[2];
+	textureFiles[PhongTextureSlot::Diffuse] = YARE_ASSET("Images/container_diffuse.png");
+	textureFiles[PhongTextureSlot::Specular] = YARE_ASSET("Images/container_specular.png");
 	
-	
-	IndexBuffer* indexBuffer = IndexBuffer::Create();
-	indexBuffer->load(&indices[0], indices.size() * sizeof(unsigned int ));
-	
+	_phongMesh.reset(new PhongMesh());
 
-	_vertexArray->addVertexBuffer(vertexBuffer);
-	_vertexArray->setIndexBuffer(indexBuffer);
-
-	_vertexArray->unbind();
-
-	// Load some textures ----------------------------------------
-
-	TexturePixels pixelsRegion;
-	TexturePixels pixels;
-
-	_textureDiffuse.reset(Texture::Create());
-	_textureSpecular.reset(Texture::Create());
-
-	Texture::ReadFile(YARE_ASSET("Images/container_diffuse.png"), pixels);
-	_textureDiffuse->load(pixels);
-	_textureDiffuse->generateMipMaps();
-
-	Texture::ReadFile(YARE_ASSET("Images/container_specular.png"), pixels);
-	_textureSpecular->load(pixels);
-	_textureSpecular->generateMipMaps();
-			
-
+	_phongMesh->loadVertices(vertices, vertexLayout);
+	_phongMesh->loadIndices(indices);
+	_phongMesh->loadTextures(textureFiles);
+	_phongMesh->setShininess(128);
 }
 
 
@@ -142,26 +174,8 @@ void ExampleApp::onRender(Renderer* renderer) {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	_command.uniformBlock.setUniform("projection", _camera.getProjection());
-	_command.uniformBlock.setUniform("view", _camera.getView());
-	_command.uniformBlock.setUniform("model", glm::mat4(1));
-	_command.uniformBlock.setUniform("material.shininess", 120.0f);
-	_command.vertexArray = _vertexArray.get();
-	_command.shader = _simpleShader.get();
-	_command.textureBlock.setTexture("material.diffuse", _textureDiffuse.get());
-	_command.textureBlock.setTexture("material.specular", _textureSpecular.get());
-	_command.mode = RenderMode::IndexedMesh;
-	_command.primitive = RenderPrimitive::Triangles;
-	_command.state = {
-		RenderCullFace::Back,
-		RenderWinding::Clockwise,
-		RenderTestFunc::Less,
-		RenderTestFunc::Less,
-	};
-
 	renderer->beginScene(&_camera);
-	
-	renderer->submit(&_command);
+	_phongMesh->render(renderer);
 
 	renderer->endScene();
 
@@ -189,6 +203,5 @@ void ExampleApp::onRender(Renderer* renderer) {
 	  _model = glm::translate(_camera.getPosition());
 	  _skySphere->setModel(_model);
 	  _skySphere->render(renderer);
-
   renderer->endScene();
 } 
