@@ -1,7 +1,9 @@
 #version 330
- in vec3 position;
- in vec3 normal;
- in vec2 uv;
+ 
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 uv;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -26,7 +28,7 @@ void main(void)
 
 
     frag_uv = uv;
-    frag_norm = normalize( vec3(model * vec4(normal,0.0)) );
-	frag_pos =view * model * vec4(position,1.0);
+    frag_norm = normalize( vec3(model * vec4(normal, 0.0)) );
+	frag_pos = view * model * vec4(position, 1.0);
     gl_Position = projection * frag_pos ;
 }

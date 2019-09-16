@@ -1,6 +1,7 @@
 
 #include "ExampleApp.hpp"
-
+#include <Yare/Geometry/Box.hpp>
+#include <Yare/Geometry/Sphere.hpp>
 
 #include <iostream>
 #include <vector>
@@ -51,12 +52,12 @@ void PhongMesh::preRender()
 	command.shader = _phongShader.get();
 	command.mode = RenderMode::IndexedMesh;
 	command.primitive = RenderPrimitive::Triangles;
-	command.state = {
-		RenderCullFace::Back,
-		RenderWinding::Clockwise,
-		RenderTestFunc::Less,
-		RenderTestFunc::Less,
-	};
+	command.state.cullFace = RenderCullFace::Back;
+
+	command.state.winding= RenderWinding::Clockwise;
+	command.state.depthFunc = RenderTestFunc::Less;
+	command.state.stencilFunc = RenderTestFunc::Less;
+
 	Mesh::preRender();
 }
 
@@ -110,16 +111,24 @@ void ExampleApp::onEnter()
 
 
 	////////////////////////////// Demo Heightmap ////////////////////////////////
+	_phongMesh.reset(new PhongMesh());
 
 	// creation of the mesh ------------------------------------------------------
+	BufferLayout vertexLayout = {
+
+			{BufferElementType::Float3, "position"},
+			{BufferElementType::Float3, "normal"},
+			{BufferElementType::Float2, "uv"},
+	};
 	std::vector<VertexType> vertices;
 	std::vector<unsigned int> indices;
   
-
 	for (int y = 0; y <= _size; ++y)
 		for (int x = 0; x <= _size; ++x) {
-			float xx = (x - _size / 2) * 0.1f;
-			float yy = (y - _size / 2) * 0.1f;
+			float xx = (x - _size / 2.0) / _size * 10;
+			float yy = (y - _size / 2.0) / _size * 10;
+
+
 			vertices.push_back(getHeightMap({ xx, yy }, { x/(float)_size, y / (float)_size }));
 	}
 
@@ -134,24 +143,18 @@ void ExampleApp::onEnter()
 		indices.push_back((x + 0) + (_size + 1) * (y + 0));
 	}
 
+
+
 	std::cout << "vertices=" << vertices.size() << std::endl;
 	std::cout << "index=" << indices.size() << std::endl;
 
-	BufferLayout vertexLayout = {
-
-		{BufferElementType::Float3, "position"},
-		{BufferElementType::Float3, "normal"},
-		{BufferElementType::Float2, "uv"},
-	};
-
+	_phongMesh->loadVertices(vertices, vertexLayout);
+	_phongMesh->loadIndices(indices);
+	
 	std::string textureFiles[2];
 	textureFiles[PhongTextureSlot::Diffuse] = YARE_ASSET("Images/container_diffuse.png");
 	textureFiles[PhongTextureSlot::Specular] = YARE_ASSET("Images/container_specular.png");
-	
-	_phongMesh.reset(new PhongMesh());
 
-	_phongMesh->loadVertices(vertices, vertexLayout);
-	_phongMesh->loadIndices(indices);
 	_phongMesh->loadTextures(textureFiles);
 	_phongMesh->setShininess(128);
 }
@@ -180,7 +183,11 @@ void ExampleApp::onRender(Renderer* renderer) {
  	 _model = glm::translate(_camera.getPosition());
 	_skySphere->setModel(_model);
 
+	_model = glm::scale(glm::vec3({ 10,10,10 }));
 
+	//_phongMesh->setModel(_model);
+
+	_phongMesh->renderData.state.wireframe = true;
 	//Submit Scene to be drawn 
 
 	renderer->beginScene(&_camera);

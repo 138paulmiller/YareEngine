@@ -35,5 +35,4 @@ void main(void)
 	vec3 specular = spec_coef * vec3(texture(material.specular, frag_uv));    
 	
     color.xyz =  diffuse + specular;
-	
 }

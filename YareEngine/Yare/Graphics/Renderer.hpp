@@ -67,6 +67,7 @@ namespace yare {
 		RenderWinding  winding = RenderWinding::Clockwise;
 		RenderTestFunc depthFunc = RenderTestFunc::Less;
 		RenderTestFunc stencilFunc = RenderTestFunc::Less;
+		bool wireframe = 0;
 	};
 
 
@@ -115,6 +116,7 @@ namespace yare {
 	protected:
 		virtual void renderIndexedMesh(const VertexArray * vertexArray) = 0;
 		virtual void updateState(const RenderState & state) = 0;
+		
 		/*
 			cached config state. render command only updates if different
 		*/

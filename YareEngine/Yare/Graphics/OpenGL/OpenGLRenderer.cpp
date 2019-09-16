@@ -65,7 +65,16 @@ void OpenGLRenderer::updateState(const RenderState & state)
 	glDepthFunc(RenderTestFuncToGLFunc(state.depthFunc));
 	//glStencilFunc(RenderTestFuncToGLFunc(state.stencilFunc), ref, mask);
 
+	if(state.wireframe)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	}
+	else
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	}
 
 }
 
