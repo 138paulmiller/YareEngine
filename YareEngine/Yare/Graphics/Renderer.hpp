@@ -76,8 +76,8 @@ namespace yare {
 	{
 		//Render Targets 
 		//Viewport
-		UniformBlock uniformBlock;
-		TextureBlock textureBlock;
+		UniformBlock uniforms;
+		TextureBlock textures;
 
 		VertexArray * vertexArray = 0;
 		Shader * shader = 0;

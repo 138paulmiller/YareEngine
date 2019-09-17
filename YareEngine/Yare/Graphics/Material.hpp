@@ -2,11 +2,18 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "Renderer.hpp"
+#include "TextureBlock.hpp"
+#include "UniformBlock.hpp"
 
+namespace yare { namespace graphics  {
 
-class Material
-{
-	virtual ~Material() = default;
-	virtual void preRender() = 0;
-
-};
+	class Material
+	{
+	public:
+		virtual ~Material() = default;
+		//Load uniform/textures into uniforms/texture block
+		virtual void loadUniforms(UniformBlock & uniforms) = 0;
+		virtual void loadTextures(TextureBlock & textures) = 0;
+	};
+}
+}

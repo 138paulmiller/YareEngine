@@ -111,7 +111,7 @@ namespace yare {
 		RenderState& state = command.state;
 
 		command.shader = _shader.get();
-		command.textureBlock.setTexture("environment", _texture.get());
+		command.textures.setTexture("environment", _texture.get());
 		state.cullFace = RenderCullFace::Front;
 
 	}

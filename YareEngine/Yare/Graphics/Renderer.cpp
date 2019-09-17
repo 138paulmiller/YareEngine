@@ -51,8 +51,8 @@ void Renderer::submit(Renderable * renderable)
 		Renderable  * newestRenderable = _renderQueue.back();
 		//if a camera is bound. load it uniforms
 		//use UBOs and render views for this
-		newestRenderable->renderData.uniformBlock.setUniform("view", _camera->getView());
-		newestRenderable->renderData.uniformBlock.setUniform("projection", _camera->getProjection());
+		newestRenderable->renderData.uniforms.setUniform("view", _camera->getView());
+		newestRenderable->renderData.uniforms.setUniform("projection", _camera->getProjection());
 	}
 }
 
@@ -73,8 +73,8 @@ void Renderer::present()
 		updateState(data->state);
 
 		data->shader->bind();
-		data->uniformBlock.load(data->shader);
-		data->textureBlock.load(data->shader);
+		data->uniforms.load(data->shader);
+		data->textures.load(data->shader);
 
 
 		data->vertexArray->bind();

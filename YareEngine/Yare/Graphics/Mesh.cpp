@@ -1,4 +1,6 @@
 #include "Mesh.hpp"
+#include "UniformBlock.hpp"
+#include "TextureBlock.hpp"
 #include <GL/glew.h>
 
 namespace yare { namespace graphics {  
@@ -65,7 +67,12 @@ void Mesh::loadIndices(const std::vector<unsigned int> & indices)
 
 void Mesh::preRender() 
 {
-	Renderable::renderData.uniformBlock.setUniform("model", _model);
+	Renderable::renderData.uniforms.setUniform("model", _model);
+	if (_material.get())
+	{
+		_material->loadUniforms(Renderable::renderData.uniforms);
+		_material->loadTextures(Renderable::renderData.textures);
+	}
 } 
 void Mesh::postRender() 
 {
@@ -79,6 +86,14 @@ glm::mat4& Mesh::getModel()
 void Mesh::setModel(glm::mat4& model)
 {
 	_model = model;
+}
+const Material* Mesh::getMaterial()
+{
+	return _material.get();
+}
+void Mesh::setMaterial(Material* material)
+{
+	_material.reset(material);
 }
 
 

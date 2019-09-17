@@ -1,3 +1,4 @@
+#pragma once
 #include "Shader.hpp"
 #include "Texture.hpp"
 
@@ -19,6 +20,11 @@ namespace yare {
 		std::unordered_map<std::string ,  Texture *> _textures;
 
 		void setTexture(const std::string& name, Texture* texture);
+		
+
+		/*
+		Load all uniforms into shader
+		*/
 		void load(Shader* shader);
 	};
 

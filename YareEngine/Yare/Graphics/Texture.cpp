@@ -62,6 +62,17 @@ Texture* Texture::Create(TextureType type , TextureFormat internalFormat)
 		return 0;
 	}
 }
+Texture* Texture::CreateFromFile(const std::string& filepath)
+{
+	TexturePixels pixelsRegion;
+	TexturePixels pixels;
+	Texture::ReadFile(filepath, pixels);
+	
+	Texture* texture = Texture::Create();
+	texture->load(pixels);
+	texture->generateMipMaps();
+	return texture;
+}
 
 void Texture::ReadFile(const std::string & filepath, TexturePixels & pixels)
 {

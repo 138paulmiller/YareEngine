@@ -1,3 +1,4 @@
+#pragma once
 #include "Shader.hpp"
 #include <unordered_map>
 
@@ -35,7 +36,10 @@ namespace yare {
 			void setUniform(const std::string& name, const glm::dvec3& int3);
 			void setUniform(const std::string& name, const glm::vec3& float3);
 			void setUniform(const std::string& name, const glm::mat4& mat4);
-
+			
+			/*
+			Load all uniforms into shader
+			*/
 			void load(Shader* shader);
 		};
 

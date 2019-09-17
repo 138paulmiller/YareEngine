@@ -64,8 +64,11 @@ class Texture
 {
 	public:
 		static Texture* Create(TextureType type = TextureType::Image, TextureFormat internalFormat = TextureFormat::RGBA8);
+		//Default loads RGBA8 image
+		static Texture* CreateFromFile(const std::string& filepath);
 
 		static void ReadFile(const std::string & filepath, TexturePixels & pixels);
+
 		static void ReadRegion(
 			const TexturePixels & pixelsIn,
 			TexturePixels & pixelsOut,

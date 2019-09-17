@@ -2,6 +2,7 @@
 #include "ExampleApp.hpp"
 #include <Yare/Geometry/Box.hpp>
 #include <Yare/Geometry/Sphere.hpp>
+#include <Yare/Graphics/Materials/PhongMaterial.hpp>
 
 #include <iostream>
 #include <vector>
@@ -48,7 +49,6 @@ PhongMesh::PhongMesh()
 void PhongMesh::preRender()
 {
 	RenderData& command = Mesh::renderData;
-	command.uniformBlock.setUniform("material.shininess", _shininess);
 	command.shader = _phongShader.get();
 	command.mode = RenderMode::IndexedMesh;
 	command.primitive = RenderPrimitive::Triangles;
@@ -64,37 +64,6 @@ void PhongMesh::preRender()
 void PhongMesh::postRender()
 {
 	Mesh::postRender();
-}
-
-const std::string PhongTextureSlotToUniformName(PhongTextureSlot slot)
-{
-	static const char * uniforms[PhongTextureSlot::Count] = {
-		"material.diffuse",	 //Diffuse
-		"material.specular", //Diffuse
-	};
-	return uniforms[(int)slot];
-}
-
-void PhongMesh::loadTextures(const std::string files[(int)PhongTextureSlot::Count])
-{
-	RenderData & command = Mesh::renderData;
-	TexturePixels pixelsRegion;
-	TexturePixels pixels;
-	for (int i = 0; i < (int)PhongTextureSlot::Count; i++)
-	{
-		Texture::ReadFile(files[i], pixels);
-		_textures[i].reset(Texture::Create());
-		_textures[i]->load(pixels);
-		_textures[i]->generateMipMaps();
-		command.textureBlock.setTexture(PhongTextureSlotToUniformName((PhongTextureSlot)i), _textures[i].get());
-
-	}
-}
-
-void PhongMesh::setShininess(float shininess)
-{
-	_shininess = shininess;
-	Mesh::renderData.uniformBlock.setUniform("material.shininess", _shininess);
 }
 
 
@@ -151,12 +120,13 @@ void ExampleApp::onEnter()
 	_phongMesh->loadVertices(vertices, vertexLayout);
 	_phongMesh->loadIndices(indices);
 	
-	std::string textureFiles[2];
-	textureFiles[PhongTextureSlot::Diffuse] = YARE_ASSET("Images/container_diffuse.png");
-	textureFiles[PhongTextureSlot::Specular] = YARE_ASSET("Images/container_specular.png");
+	PhongMaterial *material = new PhongMaterial();
 
-	_phongMesh->loadTextures(textureFiles);
-	_phongMesh->setShininess(128);
+	material->setDiffuseTexture(Texture::CreateFromFile(YARE_ASSET("Images/container_diffuse.png")));
+	material->setSpecularTexture(Texture::CreateFromFile(YARE_ASSET("Images/container_specular.png")));
+	material->setShininess(128);
+	
+	_phongMesh->setMaterial(material);
 }
 
 
