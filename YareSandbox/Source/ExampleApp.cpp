@@ -76,7 +76,7 @@ ExampleApp::ExampleApp()
 
 void ExampleApp::onEnter()
 {
-	_skySphere.reset(new SkyBox());
+	_skybox.reset(new SkyBox());
 
 
 	////////////////////////////// Demo Heightmap ////////////////////////////////
@@ -127,6 +127,9 @@ void ExampleApp::onEnter()
 	material->setShininess(128);
 	
 	_phongMesh->setMaterial(material);
+
+	_skybox->setCubemap(Texture::CreateCubemapFromFile(YARE_ASSET("Images/skybox.png")));
+
 }
 
 
@@ -139,7 +142,7 @@ void ExampleApp::onRender(Renderer* renderer) {
 
 	float t = getTime();
 	// set matrix : projection + view
-	_projection = glm::perspective(45.0f,getWindowRatio(), 0.1f, 100.f);
+	_projection = glm::perspective(45.0f,getWindowRatio(), 0.1f, 200.f);
 	
 	_camera.setProjection(_projection);
 	_camera.setPosition({ 10.0 * sin(t), 0, 10.0 * cos(t) });
@@ -151,7 +154,8 @@ void ExampleApp::onRender(Renderer* renderer) {
 
 	////////// Update State ////////////////
  	 _model = glm::translate(_camera.getPosition());
-	_skySphere->setModel(_model);
+	 _model *= glm::scale(glm::vec3( 20,20,20 ));
+	_skybox->setModel(_model);
 
 	_model = glm::scale(glm::vec3({ 10,10,10 }));
 
@@ -162,6 +166,6 @@ void ExampleApp::onRender(Renderer* renderer) {
 
 	renderer->beginScene(&_camera);
 		renderer->submit(_phongMesh.get());
-		renderer->submit(_skySphere.get());
+		renderer->submit(_skybox.get());
 	renderer->endScene();
 } 

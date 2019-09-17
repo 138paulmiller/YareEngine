@@ -69,7 +69,7 @@ class ExampleApp : public App {
 	glm::mat4 _projection = glm::mat4(1.0);
 	glm::mat4 _model = glm::mat4(1.0); 
 	Camera _camera;
-	std::unique_ptr<SkyBox>		_skySphere;
+	std::unique_ptr<SkyBox>		_skybox;
 
 	std::unique_ptr<PhongMesh>		_phongMesh;
 

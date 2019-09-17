@@ -16,16 +16,20 @@ namespace yare
 	{
 	public:
 		//Add options for atmospheric effects
-		SkyBox(int radius = 10, int sectors=30);
+		SkyBox();
 		~SkyBox();
 		void preRender() override;
 		void postRender() override;
 
+		void setCubemap(Texture* cubemap);
 		
+
+		void loadFace(const TexturePixels& pixels, const TextureFace & face);
 
 	private:
 		std::shared_ptr<Shader > _shader;
-		std::shared_ptr<Texture> _texture;
+		//Cubemap texture
+		std::shared_ptr<Texture> _cubemap;
 
 	};
 }

@@ -18,7 +18,7 @@ OpenGLTexture::OpenGLTexture(TextureType type, TextureFormat internalFormat )
 	case TextureType::Image:
 		_target = GL_TEXTURE_2D;
 		break;
-	case TextureType::CubeMap:
+	case TextureType::Cubemap:
 		_target = GL_TEXTURE_CUBE_MAP;
 		break;
 	default:
