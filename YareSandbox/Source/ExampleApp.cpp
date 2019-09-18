@@ -3,7 +3,7 @@
 #include <Yare/Geometry/Box.hpp>
 #include <Yare/Geometry/Sphere.hpp>
 #include <Yare/Graphics/Materials/PhongMaterial.hpp>
-
+#include <Yare/AssetManager.hpp>
 #include <iostream>
 #include <vector>
 
@@ -37,8 +37,8 @@ VertexType getHeightMap(const glm::vec2 position, const glm::vec2 uv) {
 PhongMesh::PhongMesh()
 {
 	std::string vertSource, fragSource;
-	FileSystem::readFile(YARE_ASSET("Shaders/phong.vert"), vertSource);
-	FileSystem::readFile(YARE_ASSET("Shaders/phong.frag"), fragSource);
+	FileSystem::ReadFile(YARE_ASSET("Shaders/phong.vert"), vertSource);
+	FileSystem::ReadFile(YARE_ASSET("Shaders/phong.frag"), fragSource);
 
 	_phongShader.reset(Shader::Create());
 
@@ -76,6 +76,10 @@ ExampleApp::ExampleApp()
 
 void ExampleApp::onEnter()
 {
+
+	//Load default engine assets
+	AssetManager::GetInstance().loadDefaultAssets();
+
 	_skybox.reset(new SkyBox());
 
 
@@ -157,13 +161,9 @@ void ExampleApp::onRender(Renderer* renderer) {
 	 _model *= glm::scale(glm::vec3( 20,20,20 ));
 	_skybox->setModel(_model);
 
-	_model = glm::scale(glm::vec3({ 10,10,10 }));
-
-	//_phongMesh->setModel(_model);
-
 	_phongMesh->renderData.state.wireframe = true;
-	//Submit Scene to be drawn 
 
+	//Submit Scene to be drawn - TODO - SceneRenderer will manage /sort/ cull this process of drawing
 	renderer->beginScene(&_camera);
 		renderer->submit(_phongMesh.get());
 		renderer->submit(_skybox.get());

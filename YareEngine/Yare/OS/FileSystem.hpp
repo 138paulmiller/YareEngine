@@ -15,7 +15,7 @@ class FileSystem
 {
 public:
 	// file reading 
-	static void readFile(const std::string& filename, std::string& contents);
+	static void ReadFile(const std::string& filename, std::string& contents);
 
 };
 

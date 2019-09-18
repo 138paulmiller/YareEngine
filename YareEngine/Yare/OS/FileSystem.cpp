@@ -3,7 +3,7 @@
 
 namespace yare { namespace os { 
 
-void FileSystem::readFile(const std::string& filename, std::string& contents) {
+void FileSystem::ReadFile(const std::string& filename, std::string& contents) {
 	std::ifstream file(filename, std::ios_base::binary);
 	if (file) {
 		file.seekg(0, std::ios_base::end);

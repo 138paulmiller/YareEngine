@@ -79,6 +79,7 @@ private:
 	float _deltaTime;
 	AppConfig _config;
 	graphics::Renderer* _renderer;
+
 	//Add layers. Each layer is render in order and will have its own render graph
 
 };

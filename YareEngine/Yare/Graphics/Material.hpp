@@ -1,7 +1,6 @@
 
 #pragma once
 #include <glm/glm.hpp>
-#include "Renderer.hpp"
 #include "TextureBlock.hpp"
 #include "UniformBlock.hpp"
 

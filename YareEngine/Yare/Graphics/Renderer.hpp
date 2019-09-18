@@ -12,6 +12,7 @@
 
 
 
+
 #define DEFAULT_RENDER_API RenderAPI::OpenGL
 #define TEXTURE_MAX 8
 //https://www.gamedev.net/forums/topic/645442-game-engine-layout/
@@ -124,6 +125,10 @@ namespace yare {
 		std::queue<Renderable * > _renderQueue;
 		std::stack<RenderState> _stateStack;
 
+
+		//current environment map. Rendered to in deferred pass. and used for reflection/refractions in transparency 
+		//Or, create CaptureCube. Renders all item within the region to a cubemap. This can then be bound to the environment map
+		//SkyBox _skybox; 
 		const Camera * _camera; //current 
 		RenderAPI _api;
 	};

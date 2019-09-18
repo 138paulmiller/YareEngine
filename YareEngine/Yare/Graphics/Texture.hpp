@@ -45,13 +45,13 @@ struct TextureRegion
 
 /*
 Cubmap_n
-		------     +y
-		/  y / |    |__ +x
-	------ x|   /
-	| z  | /   +z
+      ------     +y
+	 /    /|    |__ +x
+	------ |   /
+	|    | /   +z
 	|____|/
 	x is right(+) left(-)
-	y is up(+) down(-)
+	y is top(+) bottom(-)
 	z is front(+) back(-)
 - Faces are in order right, left, up, down, back, front
 */
@@ -70,11 +70,11 @@ class Texture
 		//Creates and loads a Cubemapped raster formatted as such
 		/*
 			-----------------------
-			|    | up  |     |     |
+			|    | top |     |     |
 			|____|_____|_____|_____|
 			|left|front|right|back |
 			|____|_____|_____|_____|
-			|    |down |     |     |
+			|    |bottom     |     |
 			|____|_____|_____|_____|
 
 		*/

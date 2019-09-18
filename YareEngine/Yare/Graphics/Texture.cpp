@@ -64,7 +64,6 @@ Texture* Texture::Create(TextureType type , TextureFormat internalFormat)
 }
 Texture* Texture::CreateFromFile(const std::string& filepath)
 {
-	TexturePixels pixelsRegion;
 	TexturePixels pixels;
 	Texture::ReadFile(filepath, pixels);
 	

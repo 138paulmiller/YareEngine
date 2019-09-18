@@ -7,9 +7,7 @@
 #include <Yare/Graphics/Camera.hpp>
 #include <Yare/Graphics/Texture.hpp>
 #include <Yare/Graphics/Mesh.hpp>
-
-
-#include <Yare/SkyBox.hpp>
+#include <Yare/Graphics/SkyBox.hpp>
 
 #include <GLFW/glfw3.h>
 
