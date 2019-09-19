@@ -2,7 +2,7 @@
 cmake_minimum_required (VERSION 3.1)
 project (YareEngine)
 
-add_subdirectory(Assets)
+add_subdirectory(Content)
 
 # ------------------- All source files ----------------------------------------------
 file(GLOB_RECURSE YARE_HEADERS CONFIGURE_DEPENDS "Yare/*.hpp")
@@ -16,6 +16,7 @@ source_group(Yare REGULAR_EXPRESSION "Yare/.*")
         source_group(Yare\\Graphics\\OpenGL REGULAR_EXPRESSION "Yare/Graphics/OpenGL/.*")
         source_group(Yare\\Graphics\\Materials REGULAR_EXPRESSION "Yare/Graphics/Materials/.*")
     source_group(Yare\\Geometry REGULAR_EXPRESSION "Yare/Geometry/.*")
+    source_group(Yare\\Assets REGULAR_EXPRESSION "Yare/Assets/.*")
     
        
 # --------------------- Add source           -----------------------------------------

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(YareSandbox)
 
-add_subdirectory(Assets)
+add_subdirectory(Content)
 
 file(GLOB_RECURSE YARESANDBOX_HEADERS CONFIGURE_DEPENDS "*.hpp")
 file(GLOB_RECURSE YARESANDBOX_SOURCE  CONFIGURE_DEPENDS "*.cpp")

@@ -19,7 +19,7 @@ out vec4 view_pos;
 void main(void)
 {
     
-    light_pos = view * vec4(0.0,10.0,0.0,1.0);
+    light_pos = view * vec4(0.0,10.0,-10.0,1.0);
 	view_pos = vec4(view[0].w,
 					view[1].w,
 					view[2].w,

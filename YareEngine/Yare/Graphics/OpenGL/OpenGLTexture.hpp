@@ -18,6 +18,7 @@ public:
 	)override;
 
 
+	void update(TextureWrap wrap = TextureWrap::Clamp, TextureFilter filter = TextureFilter::Linear)override;
 
 	void generateMipMaps() override;
 	void bind(unsigned int unit = 0)override;

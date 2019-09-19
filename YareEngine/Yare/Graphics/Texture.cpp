@@ -116,7 +116,7 @@ void Texture::ReadRegion(
 )
 {
 	if ((region.width >= region.width + pixelsIn.width)
-		|| (region.width >= region.width + pixelsIn.width))
+		|| (region.height >= region.height + pixelsIn.height))
 	{
 		YARE_LOG("Read Region: Invalid Region!");
 		return;
@@ -140,7 +140,7 @@ void Texture::ReadRegion(
 			for (int c = 0; c < comps; c++) {
 				indexIn = (pixelsIn.width * (region.yoffset+y) + region.xoffset + x) * comps;
 				indexOut = (region.width * y + x) * comps;
-				pixelsOut.data[indexOut + c] = pixelsIn.data[ indexIn + c];
+				pixelsOut.data[indexOut + c] = (char)pixelsIn.data[ indexIn + c];
 			}
 		}
 

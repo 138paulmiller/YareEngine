@@ -34,12 +34,9 @@ public:
 	PhongMesh();
 	void preRender()override;
 	void postRender()override;
-	void loadTextures(const std::string  files[(int)PhongTextureSlot::Count]);
-	
-	void setShininess(float shininess);
+
 private:
 	
-	std::unique_ptr<Shader > _phongShader;
 	std::unique_ptr<Texture>	_textures[(int)PhongTextureSlot::Count];
 	float _shininess;
 };

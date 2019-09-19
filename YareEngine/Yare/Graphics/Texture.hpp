@@ -15,31 +15,6 @@ enum class TextureType
 {
 	Image = 0, //Default 2d image data
 	Cubemap
-
-};
-
-struct TexturePixels
-{
-	TexturePixels(
-		unsigned char* data=0,
-		int width=0, int height = 0,
-		TextureFormat format = TextureFormat::None
-	);
-	~TexturePixels();
-	unsigned char * data; //raw image data
-	int width, height; //
-	TextureFormat format; //format tpye and components
-};
-
-struct TextureRegion
-{
-	TextureRegion(
-	int width  =0, int height  = 0,
-	int xoffset=0, int yoffset = 0
-	);
-
-	int width, height;
-	int xoffset, yoffset;
 };
 
 
@@ -60,10 +35,49 @@ enum class TextureFace
 	Right=0, Left, Top, Bottom, Front, Back, Count
 };
 
+enum class TextureWrap
+{
+	Clamp = 0, Repeat, Count
+};
+enum class TextureFilter
+{
+	Linear = 0, Nearest, Count
+};
+
+
+struct TexturePixels
+{
+	TexturePixels(
+		unsigned char* data = 0,
+		int width = 0, int height = 0,
+		TextureFormat format = TextureFormat::None
+	);
+	~TexturePixels();
+	unsigned char* data; //raw image data
+	int width, height; //
+	TextureFormat format; //format tpye and components
+};
+
+struct TextureRegion
+{
+	TextureRegion(
+		int width = 0, int height = 0,
+		int xoffset = 0, int yoffset = 0
+	);
+
+	int width, height;
+	int xoffset, yoffset;
+};
+
+
 class Texture
 {
 	public:
-		static Texture* Create(TextureType type = TextureType::Image, TextureFormat internalFormat = TextureFormat::RGBA8);
+		///////////////////////////////Statics ////////////////////////
+		static Texture* Create(
+			TextureType type = TextureType::Image, 
+			TextureFormat internalFormat = TextureFormat::RGBA8
+		);
 		//Default loads RGBA8 image
 		static Texture* CreateFromFile(const std::string& filepath);
 
@@ -78,19 +92,18 @@ class Texture
 			|____|_____|_____|_____|
 
 		*/
-
 		static Texture* CreateCubemapFromFile(const std::string& filepath);
-
+		
+		//
 		static void ReadFile(const std::string & filepath, TexturePixels & pixels);
-
 		static void ReadRegion(
 			const TexturePixels & pixelsIn,
 			TexturePixels & pixelsOut,
 			const TextureRegion & region 
 		);
 
-		~Texture() = default;
-
+		///////////////////////////////Methods ////////////////////////
+		virtual ~Texture() = default;
 
 		virtual void load(
 			const TexturePixels & pixels,
@@ -98,9 +111,14 @@ class Texture
 			int level = 0
 		) = 0;
 	
+		virtual void update(TextureWrap wrap = TextureWrap::Clamp, TextureFilter filter = TextureFilter::Linear) = 0;
 		virtual void generateMipMaps()=0;
 		virtual void bind(unsigned int unit = 0) = 0;
 		virtual void unbind() = 0;
 
 };
-} } 
+
+
+
+} 
+} 

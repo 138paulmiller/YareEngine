@@ -28,7 +28,7 @@ void main(void)
 	//specular coef
 	vec3 view_dir = normalize(view_pos.xyz - frag_pos.xyz);
     vec3 reflect_dir = reflect(-light_dir, frag_norm);
-    float spec_coef = pow(max(dot(view_dir, reflect_dir), 0.0), material.shininess);
+    float spec_coef = pow(max(dot(reflect_dir, view_dir), 0.0), material.shininess);
     
 	
 	vec3 diffuse =  diff_coef * vec3(texture(material.diffuse, frag_uv));   

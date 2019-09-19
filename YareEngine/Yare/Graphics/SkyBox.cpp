@@ -1,14 +1,10 @@
 #include "SkyBox.hpp"
 #include "Renderer.hpp"
-#include "../Geometry/Sphere.hpp"
-#include "../Geometry/Box.hpp"
-#include "../OS/FileSystem.hpp"
-#include "../AssetManager.hpp"
+#include <Yare/Geometry/Box.hpp>
+#include <Yare/AssetManager.hpp>
 
 namespace yare {
-	using namespace geometry;
-	using namespace os;
-
+	
 	namespace graphics {
 
 
@@ -16,11 +12,11 @@ namespace yare {
 		SkyBox::SkyBox()
 		{
 
-			Mesh::loadVertexArray(Box::CreateVertexArray({ 1,1,1 }));
+			Mesh::loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
 
 			//Create the Skybox Shader
 
-			_shader=AssetManager::GetInstance().get<Shader>("Shader_SkyBox");
+			_shader= AssetManager::GetInstance().get<Shader>("Shader_SkyBox");
 
 			Mesh::renderData.shader = _shader;
 			Mesh::renderData.state.cullFace = RenderCullFace::Front;

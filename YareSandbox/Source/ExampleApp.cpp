@@ -34,30 +34,62 @@ VertexType getHeightMap(const glm::vec2 position, const glm::vec2 uv) {
   v.uv = uv;
   return v;
 }
+
+void CreateHeightMap(
+	int xsize, int ysize, 
+	std::vector<VertexType> & vertices,
+	std::vector<unsigned int> & indices)
+{
+	BufferLayout vertexLayout = {
+
+			{BufferElementType::Float3, "position"},
+			{BufferElementType::Float3, "normal"},
+			{BufferElementType::Float2, "uv"},
+	};
+	vertices.resize(xsize * ysize);
+	indices.resize(xsize * ysize * 6);
+
+	for (int y = 0; y <= ysize; ++y)
+		for (int x = 0; x <= xsize; ++x) {
+			float xx = (x - xsize / 2.0) / xsize * 10;
+			float yy = (y - ysize / 2.0) / ysize * 10;
+
+
+			vertices.push_back(getHeightMap({ xx, yy }, { x / (float)xsize, y / (float)ysize }));
+		}
+
+	for (int y = 0; y < ysize; ++y)
+		for (int x = 0; x < xsize; ++x) {
+			indices.push_back((x + 0) + (xsize + 1) * (y + 0));
+			indices.push_back((x + 1) + (xsize + 1) * (y + 0));
+			indices.push_back((x + 1) + (xsize + 1) * (y + 1));
+
+			indices.push_back((x + 1) + (xsize + 1) * (y + 1));
+			indices.push_back((x + 0) + (xsize + 1) * (y + 1));
+			indices.push_back((x + 0) + (xsize + 1) * (y + 0));
+		}
+	std::cout << "vertices=" << vertices.size() << std::endl;
+	std::cout << "index=" << indices.size() << std::endl;
+
+}
+
 PhongMesh::PhongMesh()
 {
-	std::string vertSource, fragSource;
-	FileSystem::ReadFile(YARE_ASSET("Shaders/phong.vert"), vertSource);
-	FileSystem::ReadFile(YARE_ASSET("Shaders/phong.frag"), fragSource);
-
-	_phongShader.reset(Shader::Create());
-
-	_phongShader->compile(vertSource, fragSource);
+	//Default render data config
+	RenderData& data = Mesh::renderData;
+	data.shader = AssetManager::GetInstance().get<Shader>("Shader_Phong");
+	data.mode = RenderMode::IndexedMesh;
+	data.primitive = RenderPrimitive::Triangles;
+	data.state.cullFace = RenderCullFace::Back;
+	data.state.winding = RenderWinding::Clockwise;
+	data.state.depthFunc = RenderTestFunc::Less;
+	data.state.stencilFunc = RenderTestFunc::Less;
 
 }
 
 void PhongMesh::preRender()
 {
-	RenderData& command = Mesh::renderData;
-	command.shader = _phongShader.get();
-	command.mode = RenderMode::IndexedMesh;
-	command.primitive = RenderPrimitive::Triangles;
-	command.state.cullFace = RenderCullFace::Back;
-
-	command.state.winding= RenderWinding::Clockwise;
-	command.state.depthFunc = RenderTestFunc::Less;
-	command.state.stencilFunc = RenderTestFunc::Less;
-
+	
 	Mesh::preRender();
 }
 
@@ -78,7 +110,7 @@ void ExampleApp::onEnter()
 {
 
 	//Load default engine assets
-	AssetManager::GetInstance().loadDefaultAssets();
+	AssetManager::GetInstance().loadEngineContent();
 
 	_skybox.reset(new SkyBox());
 
@@ -87,52 +119,26 @@ void ExampleApp::onEnter()
 	_phongMesh.reset(new PhongMesh());
 
 	// creation of the mesh ------------------------------------------------------
-	BufferLayout vertexLayout = {
+	_phongMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
 
-			{BufferElementType::Float3, "position"},
-			{BufferElementType::Float3, "normal"},
-			{BufferElementType::Float2, "uv"},
-	};
-	std::vector<VertexType> vertices;
-	std::vector<unsigned int> indices;
-  
-	for (int y = 0; y <= _size; ++y)
-		for (int x = 0; x <= _size; ++x) {
-			float xx = (x - _size / 2.0) / _size * 10;
-			float yy = (y - _size / 2.0) / _size * 10;
-
-
-			vertices.push_back(getHeightMap({ xx, yy }, { x/(float)_size, y / (float)_size }));
-	}
-
-	for (int y = 0; y < _size; ++y)
-	for (int x = 0; x < _size; ++x) {
-		indices.push_back((x + 0) + (_size + 1) * (y + 0));
-		indices.push_back((x + 1) + (_size + 1) * (y + 0));
-		indices.push_back((x + 1) + (_size + 1) * (y + 1));
-
-		indices.push_back((x + 1) + (_size + 1) * (y + 1));
-		indices.push_back((x + 0) + (_size + 1) * (y + 1));
-		indices.push_back((x + 0) + (_size + 1) * (y + 0));
-	}
-
-
-
-	std::cout << "vertices=" << vertices.size() << std::endl;
-	std::cout << "index=" << indices.size() << std::endl;
-
-	_phongMesh->loadVertices(vertices, vertexLayout);
-	_phongMesh->loadIndices(indices);
+	//_phongMesh->loadVertices(vertices, vertexLayout);
+	//_phongMesh->loadIndices(indices);
 	
 	PhongMaterial *material = new PhongMaterial();
 
-	material->setDiffuseTexture(Texture::CreateFromFile(YARE_ASSET("Images/container_diffuse.png")));
-	material->setSpecularTexture(Texture::CreateFromFile(YARE_ASSET("Images/container_specular.png")));
-	material->setShininess(128);
+	Texture* diffuse  = AssetManager::GetInstance().get<Texture>("Image_Container_Diffuse");
+	Texture * specular = AssetManager::GetInstance().get<Texture>("Image_Container_Specular");
+
+	diffuse->update(TextureWrap::Repeat);
+	specular->update(TextureWrap::Repeat);
+
+	material->setDiffuseTexture(diffuse);
+	material->setSpecularTexture(specular);
+	material->setShininess(256);
 	
 	_phongMesh->setMaterial(material);
-
-	_skybox->setCubemap(Texture::CreateCubemapFromFile(YARE_ASSET("Images/skybox.png")));
+	Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("Image_SkyBox");
+	_skybox->setCubemap(skyboxTexture);
 
 }
 
@@ -161,7 +167,7 @@ void ExampleApp::onRender(Renderer* renderer) {
 	 _model *= glm::scale(glm::vec3( 20,20,20 ));
 	_skybox->setModel(_model);
 
-	_phongMesh->renderData.state.wireframe = true;
+	//_phongMesh->renderData.state.wireframe = true;
 
 	//Submit Scene to be drawn - TODO - SceneRenderer will manage /sort/ cull this process of drawing
 	renderer->beginScene(&_camera);

@@ -12,7 +12,17 @@ namespace yare {
 	namespace graphics {
 
 		class Light {
+		public:
+			virtual void loadUniforms(UniformBlock& uniforms) = 0;
+		};
 
+
+		class DirectionalLight : public Light
+		{
+			glm::vec3 direction;
+			glm::vec3 ambient;
+			glm::vec3 diffuse;
+			glm::vec3 specular;
 		};
 
 

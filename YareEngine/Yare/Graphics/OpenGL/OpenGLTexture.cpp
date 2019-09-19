@@ -117,15 +117,43 @@ void OpenGLTexture::load(
 	glBindTexture(_target, 0);
 }
 
+void OpenGLTexture::update(TextureWrap wrap , TextureFilter filter )
+{
+	glBindTexture(_target, _texture);
+	switch (filter)
+	{
+	case TextureFilter::Linear:
+		glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		break;
+	case TextureFilter::Nearest:
+		glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+		break;															 
+	}
+
+
+	switch (wrap)
+	{
+	case TextureWrap::Clamp:
+		glTexParameteri(_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		break;
+	case TextureWrap::Repeat:
+		glTexParameteri(_target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(_target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(_target, GL_TEXTURE_WRAP_R, GL_REPEAT);
+		break;
+	}
+
+
+}
 void OpenGLTexture::generateMipMaps()
 {
 
 	glBindTexture(_target, _texture);
-	glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(_target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
 	glGenerateMipmap(_target);
 
 }

@@ -29,7 +29,6 @@ std::unique_ptr<graphics::VertexArray> Box::CreateVertexArray(const glm::vec3 & 
 		       |
 	-xextent <----> +xextent
 	*/
-	std::cout << extent.x << ", " << extent.z;;
 	vertices[0].position = { -extent.x, -extent.y, extent.z };
 	vertices[1].position = { -extent.x,  extent.y, extent.z };
 	vertices[2].position = {  extent.x,  extent.y, extent.z };
@@ -56,10 +55,10 @@ std::unique_ptr<graphics::VertexArray> Box::CreateVertexArray(const glm::vec3 & 
 	vertices[2].uv = { 1, 1 };
 	vertices[3].uv = { 1, 0 };
 
-	vertices[4].uv = { 0, 0 };
-	vertices[5].uv = { 0, 1 };
-	vertices[6].uv = { 1, 1 };
-	vertices[7].uv = { 1, 0 };
+	vertices[4].uv = { 1, 0 };
+	vertices[5].uv = { 1, 1 };
+	vertices[6].uv = { 0, 1 };
+	vertices[7].uv = { 0, 0 };
 
 	std::vector<unsigned int> indices = {
 		//size +z

@@ -4,7 +4,7 @@
 
 
 //YARE_PROJECT_DIR  defd by cmake
-#define YARE_ASSET(path) YARE_PROJECT_DIR "/Assets/" path
+
 
 
 namespace yare { namespace os { 
