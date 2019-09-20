@@ -1,7 +1,7 @@
 
 #include "Texture.hpp"
 
-#include "Renderer.hpp"
+#include "Graphics.hpp"
 #include "Error.hpp"
 #include "OpenGL/OpenGLTexture.hpp"
 
@@ -53,7 +53,7 @@ TextureRegion::TextureRegion(
 		
 Texture* Texture::Create(TextureType type , TextureFormat internalFormat)
 {
-	switch (Renderer::GetInstance()->getAPI())
+	switch (Graphics::GetRenderAPI())
 	{
 	case RenderAPI::OpenGL:
 		return new  OpenGLTexture(type, internalFormat);

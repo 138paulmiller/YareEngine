@@ -3,10 +3,6 @@
 
 #include <Yare/App.hpp>
 #include <Yare/OS/FileSystem.hpp>
-#include <Yare/Graphics/Shader.hpp>
-#include <Yare/Graphics/Camera.hpp>
-#include <Yare/Graphics/Texture.hpp>
-#include <Yare/Graphics/Mesh.hpp>
 #include <Yare/Graphics/SkyBox.hpp>
 
 #include <GLFW/glfw3.h>
@@ -48,7 +44,7 @@ class ExampleApp : public App {
 
  protected:
   
-	void onRender(Renderer* renderer) override;
+	void onRender() override;
 	void onEnter() override;
 	void onExit() override;
 

@@ -1,5 +1,4 @@
 #include "SkyBox.hpp"
-#include "Renderer.hpp"
 #include <Yare/Geometry/Box.hpp>
 #include <Yare/AssetManager.hpp>
 

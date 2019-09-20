@@ -1,47 +1,26 @@
 #include "Renderer.hpp"
-#include "OpenGL/OpenGLRenderer.hpp"
-#include "Error.hpp"
-
-namespace yare { namespace graphics {  
-
-
-
-
-Renderer* _renderer = 0;
+#include "Graphics/OpenGL/OpenGLRenderer.hpp"
+#include "Graphics/Graphics.hpp"
+namespace yare { 
 
 Renderer* Renderer::Create(RenderAPI api)
 {
-	if (_renderer != 0)
-	{
-		YARE_ASSERT(true, "Cannot Create Renderer, Already instantied");
-		return _renderer;
-	}
+	Graphics::Setup(api);
+
+	Renderer* renderer;
+
 	switch (api)
 	{
 	case RenderAPI::OpenGL:
-		_renderer = new OpenGLRenderer();
+		renderer = new graphics::OpenGLRenderer();
 		break;
 	default:
 		YARE_ASSERT(true,"Cannot Create Renderer, Invalid API");
 		return 0;
 	}
-	_renderer->_api = api;
-	return _renderer;
+	renderer->_api = api;
+	return renderer;
 }
-
-Renderer* Renderer::GetInstance()
-{
-	if (_renderer == 0)
-	{
-		YARE_ASSERT(true, "Cannot Get Renderer, Not Instatied");
-
-	}
-	return _renderer;
-}
-
-
-
-
 void Renderer::submit(Renderable * renderable)
 {
 	_renderQueue.push(renderable);
@@ -93,7 +72,7 @@ void Renderer::present()
 	}
 }
 
-void Renderer::beginScene(const Camera * camera)
+void Renderer::beginScene(const graphics::Camera * camera)
 {
 	_camera = camera;
 }
@@ -105,4 +84,4 @@ void Renderer::endScene()
 }
 
 
-} } 
+} 

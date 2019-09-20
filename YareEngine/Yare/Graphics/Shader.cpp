@@ -1,16 +1,17 @@
 
 #include "Shader.hpp"
 
-#include "Renderer.hpp"
+#include "Graphics.hpp"
 
 #include "OpenGL/OpenGLShader.hpp"
 
 
-namespace yare { namespace graphics {  
+namespace yare { 
+	namespace graphics {  
 
 Shader * Shader::Create()
 {
-	switch (Renderer::GetInstance()->getAPI())
+	switch (Graphics::GetRenderAPI())
 	{
 	case RenderAPI::OpenGL:
 		return new OpenGLShader();

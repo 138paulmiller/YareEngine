@@ -61,7 +61,6 @@ namespace yare {
 		}
 		void ShaderAsset::load()
 		{
-			_shader.reset(graphics::Shader::Create());
 			std::string vertSource, fragSource;
 
 			os::FileSystem::ReadFile(Asset::getFilePath() + ".vert", vertSource);

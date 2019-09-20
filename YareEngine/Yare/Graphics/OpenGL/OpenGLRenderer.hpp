@@ -1,5 +1,5 @@
 #pragma once
-#include <Yare/Graphics/Renderer.hpp>
+#include <Yare/Renderer.hpp>
 
 namespace yare { namespace graphics {  
 

@@ -1,5 +1,5 @@
 
-#include "Renderer.hpp"
+#include "Graphics.hpp"
 #include "Error.hpp"
 #include "OpenGL/OpenGLVertexArray.hpp"
 
@@ -8,7 +8,7 @@ namespace yare { namespace graphics {
 
 VertexArray* VertexArray::Create()
 {
-	switch (Renderer::GetInstance()->getAPI())
+	switch (Graphics::GetRenderAPI())
 	{
 	case RenderAPI::OpenGL: 
 		return new OpenGLVertexArray();

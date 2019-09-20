@@ -1,7 +1,7 @@
 #include "Buffer.hpp"
-#include "Renderer.hpp"
+#include "Error.hpp"
 #include "OpenGL/OpenGLBuffer.hpp"
-
+#include "Graphics.hpp"
 namespace yare { namespace graphics {  
 
 
@@ -70,7 +70,7 @@ VertexBuffer* VertexBuffer::Create(const BufferLayout& layout)
 		YARE_ASSERT(false, " Failed to add Vertex Buffer. You must set the layout!");
 		return 0 ;
 	}
-	switch (Renderer::GetInstance()->getAPI())
+	switch (Graphics::GetRenderAPI())
 	{
 	case RenderAPI::OpenGL: 
 		return new OpenGLVertexBuffer(layout);
@@ -82,7 +82,7 @@ VertexBuffer* VertexBuffer::Create(const BufferLayout& layout)
 
 IndexBuffer* IndexBuffer::Create()
 {
-	switch (Renderer::GetInstance()->getAPI())
+	switch (Graphics::GetRenderAPI())
 	{
 	case RenderAPI::OpenGL:
 		return new OpenGLIndexBuffer();

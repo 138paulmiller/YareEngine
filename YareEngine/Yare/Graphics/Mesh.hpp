@@ -3,7 +3,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "Material.hpp"
-#include "Renderer.hpp"
+#include "../Renderable.hpp"
 /*
 
 	Primitives are abstracted vertex arrays. There are not meshes as they do not store shader 

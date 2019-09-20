@@ -15,8 +15,7 @@ namespace yare
 App::App(const AppConfig & config)
     : _state(AppState::Ready), _time(0), _deltaTime(0), _config(config){
 	
-	_renderer = graphics::Renderer::Create(config.renderAPI);
-	
+	_renderer = Renderer::Create(config.renderAPI);
 	std::cout << "[Info] GLFW initialisation" << std::endl;
 
 	// initialize the GLFW library
@@ -112,7 +111,7 @@ void App::run() {
 		detectWindowResize();
 
 		// execute the rendering
-		onRender(_renderer);
+		onRender();
 		//present the render data
 		_renderer->present();
 

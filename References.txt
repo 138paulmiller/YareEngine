@@ -1,0 +1,4 @@
+
+//https://www.gamedev.net/forums/topic/645442-game-engine-layout/
+
+//https://www.gamedev.net/forums/topic/645295-should-game-objects-render-themselves-or-should-an-object-manager-render-them/

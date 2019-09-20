@@ -147,7 +147,7 @@ void ExampleApp::onExit()
 {
 }
 
-void ExampleApp::onRender(Renderer* renderer) {
+void ExampleApp::onRender() {
 
 
 	float t = getTime();
@@ -170,8 +170,8 @@ void ExampleApp::onRender(Renderer* renderer) {
 	//_phongMesh->renderData.state.wireframe = true;
 
 	//Submit Scene to be drawn - TODO - SceneRenderer will manage /sort/ cull this process of drawing
-	renderer->beginScene(&_camera);
-		renderer->submit(_phongMesh.get());
-		renderer->submit(_skybox.get());
-	renderer->endScene();
+	App::getRenderer()->beginScene(&_camera);
+		App::getRenderer()->submit(_phongMesh.get());
+		App::getRenderer()->submit(_skybox.get());
+	App::getRenderer()->endScene();
 } 

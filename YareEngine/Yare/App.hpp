@@ -10,23 +10,27 @@ struct GLFWwindow;
 #include <iostream>
 #include <stdexcept>
 #include <vector>
-#include "Graphics/Renderer.hpp"
-
+#include "Renderer.hpp"
+#include "AssetManager.hpp"
 namespace yare
 {
 
 	struct AppConfig 
 	{
-		
 		std::string title;
 		int width, height;
-		graphics::RenderAPI renderAPI;
+		RenderAPI renderAPI;
 	};
 	enum class AppState { Ready, Running, Exit };
 
 class App {
  public:
-	App(const AppConfig & config = {"Yare App", 1920 , 1080, graphics::RenderAPI::OpenGL });
+	App(const AppConfig & config = {
+		"Yare App", 
+		1920 , 1080, 
+		RenderAPI::OpenGL 
+	});
+
 	virtual ~App() ;
 	
 
@@ -56,7 +60,8 @@ protected:
 	virtual void onEnter() = 0;
 	virtual void onExit() = 0;
 
-	virtual void onRender(graphics::Renderer * renderer) = 0;
+	//Render Interface
+	virtual void onRender() = 0;
 	//End interface 
 	
 	// By default resizes viewport 
@@ -64,6 +69,8 @@ protected:
 	
 	void detectWindowResize();
 
+
+	Renderer * getRenderer() { return _renderer; }
 
 private:
 	
@@ -78,8 +85,7 @@ private:
 	float _time;
 	float _deltaTime;
 	AppConfig _config;
-	graphics::Renderer* _renderer;
-
+	Renderer* _renderer;
 	//Add layers. Each layer is render in order and will have its own render graph
 
 };

@@ -1,6 +1,6 @@
 #pragma once 
 #include "Geometry.hpp"
-#include "../Graphics/Renderer.hpp"
+#include "../Renderer.hpp"
 
 YARE_GEOMETRY_MODULE_BEG
 	
