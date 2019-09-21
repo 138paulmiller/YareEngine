@@ -1,10 +1,4 @@
-/**
- * Main.cpp skeleton
- * Contributors:
- *      * Arthur Sonzogni
- * Licence:
- *      * MIT
- */
+
 
 #include "ExampleApp.hpp"
 

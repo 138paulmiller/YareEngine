@@ -140,6 +140,12 @@ void ExampleApp::onEnter()
 	Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("Image_SkyBox");
 	_skybox->setCubemap(skyboxTexture);
 
+
+	//Set up the scene
+	_scene.setCamera(&_camera);
+
+	_scene.add("PhongMesh", _phongMesh.get());
+	_scene.add("Skybox1", _skybox.get());
 }
 
 
@@ -170,8 +176,6 @@ void ExampleApp::onRender() {
 	//_phongMesh->renderData.state.wireframe = true;
 
 	//Submit Scene to be drawn - TODO - SceneRenderer will manage /sort/ cull this process of drawing
-	App::getRenderer()->beginScene(&_camera);
-		App::getRenderer()->submit(_phongMesh.get());
-		App::getRenderer()->submit(_skybox.get());
-	App::getRenderer()->endScene();
+	_scene.render(App::getRenderer());
+	
 } 

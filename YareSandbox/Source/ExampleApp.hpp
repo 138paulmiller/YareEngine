@@ -59,6 +59,8 @@ class ExampleApp : public App {
 	// shader matrix uniform
 	glm::mat4 _projection = glm::mat4(1.0);
 	glm::mat4 _model = glm::mat4(1.0); 
+	
+	Scene _scene;
 	Camera _camera;
 	std::unique_ptr<SkyBox>		_skybox;
 

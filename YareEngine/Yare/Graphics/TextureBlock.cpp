@@ -15,7 +15,7 @@ namespace yare {
 
 		}
 
-		void TextureBlock::load(Shader* shader)
+		void TextureBlock::load(Shader* shader) const
 		{
 			int i = 0;
 			Texture* texture;

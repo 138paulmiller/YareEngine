@@ -15,17 +15,19 @@ namespace yare {
 	//Use a uniform block to block copy uniform names to texture bindings
 	//Create Uniform Buffer Layout Struct. Use this and just create a single templated set(Struct * struct)
 	//https://www.lighthouse3d.com/tutorials/glsl-tutorial/uniform-blocks/
-	struct TextureBlock
+	class TextureBlock
 	{
-		std::unordered_map<std::string ,  Texture *> _textures;
+	public:
 
 		void setTexture(const std::string& name, Texture* texture);
-		
-
+	
 		/*
 		Load all uniforms into shader
 		*/
-		void load(Shader* shader);
+		void load(Shader* shader) const;
+	private:
+		//map string to int. use this as index so that all uniforms can be block copied into Uniform Buffer
+		std::unordered_map<std::string ,  Texture *> _textures;
 	};
 
 	} 

@@ -5,14 +5,19 @@
 #include "Graphics/Camera.hpp"
 #include "Graphics/Texture.hpp"
 #include "Renderable.hpp"
-
+#include "Scene.hpp"
+#include "Graphics/LightBlock.hpp"
 
 namespace yare {
+
+
 
 	enum class RenderAPI
 	{
 		None = 0, OpenGL
 	};
+
+
 
 	//Runs on its own thread 
 	//all render commands should be queued
@@ -26,11 +31,14 @@ namespace yare {
 
 
 		virtual ~Renderer() = default;
+		
+		//Used by the Scene Rendering 
+		void beginScene(const Scene * scene);
 		void submit(Renderable * renderable);
-		void present();
-		void beginScene(const graphics::Camera * camera);
 		void endScene();
-		inline RenderAPI getAPI() { return _api; }
+
+
+		void present();
 
 	protected:
 		virtual void renderIndexedMesh(const graphics::VertexArray * vertexArray) = 0;
@@ -47,7 +55,6 @@ namespace yare {
 		//current environment map. Rendered to in deferred pass. and used for reflection/refractions in transparency 
 		//Or, create CaptureCube. Renders all item within the region to a cubemap. This can then be bound to the environment map
 		//SkyBox _skybox; 
-		const graphics::Camera * _camera; //current 
-		RenderAPI _api;
+		const Scene * _scene; //current scene reference
 	};
 }

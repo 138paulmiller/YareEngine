@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include "Shader.hpp"
 #include <unordered_map>
 
@@ -27,9 +27,9 @@ namespace yare {
 
 		//Create Uniform Buffer Layout Struct. Use this and just create a single templated set(Struct * struct)
 		//https://www.lighthouse3d.com/tutorials/glsl-tutorial/uniform-blocks/
-		struct UniformBlock
+		class UniformBlock
 		{
-			std::unordered_map<std::string , Uniform> _uniforms;
+		public:
 		
 			void setUniform(const std::string& name, int i);
 			void setUniform(const std::string& name, float f);
@@ -41,6 +41,8 @@ namespace yare {
 			Load all uniforms into shader
 			*/
 			void load(Shader* shader);
+		private:
+			std::unordered_map<std::string , Uniform> _uniforms;
 		};
 
 	} 
