@@ -3,6 +3,7 @@
 #include <Yare/Geometry/Box.hpp>
 #include <Yare/Geometry/Sphere.hpp>
 #include <Yare/Graphics/Materials/PhongMaterial.hpp>
+#include <Yare/Graphics/Materials/FlatMaterial.hpp>
 #include <Yare/AssetManager.hpp>
 #include <iostream>
 #include <vector>
@@ -79,12 +80,12 @@ PhongMesh::PhongMesh()
 	RenderData& data = Mesh::renderData;
 	data.shader = AssetManager::GetInstance().get<Shader>("Shader_Phong");
 	data.mode = RenderMode::IndexedMesh;
+	data.lighting = RenderLighting::Phong;
 	data.primitive = RenderPrimitive::Triangles;
 	data.state.cullFace = RenderCullFace::Back;
 	data.state.winding = RenderWinding::Clockwise;
 	data.state.depthFunc = RenderTestFunc::Less;
 	data.state.stencilFunc = RenderTestFunc::Less;
-
 }
 
 void PhongMesh::preRender()
@@ -112,40 +113,65 @@ void ExampleApp::onEnter()
 	//Load default engine assets
 	AssetManager::GetInstance().loadEngineContent();
 
-	_skybox.reset(new SkyBox());
+	{ //phong mesh
+		_phongMesh.reset(new PhongMesh());
+		_phongMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
 
+		PhongMaterial *material = new PhongMaterial();
 
-	////////////////////////////// Demo Heightmap ////////////////////////////////
-	_phongMesh.reset(new PhongMesh());
+		Texture* diffuse = AssetManager::GetInstance().get<Texture>("Image_Container_Diffuse");
+		Texture * specular = AssetManager::GetInstance().get<Texture>("Image_Container_Specular");
 
-	// creation of the mesh ------------------------------------------------------
-	_phongMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
+		diffuse->update(TextureWrap::Repeat);
+		specular->update(TextureWrap::Repeat);
 
-	//_phongMesh->loadVertices(vertices, vertexLayout);
-	//_phongMesh->loadIndices(indices);
-	
-	PhongMaterial *material = new PhongMaterial();
+		material->setDiffuseTexture(diffuse);
+		material->setSpecularTexture(specular);
+		material->setShininess(12);
 
-	Texture* diffuse  = AssetManager::GetInstance().get<Texture>("Image_Container_Diffuse");
-	Texture * specular = AssetManager::GetInstance().get<Texture>("Image_Container_Specular");
+		_phongMesh->setMaterial(material);
+	}
+	//Set  up Sky box
+	{ 
+		_skybox.reset(new SkyBox());
+		Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("Image_SkyBox");
+		_skybox->setCubemap(skyboxTexture);
+	}
+	{
 
-	diffuse->update(TextureWrap::Repeat);
-	specular->update(TextureWrap::Repeat);
+		
+		_pointLight.reset(new PointLight());
+		_pointLight->setPosition(glm::vec3(3, 3, 0));
+		_pointLight->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+		_pointLight->setDiffuse(glm::vec3(0.8f, 0.8f, 0.8f));
+		_pointLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
+		_pointLight->setAttenuation(glm::vec3(1, 0.000, 0.0 ));
+	}
+	{
+		_pointLightMesh.reset(new Mesh());
+		_pointLightMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.25,0.25,0.25 }));
+		_pointLightMesh->setModel(glm::translate(_pointLight->getPosition()));
 
-	material->setDiffuseTexture(diffuse);
-	material->setSpecularTexture(specular);
-	material->setShininess(256);
-	
-	_phongMesh->setMaterial(material);
-	Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("Image_SkyBox");
-	_skybox->setCubemap(skyboxTexture);
-
-
+		FlatMaterial *material = new FlatMaterial();
+		material->setBase(glm::vec3(1, 0, 0));
+		_pointLightMesh->setMaterial(material);
+		RenderData& data = _pointLightMesh->renderData;
+		data.shader = AssetManager::GetInstance().get<Shader>("Shader_Flat");
+		data.mode = RenderMode::IndexedMesh;
+		data.lighting = RenderLighting::Flat;
+		data.primitive = RenderPrimitive::Triangles;
+		data.state.cullFace = RenderCullFace::Back;
+		data.state.winding = RenderWinding::Clockwise;
+		data.state.depthFunc = RenderTestFunc::Less;
+		data.state.stencilFunc = RenderTestFunc::Less;
+	}
 	//Set up the scene
 	_scene.setCamera(&_camera);
 
 	_scene.add("PhongMesh", _phongMesh.get());
 	_scene.add("Skybox1", _skybox.get());
+	_scene.add("PointLightMesh", _pointLightMesh.get());
+	_scene.getLights().setPointLight("PointLight0", _pointLight.get());
 }
 
 

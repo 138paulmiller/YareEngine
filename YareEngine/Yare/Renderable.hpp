@@ -42,6 +42,10 @@ namespace yare {
 		IndexedMesh = 0
 	};
 
+	enum class RenderLighting {
+		Unlit = 0, Flat, Phong, 
+	};
+
 	//overload == to only update if changed 
 	struct RenderState
 	{
@@ -66,6 +70,7 @@ namespace yare {
 
 		RenderMode mode = RenderMode::IndexedMesh;
 		RenderPrimitive primitive = RenderPrimitive::Triangles;
+		RenderLighting lighting = RenderLighting::Unlit;
 		RenderState state;
 	};
 

@@ -18,13 +18,22 @@ namespace yare
 		return _camera;
 	}
 	
-	void Scene::loadUniforms(UniformBlock& uniforms) const
+	void Scene::loadUniforms(UniformBlock& uniforms, RenderLighting lighting) const
 	{
 		//use UBOs and render views for this
 		uniforms.setUniform("view", _camera->getView());
 		uniforms.setUniform("projection", _camera->getProjection());
+		switch (lighting)
+		{
+		case RenderLighting::Unlit:
+			break;
+		case RenderLighting::Phong:
+			//load lighting for phong shading
+			_lights.loadUniforms(uniforms);
+			uniforms.setUniform("view_pos", _camera->getPosition());
 
-		_lights.loadUniforms(uniforms);
+			break;
+		}
 
 	}
 

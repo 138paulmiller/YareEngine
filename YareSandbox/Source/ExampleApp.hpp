@@ -62,8 +62,11 @@ class ExampleApp : public App {
 	
 	Scene _scene;
 	Camera _camera;
+	
+	//Use asset manager to load these class from files and manage their gc 
 	std::unique_ptr<SkyBox>		_skybox;
-
+	std::unique_ptr<PointLight > _pointLight;
+	std::unique_ptr<Mesh > _pointLightMesh;
 	std::unique_ptr<PhongMesh>		_phongMesh;
 
 

@@ -34,7 +34,7 @@ namespace yare { namespace graphics {
 
 	void PointLight::loadUniforms(UniformBlock& uniforms, int lightIndex) const
 	{
-		const std::string elementStr = "point_lights[" + std::to_string(lightIndex) +"]";
+		const std::string elementStr = "pt_lights[" + std::to_string(lightIndex) +"]";
 		uniforms.setUniform(elementStr + ".position", _position);
 		uniforms.setUniform(elementStr + ".ambient", _ambient);
 		uniforms.setUniform(elementStr + ".diffuse", _diffuse);
@@ -46,7 +46,7 @@ namespace yare { namespace graphics {
 	
 	void DirectionalLight::loadUniforms(UniformBlock& uniforms, int lightIndex) const
 	{
-		const std::string elementStr = "directional_lights[" + std::to_string(lightIndex) + "]";
+		const std::string elementStr = "dir_lights[" + std::to_string(lightIndex) + "]";
 		uniforms.setUniform(elementStr + ".direction", _direction);
 		uniforms.setUniform(elementStr + ".ambient", _ambient);
 		uniforms.setUniform(elementStr + ".diffuse", _diffuse);

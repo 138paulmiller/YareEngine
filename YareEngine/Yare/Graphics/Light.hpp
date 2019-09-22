@@ -31,6 +31,13 @@ namespace yare {
 			void setDiffuse    (glm::vec3 &diffuse  );
 			void setSpecular   (glm::vec3 &specular );
 			void setAttenuation(glm::vec3& attenuation);
+
+			const glm::vec3  & getPosition()   {return _position;}
+			const glm::vec3  & getAmbient()	   {return _ambient;}
+			const glm::vec3  & getDiffuse()	   {return _diffuse;}
+			const glm::vec3  & getSpecular()   {return _specular;}
+			const glm::vec3  & getAttenuation(){return _attenuation;}
+
 			//Cutoff for spotlight effect
 			void setCutOff(float inner, float outer);
 		private:

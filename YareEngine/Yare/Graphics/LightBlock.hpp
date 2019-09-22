@@ -3,6 +3,12 @@
 #include "Light.hpp"
 
 #include <unordered_map>
+
+
+//Taken from glsl code. should append based on config value
+#define POINT_LIGHT_COUNT 64
+#define DIRECTIONAL_LIGHT_COUNT 64
+
 namespace yare {
 	namespace graphics {
 		
@@ -24,9 +30,8 @@ namespace yare {
 			*/
 			void loadUniforms(UniformBlock & uniforms) const;
 		private:
-			std::unordered_map<std::string, PointLight* > _pointLights;
-			std::unordered_map<std::string, DirectionalLight* > _directionalLights;
-
+			std::unordered_map<std::string, PointLight * > _pointLights;
+			std::unordered_map<std::string, DirectionalLight * > _directionalLights;
 		};
 
 	}

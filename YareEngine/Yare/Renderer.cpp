@@ -29,9 +29,9 @@ void Renderer::submit(Renderable * renderable)
 	if (_scene)
 	{
 		Renderable  * newestRenderable = _renderQueue.back();
-		//if a camera is bound. load it uniforms
+		//if a scene is bound. load it uniforms
 		//use UBOs and render views for this
-		_scene->loadUniforms(newestRenderable->renderData.uniforms);		
+		_scene->loadUniforms(newestRenderable->renderData.uniforms, newestRenderable->renderData.lighting);		
 	}
 }
 

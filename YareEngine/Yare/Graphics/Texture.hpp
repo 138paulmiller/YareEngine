@@ -111,7 +111,10 @@ class Texture
 			int level = 0
 		) = 0;
 	
-		virtual void update(TextureWrap wrap = TextureWrap::Clamp, TextureFilter filter = TextureFilter::Linear) = 0;
+		virtual void update( TextureWrap wrap = TextureWrap::Clamp, 
+			                 TextureFilter filter = TextureFilter::Linear
+		) = 0;
+
 		virtual void generateMipMaps()=0;
 		virtual void bind(unsigned int unit = 0) = 0;
 		virtual void unbind() = 0;
