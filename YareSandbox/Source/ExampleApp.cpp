@@ -137,9 +137,7 @@ void ExampleApp::onEnter()
 		Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("Image_SkyBox");
 		_skybox->setCubemap(skyboxTexture);
 	}
-	{
-
-		
+	{	
 		_pointLight.reset(new PointLight());
 		_pointLight->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
 		_pointLight->setDiffuse(glm::vec3(0.54f, 0.2f, 0.2f));

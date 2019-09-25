@@ -20,6 +20,8 @@ namespace yare
 	
 	void Scene::loadUniforms(UniformBlock& uniforms, RenderLighting lighting) const
 	{
+		//If this is a deferred render. instead of adding lights to the pass. Specify which buffers are going to be written to. 
+		//e.g. For flat, it should only be color
 		//use UBOs and render views for this
 		uniforms.setUniform("view", _camera->getView());
 		uniforms.setUniform("projection", _camera->getProjection());
@@ -29,6 +31,7 @@ namespace yare
 			break;
 		case RenderLighting::Phong:
 			//load lighting for phong shading
+			
 			_lights.loadUniforms(uniforms);
 			uniforms.setUniform("view_pos", _camera->getPosition());
 
