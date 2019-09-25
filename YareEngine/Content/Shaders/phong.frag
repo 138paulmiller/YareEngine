@@ -22,8 +22,8 @@ uniform struct Material {
 } material;
 
 
-#define POINT_LIGHT_COUNT 64
-#define DIRECTIONAL_LIGHT_COUNT 64
+#define POINT_LIGHT_COUNT 1
+#define DIRECTIONAL_LIGHT_COUNT 1
 
 struct PointLight{
 	vec3 position   ;
@@ -62,10 +62,10 @@ vec3 calcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir)
 
 vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
 {
-	
 	vec3 light_dir = normalize(light.position - pos);
 	//diffuse
 	float diffuse_coeff = max(0.0, dot(normal, light_dir));
+	
 	//specular
 	vec3 reflect_dir = reflect(-light_dir, normal);
 	float specular_coeff = diffuse_coeff  * pow(clamp(dot(view_dir, reflect_dir),0.0, 1.0), material.shininess);
@@ -79,12 +79,8 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
 	vec3 ambient  = light.ambient * texture(material.diffuse, frag_uv).xyz;
 	vec3 diffuse  = light.diffuse * diffuse_coeff * texture(material.diffuse, frag_uv).xyz;
 	vec3 specular = light.specular * specular_coeff * texture(material.specular , frag_uv).xyz;
-	//TODO fixme
-	//ambient  *= attenuation;
-    //diffuse  *= attenuation;
-    //specular *= attenuation;
-
-	return ambient + diffuse + specular;
+	
+	return attenuation * (ambient + diffuse + specular);
 
 }
 

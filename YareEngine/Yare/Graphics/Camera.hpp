@@ -10,12 +10,24 @@ namespace yare { namespace graphics {
 	public:
 		Camera(
 			const glm::vec3& up = { 0,1,0 },
-			const glm::vec3& right = { 1,0,0 }
-		) :_up(up), _right(right) {}
+			const glm::vec3& forward = { 0,0,-1 }
+		) :_up(up), _position({0,0,0}) {
+
+			setForward(forward);
+		}
+
+		void setForward(const glm::vec3& forward) 
+		{
+			_forward= forward;
+			_right = glm::cross(_forward, _up);
+			_view = glm::lookAt(_position, _position + _forward, _up);
+		}
 
 		void setPosition(const glm::vec3& position)
 		{
 			_position = position;
+			_view = glm::lookAt(_position, _position + _forward, _up);
+
 		}
 
 		void setProjection(const glm::mat4& projection)
@@ -27,12 +39,12 @@ namespace yare { namespace graphics {
 
 		const glm::mat4& getProjection() const { return _projection; }
 		const glm::mat4& getView() const { return _view; }
-		void lookAt(const glm::vec3& target) { _view = glm::lookAt(_position, target, _up); }
 
 	private:
 		glm::vec3 _position;
 		glm::vec3 _up;
 		glm::vec3 _right;
+		glm::vec3 _forward;
 		glm::mat4 _view;
 		glm::mat4 _projection;
 	};

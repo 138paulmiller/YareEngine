@@ -16,7 +16,7 @@ void main(void)
 {
 
     frag_uv = uv;
-    frag_normal = mat3(transpose(inverse(model))) * normal;
+    frag_normal = vec3(model * vec4(normal,0));
 	frag_pos =  model * vec4(position, 1.0);
     gl_Position = projection * view * frag_pos ;
 }

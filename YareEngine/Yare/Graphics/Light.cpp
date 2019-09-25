@@ -5,23 +5,23 @@
 namespace yare { namespace graphics {
 
 
-	void PointLight::setPosition(glm::vec3& position)
+	void PointLight::setPosition(const glm::vec3& position)
 	{
 		_position = position;
 	}
-	void PointLight::setAmbient(glm::vec3& ambient)
+	void PointLight::setAmbient(const glm::vec3& ambient)
 	{
 		_ambient = ambient;
 }
-	void PointLight::setDiffuse(glm::vec3& diffuse)
+	void PointLight::setDiffuse(const glm::vec3& diffuse)
 	{
 		_diffuse = diffuse;
 	}
-	void PointLight::setSpecular(glm::vec3& specular)
+	void PointLight::setSpecular(const glm::vec3& specular)
 	{
 		_specular = specular;
 	}
-	void PointLight::setAttenuation(glm::vec3& attenuation)
+	void PointLight::setAttenuation(const glm::vec3& attenuation)
 	{
 		_attenuation = attenuation;
 	}

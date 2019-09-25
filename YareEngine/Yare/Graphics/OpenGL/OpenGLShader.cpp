@@ -142,7 +142,7 @@ void OpenGLShader::cacheAttributeAndUniforms()
 		glGetActiveUniform(_program, (GLuint)i, sizeof(name) / sizeof(GLchar), &length, &size, &type, name);
 		//cache its location
 		_uniforms[name] = glGetUniformLocation(_program, name);
-		printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
+		//printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
 	}
 	//delete name;
 }

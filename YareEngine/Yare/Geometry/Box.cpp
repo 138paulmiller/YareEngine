@@ -39,15 +39,15 @@ std::unique_ptr<graphics::VertexArray> Box::CreateVertexArray(const glm::vec3 & 
 	vertices[6].position = { extent.x,  extent.y,  -extent.z };
 	vertices[7].position = { extent.x, -extent.y,  -extent.z };
 
-	vertices[0].normal = { -1, -1, -1 };
-	vertices[1].normal = { -1,  1, -1 };
-	vertices[2].normal = { 1,  1, -1 };
-	vertices[3].normal = { 1, -1, -1 };
+	vertices[0].normal = { -1, -1, 1 };
+	vertices[1].normal = { -1,  1, 1 };
+	vertices[2].normal = { 1,  1, 1 };
+	vertices[3].normal = { 1, -1, 1 };
 
-	vertices[4].normal = { -1, -1,  1 };
-	vertices[5].normal = { -1,  1,  1 };
-	vertices[6].normal = { 1,  1,  1 };
-	vertices[7].normal = { 1, -1,  1 };
+	vertices[4].normal = { -1, -1,  -1 };
+	vertices[5].normal = { -1,  1,  -1 };
+	vertices[6].normal = { 1,  1,  -1 };
+	vertices[7].normal = { 1, -1,  -1 };
 
 
 	vertices[0].uv = { 0, 0 };

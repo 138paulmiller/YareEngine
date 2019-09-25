@@ -115,7 +115,7 @@ void ExampleApp::onEnter()
 
 	{ //phong mesh
 		_phongMesh.reset(new PhongMesh());
-		_phongMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
+		_phongMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.5,0.5,0.5 }));
 
 		PhongMaterial *material = new PhongMaterial();
 
@@ -127,7 +127,7 @@ void ExampleApp::onEnter()
 
 		material->setDiffuseTexture(diffuse);
 		material->setSpecularTexture(specular);
-		material->setShininess(12);
+		material->setShininess(2);
 
 		_phongMesh->setMaterial(material);
 	}
@@ -141,16 +141,14 @@ void ExampleApp::onEnter()
 
 		
 		_pointLight.reset(new PointLight());
-		_pointLight->setPosition(glm::vec3(3, 3, 0));
 		_pointLight->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
-		_pointLight->setDiffuse(glm::vec3(0.8f, 0.8f, 0.8f));
+		_pointLight->setDiffuse(glm::vec3(0.54f, 0.2f, 0.2f));
 		_pointLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
-		_pointLight->setAttenuation(glm::vec3(1, 0.000, 0.0 ));
+		_pointLight->setAttenuation(glm::vec3(1, 0.40, 0.04 ));
 	}
 	{
 		_pointLightMesh.reset(new Mesh());
 		_pointLightMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.25,0.25,0.25 }));
-		_pointLightMesh->setModel(glm::translate(_pointLight->getPosition()));
 
 		FlatMaterial *material = new FlatMaterial();
 		material->setBase(glm::vec3(1, 0, 0));
@@ -184,11 +182,18 @@ void ExampleApp::onRender() {
 
 	float t = getTime();
 	// set matrix : projection + view
-	_projection = glm::perspective(45.0f,getWindowRatio(), 0.1f, 200.f);
+	_projection = glm::perspective(45.0f,getWindowRatio(), 0.1f, 200.0f);
 	
 	_camera.setProjection(_projection);
-	_camera.setPosition({ 10.0 * sin(t), 0, 10.0 * cos(t) });
-	_camera.lookAt({ 0,0,0 });
+	_camera.setPosition({ 0, 0, 2 });
+
+	glm::vec3 front;
+	float yaw = t*10, pitch = 0;
+	front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+	front.y = sin(glm::radians(pitch));
+	front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+	
+	_camera.setForward({0,0,-1});
 	// clear
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -196,8 +201,14 @@ void ExampleApp::onRender() {
 
 	////////// Update State ////////////////
  	 _model = glm::translate(_camera.getPosition());
-	 _model *= glm::scale(glm::vec3( 20,20,20 ));
+	 _model *= glm::scale(glm::vec3( 10,10,10 ));
 	_skybox->setModel(_model);
+	
+	_phongMesh->setModel(glm::translate(glm::vec3( 0,0,0)));
+
+	_pointLight->setPosition({ cos(t),  0.2f,  sin(t) * 2.0f });
+	
+	_pointLightMesh->setModel(glm::translate( _pointLight->getPosition()));
 
 	//_phongMesh->renderData.state.wireframe = true;
 

@@ -19,6 +19,7 @@ namespace yare {
 
 			Mesh::renderData.shader = _shader;
 			Mesh::renderData.state.cullFace = RenderCullFace::Front;
+			Mesh::renderData.lighting = RenderLighting::Unlit;
 
 		}
 

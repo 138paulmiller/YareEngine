@@ -26,11 +26,11 @@ namespace yare {
 			virtual ~PointLight() = default;
 			void loadUniforms(UniformBlock& uniforms, int lightIndex) const override;
 
-			void setPosition   (glm::vec3 &position );
-			void setAmbient    (glm::vec3 &ambient  );
-			void setDiffuse    (glm::vec3 &diffuse  );
-			void setSpecular   (glm::vec3 &specular );
-			void setAttenuation(glm::vec3& attenuation);
+			void setPosition   (const glm::vec3 &position );
+			void setAmbient    (const glm::vec3 &ambient  );
+			void setDiffuse    (const glm::vec3 &diffuse  );
+			void setSpecular   (const glm::vec3 &specular );
+			void setAttenuation(const glm::vec3& attenuation);
 
 			const glm::vec3  & getPosition()   {return _position;}
 			const glm::vec3  & getAmbient()	   {return _ambient;}
