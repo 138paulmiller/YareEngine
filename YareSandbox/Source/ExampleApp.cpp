@@ -2,8 +2,6 @@
 #include "ExampleApp.hpp"
 #include <Yare/Geometry/Box.hpp>
 #include <Yare/Geometry/Sphere.hpp>
-#include <Yare/Graphics/Materials/PhongMaterial.hpp>
-#include <Yare/Graphics/Materials/FlatMaterial.hpp>
 #include <Yare/AssetManager.hpp>
 #include <iostream>
 #include <vector>
@@ -109,65 +107,84 @@ ExampleApp::ExampleApp()
 
 void ExampleApp::onEnter()
 {
-
 	//Load default engine assets
 	AssetManager::GetInstance().loadEngineContent();
 
+
+	//Create an instance of the phong material. To be shared among meshes
+
+	Texture* diffuse = AssetManager::GetInstance().get<Texture>("Image_Container_Diffuse");
+	Texture * specular = AssetManager::GetInstance().get<Texture>("Image_Container_Specular");
+
+	diffuse->update(TextureWrap::Repeat);
+	specular->update(TextureWrap::Repeat);
+
+	_phongMaterial.reset(new PhongMaterial());
+	_phongMaterial->setDiffuseTexture(diffuse);
+	_phongMaterial->setSpecularTexture(specular);
+	_phongMaterial->setShininess(2);
+
+	//Create an instance of the flat material. To be shared among meshes
+	_flatMaterial.reset(new FlatMaterial());
+	_flatMaterial->setBase(glm::vec3(1, 0, 0));
+
+	_phongMeshes.resize(BOX_COUNT);
+	for (int i = 0; i < BOX_COUNT; i++)
 	{ //phong mesh
-		_phongMesh.reset(new PhongMesh());
-		_phongMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.5,0.5,0.5 }));
+		_phongMeshes[i].reset(new PhongMesh());
+		_phongMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
+		_phongMeshes[i]->setMaterial(_phongMaterial.get());
+	}
 
-		PhongMaterial *material = new PhongMaterial();
-
-		Texture* diffuse = AssetManager::GetInstance().get<Texture>("Image_Container_Diffuse");
-		Texture * specular = AssetManager::GetInstance().get<Texture>("Image_Container_Specular");
-
-		diffuse->update(TextureWrap::Repeat);
-		specular->update(TextureWrap::Repeat);
-
-		material->setDiffuseTexture(diffuse);
-		material->setSpecularTexture(specular);
-		material->setShininess(2);
-
-		_phongMesh->setMaterial(material);
+	_pointLights.resize(LIGHT_COUNT);
+	_pointLightMeshes.resize(LIGHT_COUNT);
+	for (int i = 0; i < LIGHT_COUNT; i++)
+	{	
+		//Create the light and the mesh
+		_pointLights[i].reset(new PointLight());
+		_pointLights[i]->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+		_pointLights[i]->setDiffuse(glm::vec3(0.54f, 0.52f, 0.52f));
+		_pointLights[i]->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
+		_pointLights[i]->setAttenuation(glm::vec3(1, 0.5, 0.00004 ));
+		
+		_pointLightMeshes[i].reset(new Mesh());
+		_pointLightMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
+		_pointLightMeshes[i]->setMaterial(_flatMaterial.get());
+		RenderData& data = _pointLightMeshes[i]->renderData;
+		data.shader = AssetManager::GetInstance().get<Shader>("Shader_Flat");
+		data.lighting = RenderLighting::Flat;
 	}
 	//Set  up Sky box
-	{ 
-		_skybox.reset(new SkyBox());
-		Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("Image_SkyBox");
-		_skybox->setCubemap(skyboxTexture);
-	}
-	{	
-		_pointLight.reset(new PointLight());
-		_pointLight->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
-		_pointLight->setDiffuse(glm::vec3(0.54f, 0.2f, 0.2f));
-		_pointLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
-		_pointLight->setAttenuation(glm::vec3(1, 0.40, 0.04 ));
-	}
-	{
-		_pointLightMesh.reset(new Mesh());
-		_pointLightMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.25,0.25,0.25 }));
+	_skybox.reset(new SkyBox());
+	Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("Image_SkyBox");
+	_skybox->setCubemap(skyboxTexture);
 
-		FlatMaterial *material = new FlatMaterial();
-		material->setBase(glm::vec3(1, 0, 0));
-		_pointLightMesh->setMaterial(material);
-		RenderData& data = _pointLightMesh->renderData;
-		data.shader = AssetManager::GetInstance().get<Shader>("Shader_Flat");
-		data.mode = RenderMode::IndexedMesh;
-		data.lighting = RenderLighting::Flat;
-		data.primitive = RenderPrimitive::Triangles;
-		data.state.cullFace = RenderCullFace::Back;
-		data.state.winding = RenderWinding::Clockwise;
-		data.state.depthFunc = RenderTestFunc::Less;
-		data.state.stencilFunc = RenderTestFunc::Less;
-	}
+
 	//Set up the scene
 	_scene.setCamera(&_camera);
 
-	_scene.add("PhongMesh", _phongMesh.get());
-	_scene.add("Skybox1", _skybox.get());
-	_scene.add("PointLightMesh", _pointLightMesh.get());
-	_scene.getLights().setPointLight("PointLight0", _pointLight.get());
+	_scene.add("Skybox", _skybox.get());
+
+	int index = 0;
+	for (const std::unique_ptr<PointLight> & pointLight : _pointLights)
+	{
+		_scene.getLights().setPointLight("PointLight_" + std::to_string(index), pointLight.get());
+		index++;
+	}
+	index = 0;
+	for (const std::unique_ptr<PhongMesh> & phongMesh : _phongMeshes)
+	{
+		_scene.add("PhongMesh_" + std::to_string(index), phongMesh.get());
+		index++;
+	}
+
+	index = 0;
+	for (const std::unique_ptr<Mesh> & mesh  : _pointLightMeshes)
+	{
+		_scene.add("PointLightMesh_" + std::to_string(index), mesh.get());
+		index++;
+	}
+	
 }
 
 
@@ -177,20 +194,25 @@ void ExampleApp::onExit()
 
 void ExampleApp::onRender() {
 
+	float time = getTime();
+	float speed = 0.15;
 
-	float t = getTime();
+	if (_elapsedTime > 1.0) //for every one second.
+	{
+		std::cout << "\nFPS = " << _frames / (_elapsedTime);
+		_elapsedTime = 0;
+		_frames = 0;
+	}
+	else
+	{
+		_elapsedTime += getDeltaTime();
+		_frames++;
+	}
 	// set matrix : projection + view
-	_projection = glm::perspective(45.0f,getWindowRatio(), 0.1f, 200.0f);
+	_projection = glm::perspective(45.0f,getWindowRatio(), 1.0f, 200.0f);
 	
 	_camera.setProjection(_projection);
-	_camera.setPosition({ 0, 0, 2 });
-
-	glm::vec3 front;
-	float yaw = t*10, pitch = 0;
-	front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-	front.y = sin(glm::radians(pitch));
-	front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-	
+	_camera.setPosition({ 0, 0, 30 });
 	_camera.setForward({0,0,-1});
 	// clear
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -199,18 +221,43 @@ void ExampleApp::onRender() {
 
 	////////// Update State ////////////////
  	 _model = glm::translate(_camera.getPosition());
-	 _model *= glm::scale(glm::vec3( 10,10,10 ));
+	 _model *= glm::scale(glm::vec3( 100, 100, 100 ));
 	_skybox->setModel(_model);
 	
-	_phongMesh->setModel(glm::translate(glm::vec3( 0,0,0)));
 
-	_pointLight->setPosition({ cos(t),  0.2f,  sin(t) * 2.0f });
-	
-	_pointLightMesh->setModel(glm::translate( _pointLight->getPosition()));
+	glm::vec3 position;
+	int i = 0;
+	float t;
+	float p= 4; // periodicity 
+	float amp = 20; 
+	for (i = 0; i < BOX_COUNT; i++)
+	{
+		t = i / (float)BOX_COUNT * 360 * 3.14156 / 180;
 
-	//_phongMesh->renderData.state.wireframe = true;
+		position = { 
+			cos(t + time * speed) * sin(t*p + time * speed) * amp ,
+			sin(t + time * speed) * cos(t*p + time * speed) * amp ,
+			cos(t + time * speed) * amp
+		};
+		_phongMeshes[i]->setModel(glm::translate(position));
+		
+	}
+
+	p = 4; // periodicity 
+	amp = 25;
+	for (i = 0; i < LIGHT_COUNT; i++)
+	{
+		t =  i/(float)LIGHT_COUNT * 360 * 3.14156 / 180;
+		position = { 
+			cos(t + time * speed  ) * sin(t*p + time * speed  ) * amp ,
+			sin(t + time * speed  ) * cos(t*p + time * speed  ) * amp ,
+			cos(t + time * speed  ) * amp
+		};
+		_pointLights[i]->setPosition(position);
+		_pointLightMeshes[i]->setModel(glm::translate(position));
+	}
+
 
 	//Submit Scene to be drawn - TODO - SceneRenderer will manage /sort/ cull this process of drawing
 	_scene.render(App::getRenderer());
-	
 } 

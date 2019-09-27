@@ -5,6 +5,8 @@
 #include <Yare/OS/FileSystem.hpp>
 #include <Yare/Graphics/SkyBox.hpp>
 
+#include <Yare/Graphics/Materials/PhongMaterial.hpp>
+#include <Yare/Graphics/Materials/FlatMaterial.hpp>
 #include <GLFW/glfw3.h>
 
 
@@ -37,7 +39,8 @@ private:
 	float _shininess;
 };
 
-class ExampleApp : public App {
+class ExampleApp : public App 
+{
  public:
   ExampleApp();
   ~ExampleApp() = default;
@@ -50,7 +53,8 @@ class ExampleApp : public App {
 
 
  private:
-	float _time = 0.f;
+	float _elapsedTime = 0.f;
+	int _frames = 0;
 	const int _size = 100;
 
 	// shader
@@ -62,13 +66,16 @@ class ExampleApp : public App {
 	
 	Scene _scene;
 	Camera _camera;
-	
+	const int  LIGHT_COUNT = 25;
+	const int  BOX_COUNT = 50;
 	//Use asset manager to load these class from files and manage their gc 
 	std::unique_ptr<SkyBox>		_skybox;
-	std::unique_ptr<PointLight > _pointLight;
-	std::unique_ptr<Mesh > _pointLightMesh;
-	std::unique_ptr<PhongMesh>		_phongMesh;
+	std::vector< std::unique_ptr<PointLight > > _pointLights;
+	std::vector< std::unique_ptr<Mesh > >       _pointLightMeshes;
+	std::vector< std::unique_ptr<PhongMesh>	>	_phongMeshes;
 
-
+	std::unique_ptr<FlatMaterial> _flatMaterial;
+	std::unique_ptr<PhongMaterial> _phongMaterial;
+	
 
 };

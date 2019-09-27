@@ -41,6 +41,7 @@ class App {
 	// window control
 	void exit();
 
+	//Time is in seconds
 	// delta time between frame and time from beginning
 	float getDeltaTime() const;
 	float getTime() const;

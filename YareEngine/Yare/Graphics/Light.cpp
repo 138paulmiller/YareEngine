@@ -39,7 +39,7 @@ namespace yare { namespace graphics {
 		uniforms.setUniform(elementStr + ".ambient", _ambient);
 		uniforms.setUniform(elementStr + ".diffuse", _diffuse);
 		uniforms.setUniform(elementStr + ".specular", _specular);
-		uniforms.setUniform(elementStr + ".attenuation", _attenuation);
+		uniforms.setUniform(elementStr + ".coeffs", _attenuation);
 
 	}
 	////////////////// directional /////////////////////////////

@@ -40,11 +40,14 @@ namespace yare {
 			{
 				pair.second->loadUniforms(uniforms, index++);
 			}
+			uniforms.setUniform("pt_light_count", index);
+
 			index = 0;
 			for (const std::pair<std::string, DirectionalLight* >& pair : _directionalLights)
 			{
 				pair.second->loadUniforms(uniforms, index++);
 			}
+			uniforms.setUniform("dir_light_count", index);
 		}
 
 	}

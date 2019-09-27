@@ -9,7 +9,7 @@ namespace yare { namespace graphics {
 Mesh::Mesh( )
 {
 
-	
+	_material = 0;
 	_vertexArray.reset(VertexArray::Create());
 
 	Renderable::renderData.vertexArray = _vertexArray.get();
@@ -68,7 +68,7 @@ void Mesh::loadIndices(const std::vector<unsigned int> & indices)
 void Mesh::preRender() 
 {
 	Renderable::renderData.uniforms.setUniform("model", _model);
-	if (_material.get())
+	if (_material)
 	{
 		_material->loadUniforms(Renderable::renderData.uniforms);
 		_material->loadTextures(Renderable::renderData.textures);
@@ -89,11 +89,11 @@ void Mesh::setModel(glm::mat4& model)
 }
 const Material* Mesh::getMaterial()
 {
-	return _material.get();
+	return _material;
 }
 void Mesh::setMaterial(Material* material)
 {
-	_material.reset(material);
+	_material = material;
 }
 
 

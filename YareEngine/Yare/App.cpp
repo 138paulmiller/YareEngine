@@ -134,9 +134,15 @@ void App::detectWindowResize()
 	int newWidth, newHeight;
 	glfwGetWindowSize(getWindow(), &newWidth, &newHeight);
 	bool dimensionChanged = (newWidth != _config.width || newHeight != _config.height);
-	if (dimensionChanged) {
-
-		onWindowResize(newWidth, newHeight);
+	if ( dimensionChanged) {
+		if (newWidth > 0 && newHeight > 0)
+		{
+			onWindowResize(newWidth, newHeight);
+		}
+		else
+		{
+			//Window was collapsed
+		}
 	}
 
 }

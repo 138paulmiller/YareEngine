@@ -48,7 +48,7 @@ namespace yare {
 
 			std::unique_ptr<VertexArray>  _vertexArray;
 
-			std::shared_ptr<Material> _material;
+			Material *  _material;
 
 	
 		};
