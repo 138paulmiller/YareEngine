@@ -18,26 +18,7 @@ using namespace yare;
 using namespace yare::graphics;
 using namespace yare::os;
 
-enum PhongTextureSlot
-{
-	Diffuse = 0, Specular, 
-	/*Shininess,*/
-	Count
-};
 
-
-class PhongMesh : public Mesh
-{
-public:
-	PhongMesh();
-	void preRender()override;
-	void postRender()override;
-
-private:
-	
-	std::unique_ptr<Texture>	_textures[(int)PhongTextureSlot::Count];
-	float _shininess;
-};
 
 class ExampleApp : public App 
 {
@@ -51,6 +32,9 @@ class ExampleApp : public App
 	void onEnter() override;
 	void onExit() override;
 
+
+	void demoMovingBoxesAndLights(float time);
+	void demoRotatingBoxes(float time);
 
  private:
 	float _elapsedTime = 0.f;
@@ -66,13 +50,13 @@ class ExampleApp : public App
 	
 	Scene _scene;
 	Camera _camera;
-	const int  LIGHT_COUNT = 25;
-	const int  BOX_COUNT = 50;
+	const int  LIGHT_COUNT = 1;
+	const int  BOX_COUNT = 1;
 	//Use asset manager to load these class from files and manage their gc 
 	std::unique_ptr<SkyBox>		_skybox;
 	std::vector< std::unique_ptr<PointLight > > _pointLights;
 	std::vector< std::unique_ptr<Mesh > >       _pointLightMeshes;
-	std::vector< std::unique_ptr<PhongMesh>	>	_phongMeshes;
+	std::vector< std::unique_ptr<Mesh>	>	_boxMeshes;
 
 	std::unique_ptr<FlatMaterial> _flatMaterial;
 	std::unique_ptr<PhongMaterial> _phongMaterial;

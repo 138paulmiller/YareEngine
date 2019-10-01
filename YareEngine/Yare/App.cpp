@@ -66,9 +66,6 @@ App::~App()
 	delete _renderer;
 }
 
-GLFWwindow* App::getWindow() const {
-  return _window;
-}
 
 void App::exit() {
   _state = AppState::Exit;
@@ -113,7 +110,7 @@ void App::run() {
 		// execute the rendering
 		onRender();
 		//present the render data
-		_renderer->present();
+		_renderer->render();
 
 		// Swap Front and Back buffers (double buffering)
 		glfwSwapBuffers(_window);
@@ -132,7 +129,7 @@ void App::run() {
 void App::detectWindowResize()
 {
 	int newWidth, newHeight;
-	glfwGetWindowSize(getWindow(), &newWidth, &newHeight);
+	glfwGetWindowSize(_window, &newWidth, &newHeight);
 	bool dimensionChanged = (newWidth != _config.width || newHeight != _config.height);
 	if ( dimensionChanged) {
 		if (newWidth > 0 && newHeight > 0)

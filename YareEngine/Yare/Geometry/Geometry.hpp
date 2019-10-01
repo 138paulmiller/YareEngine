@@ -2,7 +2,6 @@
 // Module definitions
 
 
-//Implement https://en.wikipedia.org/wiki/Geometry#Important_concepts_in_geometry
 
 
 //to be warrped around the api for this directory

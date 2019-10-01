@@ -39,7 +39,8 @@ namespace yare {
 
 
 	enum class RenderMode {
-		IndexedMesh = 0
+		Mesh=0, //NonIndexed MEsh - Using VertexArray (No Index Buffer Is Set. VertexCount is required however)
+		IndexedMesh 
 	};
 
 	enum class RenderLighting {
@@ -53,12 +54,14 @@ namespace yare {
 		RenderWinding  winding = RenderWinding::Clockwise;
 		RenderTestFunc depthFunc = RenderTestFunc::Less;
 		RenderTestFunc stencilFunc = RenderTestFunc::Less;
+		RenderPrimitive primitive = RenderPrimitive::Triangles;
+
 		bool wireframe = 0;
 	};
 
 
 	//Should order render data.
-	struct RenderData
+	struct RenderCommand
 	{
 		//Render Targets 
 		//Viewport
@@ -69,7 +72,6 @@ namespace yare {
 		graphics::Shader * shader = 0;
 
 		RenderMode mode = RenderMode::IndexedMesh;
-		RenderPrimitive primitive = RenderPrimitive::Triangles;
 		RenderLighting lighting = RenderLighting::Unlit;
 		RenderState state;
 	};
@@ -78,9 +80,8 @@ namespace yare {
 	struct Renderable
 	{
 		virtual ~Renderable() = default;
-		virtual void preRender() = 0;
-		virtual void postRender() = 0;
-		RenderData renderData;
+		virtual void onBind() = 0;
+		RenderCommand command;
 	};
 
 }

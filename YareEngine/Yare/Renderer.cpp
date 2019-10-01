@@ -24,56 +24,58 @@ Renderer* Renderer::Create(RenderAPI api)
 }
 void Renderer::submit(Renderable * renderable)
 {
-	_renderQueue.push(renderable);
+	_commandQueue.push(&renderable->command);
 	
 	if (_scene)
 	{
-		Renderable  * newestRenderable = _renderQueue.back();
+		RenderCommand * newestCommand = _commandQueue.back();
 		//if a scene is bound. load it uniforms
 		//use UBOs and render views for this
-		_scene->loadUniforms(newestRenderable->renderData.uniforms, newestRenderable->renderData.lighting);		
+		_scene->loadUniforms(newestCommand->uniforms, newestCommand->lighting);
 	}
 }
 
-void Renderer::present()
+void Renderer::render()
 {
-	Renderable* renderable;
-	RenderData *data;
+	RenderCommand *command;
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
-	while (!_renderQueue.empty())
+	while (!_commandQueue.empty())
 	{
-		renderable = _renderQueue.front();
-		data = &renderable->renderData;
-		_renderQueue.pop();
+		command = _commandQueue.front();
+		_commandQueue.pop();
 		
-		renderable->preRender();
-		updateState(data->state);
+		updateState(command->state);
+		static Shader* prevShader = nullptr;
+		if (prevShader != command->shader) {
 
-		data->shader->bind();
-
+			command->shader->bind();
+			prevShader = command->shader;
+		}
 		/*
 		Instead of loading all uniforms and texture each frame. Create Shader Instances that are copies of a base shader. 
 		However, will only have to bind when dirty. Since they are copies, they should not be affected by other renderables that share the same parent shader
 		Potentially do this at the material level and have materials instances maintain *blocks.
 		*/
 
-		data->uniforms.load(data->shader);
-		data->textures.load(data->shader);
+		command->uniforms.load(command->shader);
+		command->textures.load(command->shader);
 
-
-		data->vertexArray->bind();
+		command->vertexArray->bind();
 		
-		switch (data->mode)
+		switch (command->mode)
 		{
+		case RenderMode::Mesh:
+			renderMesh(command->vertexArray);
+			break;
 		case RenderMode::IndexedMesh:
-			renderIndexedMesh(data->vertexArray);
+			renderIndexedMesh(command->vertexArray);
 		break;
 		}
 
-		data->vertexArray->unbind();
-		data->shader->unbind();
+		command->vertexArray->unbind();
+		//data->shader->unbind();
 
-		renderable->postRender();
+		//renderable->postRender();
 	}
 }
 

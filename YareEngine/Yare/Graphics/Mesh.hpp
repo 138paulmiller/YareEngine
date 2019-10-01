@@ -19,8 +19,7 @@ namespace yare {
 			Mesh();
 			~Mesh();
 			//Must call *Render base class methods
-			void preRender() override;
-			void postRender() override ;
+			void onBind() override;
 	
 			//Releases owwnership of the VertexArray
 			void loadVertexArray(std::unique_ptr<VertexArray>& vertexArray);

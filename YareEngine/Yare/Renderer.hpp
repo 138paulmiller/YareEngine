@@ -18,6 +18,13 @@ namespace yare {
 	};
 
 
+	/*
+		TODO - Sort RenderCommands using bucketing approach. 
+		Sort by the layer its rendering to, shader, texture etc...
+	
+		//see https://blog.molecular-matters.com/2014/11/06/stateless-layered-multi-threaded-rendering-part-1/
+	*/
+
 
 	//Runs on its own thread 
 	//all render commands should be queued
@@ -38,9 +45,11 @@ namespace yare {
 		void endScene();
 
 
-		void present();
+		virtual void render();
 
 	protected:
+		virtual void renderMesh(const VertexArray* vertexArray) = 0 ;
+
 		virtual void renderIndexedMesh(const graphics::VertexArray * vertexArray) = 0;
 		virtual void updateState(const RenderState & state) = 0;
 
@@ -48,7 +57,7 @@ namespace yare {
 			cached config state. render command only updates if different
 		*/
 	private:
-		std::queue<Renderable * > _renderQueue;
+		std::queue<RenderCommand * > _commandQueue;
 		std::stack<RenderState> _stateStack;
 
 

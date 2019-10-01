@@ -34,10 +34,6 @@ class App {
 	virtual ~App() ;
 	
 
-
-	// get the window id
-	GLFWwindow* getWindow() const;
-
 	// window control
 	void exit();
 

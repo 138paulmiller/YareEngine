@@ -90,6 +90,7 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
 // ------------ Entry -----------------------------------
 void main(void)
 {       
+
 	color = vec4(0);
 	vec3 view_dir = normalize(view_pos - frag_pos.xyz);
 	vec3 normal  = normalize(frag_normal);

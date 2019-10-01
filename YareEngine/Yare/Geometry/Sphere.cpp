@@ -1,6 +1,10 @@
 #include "Sphere.hpp"
 
-YARE_GEOMETRY_MODULE_BEG
+
+namespace yare {
+	namespace geometry {
+
+
 
 using namespace graphics;
 struct SphereVertex {

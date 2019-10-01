@@ -59,4 +59,15 @@ const std::unique_ptr<IndexBuffer>& VertexArray::getIndexBuffer() const
 	return _indexBuffer;
 }
 
+
+void VertexArray::setVertexCount(unsigned int vertexCount)
+{
+	_vertexCount = vertexCount;
+}
+unsigned int VertexArray::getVertexCount() const
+{
+	return _vertexCount;
+}
+
+
 } } 

@@ -12,12 +12,12 @@ Mesh::Mesh( )
 	_material = 0;
 	_vertexArray.reset(VertexArray::Create());
 
-	Renderable::renderData.vertexArray = _vertexArray.get();
+	Renderable::command.vertexArray = _vertexArray.get();
 
 	//Command
-	Renderable::renderData.vertexArray = _vertexArray.get();
-	Renderable::renderData.primitive = RenderPrimitive::Triangles;
-	Renderable::renderData.mode = RenderMode::IndexedMesh;
+	Renderable::command.vertexArray = _vertexArray.get();
+	Renderable::command.state.primitive = RenderPrimitive::Triangles;
+	Renderable::command.mode = RenderMode::IndexedMesh;
 
 	_model = glm::mat4(1);
 }
@@ -30,7 +30,7 @@ Mesh::~Mesh()
 void Mesh::loadVertexArray(std::unique_ptr<VertexArray> & vertexArray)
 {
 	_vertexArray.reset(vertexArray.release());
-	Renderable::renderData.vertexArray = _vertexArray.get();
+	Renderable::command.vertexArray = _vertexArray.get();
 }
 
 void Mesh::loadVerticesImpl(const void* vertices, const int size, const BufferLayout & vertexLayout)
@@ -65,19 +65,10 @@ void Mesh::loadIndices(const std::vector<unsigned int> & indices)
 }
 
 
-void Mesh::preRender() 
+void Mesh::onBind() 
 {
-	Renderable::renderData.uniforms.setUniform("model", _model);
-	if (_material)
-	{
-		_material->loadUniforms(Renderable::renderData.uniforms);
-		_material->loadTextures(Renderable::renderData.textures);
-	}
-} 
-void Mesh::postRender() 
-{
-}
 
+} 
 
 glm::mat4& Mesh::getModel()
 {
@@ -86,6 +77,8 @@ glm::mat4& Mesh::getModel()
 void Mesh::setModel(glm::mat4& model)
 {
 	_model = model;
+	Renderable::command.uniforms.setUniform("model", _model);
+
 }
 const Material* Mesh::getMaterial()
 {
@@ -94,6 +87,12 @@ const Material* Mesh::getMaterial()
 void Mesh::setMaterial(Material* material)
 {
 	_material = material;
+	if (_material)
+	{
+		//loads materials uniform into uniform block
+		_material->loadUniforms(Renderable::command.uniforms);
+		_material->loadTextures(Renderable::command.textures);
+	}
 }
 
 

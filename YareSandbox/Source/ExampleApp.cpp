@@ -72,30 +72,7 @@ void CreateHeightMap(
 
 }
 
-PhongMesh::PhongMesh()
-{
-	//Default render data config
-	RenderData& data = Mesh::renderData;
-	data.shader = AssetManager::GetInstance().get<Shader>("Shader_Phong");
-	data.mode = RenderMode::IndexedMesh;
-	data.lighting = RenderLighting::Phong;
-	data.primitive = RenderPrimitive::Triangles;
-	data.state.cullFace = RenderCullFace::Back;
-	data.state.winding = RenderWinding::Clockwise;
-	data.state.depthFunc = RenderTestFunc::Less;
-	data.state.stencilFunc = RenderTestFunc::Less;
-}
 
-void PhongMesh::preRender()
-{
-	
-	Mesh::preRender();
-}
-
-void PhongMesh::postRender()
-{
-	Mesh::postRender();
-}
 
 
 
@@ -128,12 +105,18 @@ void ExampleApp::onEnter()
 	_flatMaterial.reset(new FlatMaterial());
 	_flatMaterial->setBase(glm::vec3(1, 0, 0));
 
-	_phongMeshes.resize(BOX_COUNT);
+	_boxMeshes.resize(BOX_COUNT);
 	for (int i = 0; i < BOX_COUNT; i++)
 	{ //phong mesh
-		_phongMeshes[i].reset(new PhongMesh());
-		_phongMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
-		_phongMeshes[i]->setMaterial(_phongMaterial.get());
+		_boxMeshes[i].reset(new Mesh());
+		_boxMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
+		_boxMeshes[i]->setMaterial(_phongMaterial.get());
+		RenderCommand& data = _boxMeshes[i]->command;
+
+		data.shader = AssetManager::GetInstance().get<Shader>("Shader_Phong");
+		data.mode = RenderMode::Mesh;
+		data.lighting = RenderLighting::Phong;
+
 	}
 
 	_pointLights.resize(LIGHT_COUNT);
@@ -150,8 +133,11 @@ void ExampleApp::onEnter()
 		_pointLightMeshes[i].reset(new Mesh());
 		_pointLightMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
 		_pointLightMeshes[i]->setMaterial(_flatMaterial.get());
-		RenderData& data = _pointLightMeshes[i]->renderData;
+		
+		//Setup render config
+		RenderCommand& data = _pointLightMeshes[i]->command;
 		data.shader = AssetManager::GetInstance().get<Shader>("Shader_Flat");
+		data.mode = RenderMode::Mesh;
 		data.lighting = RenderLighting::Flat;
 	}
 	//Set  up Sky box
@@ -162,28 +148,28 @@ void ExampleApp::onEnter()
 
 	//Set up the scene
 	_scene.setCamera(&_camera);
-
 	_scene.add("Skybox", _skybox.get());
-
+	
 	int index = 0;
-	for (const std::unique_ptr<PointLight> & pointLight : _pointLights)
+	for (const std::unique_ptr<PointLight>& pointLight : _pointLights)
 	{
 		_scene.getLights().setPointLight("PointLight_" + std::to_string(index), pointLight.get());
 		index++;
 	}
 	index = 0;
-	for (const std::unique_ptr<PhongMesh> & phongMesh : _phongMeshes)
+	for (const std::unique_ptr<Mesh>& boxMesh: _boxMeshes)
 	{
-		_scene.add("PhongMesh_" + std::to_string(index), phongMesh.get());
+		_scene.add("PhongMesh_" + std::to_string(index), boxMesh.get());
 		index++;
 	}
 
 	index = 0;
-	for (const std::unique_ptr<Mesh> & mesh  : _pointLightMeshes)
+	for (const std::unique_ptr<Mesh>& mesh : _pointLightMeshes)
 	{
 		_scene.add("PointLightMesh_" + std::to_string(index), mesh.get());
 		index++;
 	}
+
 	
 }
 
@@ -195,7 +181,6 @@ void ExampleApp::onExit()
 void ExampleApp::onRender() {
 
 	float time = getTime();
-	float speed = 0.15;
 
 	if (_elapsedTime > 1.0) //for every one second.
 	{
@@ -212,8 +197,8 @@ void ExampleApp::onRender() {
 	_projection = glm::perspective(45.0f,getWindowRatio(), 1.0f, 200.0f);
 	
 	_camera.setProjection(_projection);
-	_camera.setPosition({ 0, 0, 30 });
-	_camera.setForward({0,0,-1});
+	_camera.setPosition({ 0, 0, -10 });
+	_camera.setForward(glm::normalize( glm::vec3(0) -  _camera.getPosition() ));
 	// clear
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -225,39 +210,113 @@ void ExampleApp::onRender() {
 	_skybox->setModel(_model);
 	
 
+	demoMovingBoxesAndLights(time);
+//	demoRotatingBoxes(time);
+
+	//Submit Scene to be drawn - TODO - SceneRenderer will manage /sort/ cull this process of drawing
+	_scene.render(App::getRenderer());
+} 
+
+//////////////////////// Varying demoes ////////////////////////////////
+
+void ExampleApp::demoMovingBoxesAndLights(float time)
+{
+
+	float yaw = 0, pitch = 0, roll = 0;
+	const glm::vec3 up = { 0, 1, 0 };
+	const glm::vec3 forward = { 0, 0, 1 };
+	const glm::vec3 right = { 1, 0, 0 };
 	glm::vec3 position;
 	int i = 0;
 	float t;
-	float p= 4; // periodicity 
-	float amp = 20; 
+	float amp = 1;
+	float speed = 0.015;
+
 	for (i = 0; i < BOX_COUNT; i++)
 	{
-		t = i / (float)BOX_COUNT * 360 * 3.14156 / 180;
+		t = (float)i / (float)(BOX_COUNT) * 360.0f * 3.14156f / 180.0f;
 
-		position = { 
-			cos(t + time * speed) * sin(t*p + time * speed) * amp ,
-			sin(t + time * speed) * cos(t*p + time * speed) * amp ,
+		position = {
+			cos(t + time * speed) * sin(t + time * speed) * amp ,
+			sin(t + time * speed) * cos(t + time * speed) * amp ,
 			cos(t + time * speed) * amp
 		};
-		_phongMeshes[i]->setModel(glm::translate(position));
-		
+
+
+		yaw =   time *  (speed + 0.0);
+		pitch = time *  (speed + 0.25);
+		roll =  time *  (speed + 0.50);
+		glm::mat4 transform = glm::mat4(1);
+		transform = glm::translate(transform, position);
+		transform = glm::rotate(transform, yaw, up);
+		transform = glm::rotate(transform, roll, forward);
+		transform = glm::rotate(transform, pitch, right);
+
+
+		_boxMeshes[i]->setModel(transform);
+
 	}
 
-	p = 4; // periodicity 
-	amp = 25;
+	amp = 5;
+	speed = 2;
 	for (i = 0; i < LIGHT_COUNT; i++)
 	{
-		t =  i/(float)LIGHT_COUNT * 360 * 3.14156 / 180;
-		position = { 
-			cos(t + time * speed  ) * sin(t*p + time * speed  ) * amp ,
-			sin(t + time * speed  ) * cos(t*p + time * speed  ) * amp ,
-			cos(t + time * speed  ) * amp
+		t = (float)i / (float)(LIGHT_COUNT) * 360.0f * 3.14156f / 180.0f;
+		position = {
+			cos(t + time * speed) * amp ,
+			0, //sin(t + time * speed) * cos(t * p + time * speed) * amp ,
+			sin(t + time * speed) * amp
+		};
+		_pointLights[i]->setPosition(position);
+		_pointLightMeshes[i]->setModel(glm::translate(position));
+	}
+}
+
+
+void ExampleApp::demoRotatingBoxes(float time)
+{
+	float yaw=0, pitch=0, roll=0;
+	int i = 0;
+	float speed = .599995;
+	float amp = 5;
+	glm::vec3 position = { 0, 0, 0 };
+	const glm::vec3 up = { 0, 1, 0 };
+	const glm::vec3 forward = { 0, 0, 1 };
+	const glm::vec3 right = { 1, 0, 0 };
+	for (i = 0; i < BOX_COUNT; i++)
+	{
+		position.x  = (float)i / (float)(BOX_COUNT) * amp;
+		position.y =  (float)i / (float)(BOX_COUNT) * amp;
+		position.z =  (float)i / (float)(BOX_COUNT) * amp;
+
+		yaw =   time * speed;
+		//pitch = time * speed;
+		//roll =  time *  speed;
+		glm::mat4 transform = glm::mat4(1);
+		transform = glm::translate(transform, position);
+		transform = glm::rotate(transform, yaw, up);
+		transform = glm::rotate(transform, roll, forward);
+		transform = glm::rotate(transform, pitch, right);
+
+
+		_boxMeshes[i]->setModel(transform);
+
+	}
+	amp = 10;
+	float p, t; //psi theta
+	for (i = 0; i < LIGHT_COUNT; i++)
+	{
+		t = (float)i / (float)(LIGHT_COUNT) * 360.0f * 3.14156f / 180.0f;
+		p = pow(t, 1.04);
+		position = {
+			cos(t) * sin(p) * amp,
+			sin(t) * cos(p) * amp,
+			cos(t) * amp
+			
 		};
 		_pointLights[i]->setPosition(position);
 		_pointLightMeshes[i]->setModel(glm::translate(position));
 	}
 
+}
 
-	//Submit Scene to be drawn - TODO - SceneRenderer will manage /sort/ cull this process of drawing
-	_scene.render(App::getRenderer());
-} 

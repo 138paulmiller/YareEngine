@@ -17,9 +17,10 @@ namespace yare {
 
 			_shader= AssetManager::GetInstance().get<Shader>("Shader_SkyBox");
 
-			Mesh::renderData.shader = _shader;
-			Mesh::renderData.state.cullFace = RenderCullFace::Front;
-			Mesh::renderData.lighting = RenderLighting::Unlit;
+			Mesh::command.shader = _shader;
+			Mesh::command.state.cullFace = RenderCullFace::Front;
+			Mesh::command.lighting = RenderLighting::Unlit;
+			Mesh::command.mode = RenderMode::Mesh;//Box is not indexed
 
 		}
 
@@ -30,7 +31,7 @@ namespace yare {
 		void SkyBox::setCubemap(Texture* cubemap)
 		{
 			_cubemap = cubemap;
-			Mesh::renderData.textures.setTexture("environment", _cubemap);
+			Mesh::command.textures.setTexture("environment", _cubemap);
 		}
 
 		void SkyBox::loadFace(const TexturePixels& pixels, const TextureFace& face)

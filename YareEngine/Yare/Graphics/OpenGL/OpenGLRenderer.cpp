@@ -4,9 +4,15 @@
 
 namespace yare { namespace graphics {  
 
+void OpenGLRenderer::renderMesh(const VertexArray* vertexArray)
+{
+	glDrawArrays(_primitive, 0, vertexArray->getVertexCount());
+	
+}
+
 void OpenGLRenderer::renderIndexedMesh(const VertexArray * vertexArray)
 {
-	glDrawElements(GL_TRIANGLES,         // mode
+	glDrawElements(_primitive,         // mode
 		vertexArray->getIndexBuffer()->getIndexCount(),  // count
 		GL_UNSIGNED_INT,      // type
 		NULL                  // element array buffer offset
@@ -60,6 +66,12 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		break;
 	}
 
+	switch (state.primitive)
+	{
+	case RenderPrimitive::Triangles:
+		_primitive = GL_TRIANGLES;
+		break;
+	}
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(RenderTestFuncToGLFunc(state.depthFunc));

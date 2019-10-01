@@ -4,7 +4,7 @@
 
 
 /*
-Example Usage :
+Indexed And InterLeaved Usage :
 	//1. Create VAO first
 	VertexArray  * vertexArray = VertexArray::Create();
 	vertexArray->bind();
@@ -28,6 +28,7 @@ Example Usage :
 
 	vertexArray->unbind();
 
+	If not indexed, set VertexCount instead
 
 */
 namespace yare { namespace graphics { 
@@ -42,6 +43,8 @@ public:
 
 	virtual void bind() const = 0;
 	virtual void unbind() const = 0;
+	virtual void attachVertexBuffer(VertexBuffer * buffer)=0;
+
 
 	void addVertexBuffer(VertexBuffer * buffer);
 
@@ -49,15 +52,20 @@ public:
 	const std::vector<std::unique_ptr<VertexBuffer> >& getVertexBuffers() const;
 	const std::unique_ptr<VertexBuffer> & getVertexBuffer(int i ) const;
 
+	//If vertex array is indexed. Set IndexBuffer, if it is not then VertexCount MUST be set
+
 	void setIndexBuffer(IndexBuffer * buffer);
 	const std::unique_ptr<IndexBuffer>& getIndexBuffer() const;
 
-	virtual void attachVertexBuffer(VertexBuffer * buffer)=0;
+	void setVertexCount(unsigned int vertexCount) ;
+	unsigned int getVertexCount() const ;
 
 
 private:
 	std::vector< std::unique_ptr<VertexBuffer>> _vertexBuffers;
 	std::unique_ptr<IndexBuffer> _indexBuffer;
+	unsigned int _vertexCount; //if not indexed, uses this vertex count to draw the array
+
 };
 
 } } 
