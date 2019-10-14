@@ -63,7 +63,8 @@ void OpenGLTexture::load(
 	int level 
 )
 {
-
+	setWidth(pixels.width);
+	setHeight(pixels.height);
 	unsigned int format, type = GL_UNSIGNED_BYTE;
 	switch (pixels.format)
 	{

@@ -8,7 +8,11 @@ namespace yare { namespace graphics {
 class OpenGLTexture : public Texture
 {
 public:
-	OpenGLTexture(TextureType type = TextureType::Image, TextureFormat internalFormat = TextureFormat::RGBA8);
+	OpenGLTexture(
+		TextureType type = TextureType::Image, 
+		TextureFormat internalFormat = TextureFormat::RGBA8
+	);
+	
 	~OpenGLTexture();
 
 	void load(
@@ -18,11 +22,16 @@ public:
 	)override;
 
 
-	void update(TextureWrap wrap = TextureWrap::Clamp, TextureFilter filter = TextureFilter::Linear)override;
+	void update(
+		TextureWrap wrap = TextureWrap::Clamp, 
+		TextureFilter filter = TextureFilter::Linear
+	)override;
 
 	void generateMipMaps() override;
 	void bind(unsigned int unit = 0)override;
 	void unbind() override;
+
+	inline unsigned int handle() { return _texture; }
 protected : 
 private:
 	bool _isLoadedMap[(int)TextureFace::Count]; //if data has been loaded

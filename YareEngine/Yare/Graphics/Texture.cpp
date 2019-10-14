@@ -50,7 +50,7 @@ TextureRegion::TextureRegion(
 	width(width  ),  height(height),
 	xoffset(xoffset),  yoffset(yoffset)		
 {}
-		
+/****************************  Texture   *******************************/
 Texture* Texture::Create(TextureType type , TextureFormat internalFormat)
 {
 	switch (Graphics::GetRenderAPI())
