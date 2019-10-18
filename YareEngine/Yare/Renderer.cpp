@@ -26,12 +26,12 @@ void Renderer::submit(Renderable * renderable)
 {
 	_commandQueue.push(&renderable->command);
 	
-	if (_scene)
+	if (_cache.scene)
 	{
 		RenderCommand * newestCommand = _commandQueue.back();
 		//if a scene is bound. load it uniforms
 		//use UBOs and render views for this
-		_scene->loadUniforms(newestCommand->uniforms, newestCommand->lighting);
+		_cache.scene->loadUniforms(newestCommand->uniforms, newestCommand->lighting);
 	}
 }
 
@@ -44,6 +44,12 @@ void Renderer::render()
 		command = _commandQueue.front();
 		_commandQueue.pop();
 		
+		if (_cache.target)
+		{
+			_cache.target->bind();
+		}
+
+
 		updateState(command->state);
 		static Shader* prevShader = nullptr;
 		if (prevShader != command->shader) {
@@ -53,7 +59,7 @@ void Renderer::render()
 		}
 		/*
 		Instead of loading all uniforms and texture each frame. Create Shader Instances that are copies of a base shader. 
-		However, will only have to bind when dirty. Since they are copies, they should not be affected by other renderables that share the same parent shader
+		Will only have to bind when dirty. Since they are copies, they should not be affected by other renderables that share the same parent shader
 		Potentially do this at the material level and have materials instances maintain *blocks.
 		*/
 
@@ -73,21 +79,19 @@ void Renderer::render()
 		}
 
 		command->vertexArray->unbind();
-		//data->shader->unbind();
-
-		//renderable->postRender();
 	}
 }
 
-void Renderer::beginScene(const Scene* scene)
+void Renderer::begin(Scene* scene, RenderTarget * target)
 {
-	_scene= scene;
+	_cache.scene = scene;
+	_cache.target = target;
 }
 
-void Renderer::endScene()
+void Renderer::end()
 {
-
-	_scene = 0;
+	_cache.scene = 0;
+	_cache.target = 0;
 }
 
 

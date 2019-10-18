@@ -70,6 +70,7 @@ namespace yare {
 		}
 		void OpenGLRenderTarget::setup()
 		{
+			//count number of used buffers to allocat
 			_numUsed = 0;
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{

@@ -1,8 +1,9 @@
 #pragma once
 #include "Graphics/Camera.hpp"
 #include "Graphics/LightBlock.hpp"
-#include "Graphics/UniformBlock.hpp"
 #include "Renderable.hpp"
+#include "Graphics/UniformBlock.hpp"
+#include "Graphics/RenderTarget.hpp"
 
 namespace yare 
 { 
@@ -25,7 +26,7 @@ namespace yare
 		void remove(const std::string& name);
 		
 
-		void render(Renderer* renderer);
+		void render(Renderer* renderer, RenderTarget * target = 0);
 	private:
 		const Camera* _camera; //current cameras scene
 		LightBlock _lights; //all lights in the current scene

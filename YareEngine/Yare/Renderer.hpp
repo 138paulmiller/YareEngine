@@ -2,10 +2,10 @@
 #include <stack>
 #include <queue>
 
+#include "Scene.hpp"
+#include "Renderable.hpp"
 #include "Graphics/Camera.hpp"
 #include "Graphics/Texture.hpp"
-#include "Renderable.hpp"
-#include "Scene.hpp"
 #include "Graphics/LightBlock.hpp"
 
 namespace yare {
@@ -39,10 +39,11 @@ namespace yare {
 
 		virtual ~Renderer() = default;
 		
-		//Used by the Scene Rendering 
-		void beginScene(const Scene * scene);
+		//Used by the Scene Rendering . If target is null, forward renders to screen 
+		void begin(Scene * scene, RenderTarget *  target=0);
+
 		void submit(Renderable * renderable);
-		void endScene();
+		void end();
 
 
 		virtual void render();
@@ -64,6 +65,11 @@ namespace yare {
 		//current environment map. Rendered to in deferred pass. and used for reflection/refractions in transparency 
 		//Or, create CaptureCube. Renders all item within the region to a cubemap. This can then be bound to the environment map
 		//SkyBox _skybox; 
-		const Scene * _scene; //current scene reference
+		struct RenderCache
+		{
+			//Cached for begin/end blocks
+			Scene * scene; //current scene 
+			RenderTarget * target;//current render target
+		} _cache;
 	};
 }

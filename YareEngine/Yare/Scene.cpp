@@ -51,13 +51,13 @@ namespace yare
 	}
 
 
-	void Scene::render(Renderer* renderer)
+	void Scene::render(Renderer* renderer, RenderTarget * target)
 	{
-		renderer->beginScene(this);
+		renderer->begin(this, target);
 		for (const std::pair<std::string, Renderable* >& pair : _renderables)
 		{
 			renderer->submit(pair.second);
 		}
-		renderer->endScene();
+		renderer->end();
 	}
 }
