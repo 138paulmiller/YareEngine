@@ -26,7 +26,7 @@ namespace yare
 		void remove(const std::string& name);
 		
 
-		void render(Renderer* renderer, RenderTarget * target = 0);
+		void render(Renderer* renderer);
 	private:
 		const Camera* _camera; //current cameras scene
 		LightBlock _lights; //all lights in the current scene

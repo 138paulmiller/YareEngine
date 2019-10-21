@@ -22,34 +22,43 @@ Renderer* Renderer::Create(RenderAPI api)
 	}
 	return renderer;
 }
+
+
+void Renderer::begin(Scene* scene)
+{
+	_cache.scene = scene;
+}
+
 void Renderer::submit(Renderable * renderable)
 {
-	_commandQueue.push(&renderable->command);
+	_commands.push_back(&renderable->command);
 	
 	if (_cache.scene)
 	{
-		RenderCommand * newestCommand = _commandQueue.back();
+		RenderCommand * newestCommand = _commands.back();
 		//if a scene is bound. load it uniforms
 		//use UBOs and render views for this
 		_cache.scene->loadUniforms(newestCommand->uniforms, newestCommand->lighting);
 	}
 }
+void Renderer::end()
+{
+	_cache.scene = 0;
+}
 
 void Renderer::render()
 {
-	RenderCommand *command;
+
+	if (_commands.empty()) return;
+	renderGeometry(_commands);
+	_commands.clear();
+
+}
+void Renderer::renderGeometry(const std::vector<RenderCommand * > & commands)
+{
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
-	while (!_commandQueue.empty())
-	{
-		command = _commandQueue.front();
-		_commandQueue.pop();
-		
-		if (_cache.target)
-		{
-			_cache.target->bind();
-		}
-
-
+	for(RenderCommand const * command : commands)
+	{		
 		updateState(command->state);
 		static Shader* prevShader = nullptr;
 		if (prevShader != command->shader) {
@@ -82,17 +91,7 @@ void Renderer::render()
 	}
 }
 
-void Renderer::begin(Scene* scene, RenderTarget * target)
-{
-	_cache.scene = scene;
-	_cache.target = target;
-}
 
-void Renderer::end()
-{
-	_cache.scene = 0;
-	_cache.target = 0;
-}
 
 
 } 

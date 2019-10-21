@@ -40,7 +40,7 @@ namespace yare {
 		virtual ~Renderer() = default;
 		
 		//Used by the Scene Rendering . If target is null, forward renders to screen 
-		void begin(Scene * scene, RenderTarget *  target=0);
+		void begin(Scene * scene);
 
 		void submit(Renderable * renderable);
 		void end();
@@ -50,7 +50,6 @@ namespace yare {
 
 	protected:
 		virtual void renderMesh(const VertexArray* vertexArray) = 0 ;
-
 		virtual void renderIndexedMesh(const graphics::VertexArray * vertexArray) = 0;
 		virtual void updateState(const RenderState & state) = 0;
 
@@ -58,7 +57,11 @@ namespace yare {
 			cached config state. render command only updates if different
 		*/
 	private:
-		std::queue<RenderCommand * > _commandQueue;
+		//The varying render passes
+		void renderGeometry(const std::vector<RenderCommand * > & commands);
+		//Each pass will read from this queue
+
+		std::vector<RenderCommand * > _commands;
 		std::stack<RenderState> _stateStack;
 
 
@@ -69,7 +72,6 @@ namespace yare {
 		{
 			//Cached for begin/end blocks
 			Scene * scene; //current scene 
-			RenderTarget * target;//current render target
 		} _cache;
 	};
 }

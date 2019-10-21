@@ -40,7 +40,7 @@ namespace yare {
 			/*
 			Load all uniforms into shader
 			*/
-			void load(Shader* shader);
+			void load(Shader* shader) const;
 		private:
 			std::unordered_map<std::string , Uniform> _uniforms;
 		};

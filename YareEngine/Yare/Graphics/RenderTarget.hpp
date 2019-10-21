@@ -13,6 +13,7 @@ namespace yare {
 	//What buffer will write to the target texture 
 	enum class RenderTargetAttachment
 	{
+		//Depth = 0//Not Implemented yet
 		Color=0, //Multiple Color Attachments are allowed Color are RGBA 32 bit
 		Position,  //Uses RGB 16 floating bit point
 		Normal,  //Uses RGB 16 floating bit point

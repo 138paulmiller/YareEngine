@@ -124,15 +124,16 @@ void OpenGLTexture::update(TextureWrap wrap , TextureFilter filter )
 	switch (filter)
 	{
 	case TextureFilter::Linear:
-		glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		break;
 	case TextureFilter::Nearest:
-		glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+		glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		break;															 
 	}
 
+	OpenGLCheckError();
 
 	switch (wrap)
 	{
@@ -147,6 +148,7 @@ void OpenGLTexture::update(TextureWrap wrap , TextureFilter filter )
 		glTexParameteri(_target, GL_TEXTURE_WRAP_R, GL_REPEAT);
 		break;
 	}
+	OpenGLCheckError();
 
 
 }

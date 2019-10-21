@@ -48,7 +48,7 @@ namespace yare {
 			}
 
 
-			void UniformBlock::load(Shader* shader)
+			void UniformBlock::load(Shader* shader) const
 			{
 				for (std::pair<std::string, Uniform > pair : _uniforms)
 				{
