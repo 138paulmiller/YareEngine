@@ -1,6 +1,6 @@
 //RenderTarget  - Abstracts Rendering to Texture(s) 
 //	Can attach multiple render to render to.  
-
+#pragma once 
 #include "Texture.hpp"
 
 #include <vector>
@@ -22,13 +22,17 @@ namespace yare {
 ;	class RenderTarget
 	{
 	public:
+
+		static RenderTarget* Create();
+
 		virtual ~RenderTarget()= default;
 		virtual void use(RenderTargetAttachment attachment) = 0;
 		//read attachment into texture
-		virtual void read(RenderTargetAttachment attachment, TexturePixels pixel) = 0;
+		virtual void read(RenderTargetAttachment attachment, TexturePixels & pixel) = 0;
 		virtual void setup() = 0; //must be called once before render
 
-		virtual void bind() = 0;
+		///if isRead is true, then binds textures. Else bind just framebuffer
+		virtual void bind(bool isRead=false) = 0;
 
 		virtual void resize(int width, int height) { _width = width; _height = height; };
 		inline int getWidth() { return _width; }

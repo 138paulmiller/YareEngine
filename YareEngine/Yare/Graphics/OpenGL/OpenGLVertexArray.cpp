@@ -68,6 +68,8 @@ void OpenGLVertexArray::attachVertexBuffer(VertexBuffer* buffer)
 		_vertexAttributeIndex++;
 	}
 	OpenGLCheckError();
+	OpenGLCheckError();
+
 }
 
 

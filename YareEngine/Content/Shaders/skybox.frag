@@ -1,12 +1,12 @@
 #version 330
 
 in vec3 uvw;
-out vec4 color;
+out vec4 out_color;
 
 uniform samplerCube environment;
 
 void main()
 {    
-    color = texture(environment, uvw);
+    out_color = texture(environment, uvw);
 	
 }

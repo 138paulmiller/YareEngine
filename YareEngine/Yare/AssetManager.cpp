@@ -66,6 +66,7 @@ namespace yare
 		add<graphics::Shader>("Shader_SkyBox", _engineContentDir + "Shaders/skybox");
 		add<graphics::Shader>("Shader_Flat", _engineContentDir + "Shaders/flat");
 		add<graphics::Shader>("Shader_Phong", _engineContentDir + "Shaders/phong");
+		add<graphics::Shader>("Shader_Post_Color", _engineContentDir + "Shaders/post_color");
 
 		add<graphics::Texture>("Image_Container_Diffuse", _engineContentDir + "Images/container_diffuse.png");
 		add<graphics::Texture>("Image_Container_Specular", _engineContentDir + "Images/container_specular.png");

@@ -3,6 +3,10 @@
 #include "Graphics/Graphics.hpp"
 #include "Graphics/Light.hpp"
 
+
+//Remove 
+#include "AssetManager.hpp"
+
 namespace yare { 
 
 Renderer* Renderer::Create(RenderAPI api)
@@ -27,6 +31,9 @@ Renderer* Renderer::Create(RenderAPI api)
 void Renderer::begin(Scene* scene)
 {
 	_cache.scene = scene;
+
+	//Init layers
+
 }
 
 void Renderer::submit(Renderable * renderable)
@@ -39,6 +46,7 @@ void Renderer::submit(Renderable * renderable)
 		//if a scene is bound. load it uniforms
 		//use UBOs and render views for this
 		_cache.scene->loadUniforms(newestCommand->uniforms, newestCommand->lighting);
+
 	}
 }
 void Renderer::end()
@@ -49,6 +57,29 @@ void Renderer::end()
 void Renderer::render()
 {
 
+	///////////// Debug Render Layers ////////////////////////////////////////
+	//RenderTarget *target = RenderTarget::Create();
+	//target->use(RenderTargetAttachment::Color);
+	//target->resize(500, 500);
+	//target->setup();
+	//target->bind();
+	
+	
+	//if (_commands.empty()) return;
+	//renderGeometry(_commands);
+	//_commands.clear();
+	
+	//RenderState layersState; //default state
+	//layersState.cullFace = RenderCullFace::Front;
+	//_layer = new Layer();
+	//updateState(layersState);
+	//_layer->setShader(AssetManager::GetInstance().get<Shader>("Shader_Post_Color"));
+	////_layer->setTarget(target);
+	//_layer->render(this);
+	//delete _layer;
+
+	//delete target;
+	////////////////////////////////////////////////////////////////////////////
 	if (_commands.empty()) return;
 	renderGeometry(_commands);
 	_commands.clear();
@@ -71,9 +102,9 @@ void Renderer::renderGeometry(const std::vector<RenderCommand * > & commands)
 		Will only have to bind when dirty. Since they are copies, they should not be affected by other renderables that share the same parent shader
 		Potentially do this at the material level and have materials instances maintain *blocks.
 		*/
-
 		command->uniforms.load(command->shader);
 		command->textures.load(command->shader);
+
 
 		command->vertexArray->bind();
 		

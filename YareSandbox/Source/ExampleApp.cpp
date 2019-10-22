@@ -1,6 +1,7 @@
 
 #include "ExampleApp.hpp"
 #include <Yare/Geometry/Box.hpp>
+#include <Yare/Geometry/Quad.hpp>
 #include <Yare/Geometry/Sphere.hpp>
 #include <Yare/AssetManager.hpp>
 #include <iostream>
@@ -109,7 +110,8 @@ void ExampleApp::onEnter()
 	for (int i = 0; i < BOX_COUNT; i++)
 	{ //phong mesh
 		_boxMeshes[i].reset(new Mesh());
-		_boxMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
+		_boxMeshes[i]->loadVertexArray(geometry::Quad::CreateVertexArray(0,0,1,1));
+		//_boxMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
 		_boxMeshes[i]->setMaterial(_phongMaterial.get());
 		RenderCommand& data = _boxMeshes[i]->command;
 

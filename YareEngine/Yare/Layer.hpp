@@ -10,6 +10,7 @@ namespace yare
 {
 	using namespace graphics;
 	class Renderer;
+	//Layer should be a renderable !
 	class Layer 
 	{
 	public:

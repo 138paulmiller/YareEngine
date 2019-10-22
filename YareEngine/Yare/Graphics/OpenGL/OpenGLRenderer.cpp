@@ -1,5 +1,6 @@
 #pragma once
 #include "OpenGLRenderer.hpp"
+#include "OpenGLError.hpp"
 #include <GL/glew.h>
 
 namespace yare { namespace graphics {  
@@ -7,7 +8,8 @@ namespace yare { namespace graphics {
 void OpenGLRenderer::renderMesh(const VertexArray* vertexArray)
 {
 	glDrawArrays(_primitive, 0, vertexArray->getVertexCount());
-	
+	OpenGLCheckError();
+
 }
 
 void OpenGLRenderer::renderIndexedMesh(const VertexArray * vertexArray)

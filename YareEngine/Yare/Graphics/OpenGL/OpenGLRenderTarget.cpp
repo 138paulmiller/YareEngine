@@ -7,8 +7,17 @@ namespace yare {
 	namespace graphics {
 		OpenGLRenderTarget::OpenGLRenderTarget()
 		{
+
 			glGenFramebuffers(1, &_framebuffer);
+			OpenGLCheckError();
+
 			glGenRenderbuffers(1, &_renderbuffer);
+			OpenGLCheckError();
+
+			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
+			{
+				_buffers[i].used = false;
+			}
 
 		}
 
@@ -36,6 +45,8 @@ namespace yare {
 
 				}
 			}
+			OpenGLCheckError();
+
 		}
 
 		void OpenGLRenderTarget::use(RenderTargetAttachment attachment) 
@@ -55,6 +66,7 @@ namespace yare {
 			glBindTexture(GL_TEXTURE_2D, buffer.texture);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			OpenGLCheckError();
 
 			
 			switch (attachment)
@@ -67,6 +79,8 @@ namespace yare {
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (int)attachment, GL_TEXTURE_2D, buffer.texture, 0);
 				break;
 			}
+			OpenGLCheckError();
+
 		}
 		void OpenGLRenderTarget::setup()
 		{
@@ -103,22 +117,32 @@ namespace yare {
 				}
 			}
 			glDrawBuffers(_numUsed, attachments);
+			OpenGLCheckError();
+
 			// finally check if framebuffer is complete
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 				std::cout << "Setup Failed ! Incomplete Framebuffer !" << std::endl;
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			OpenGLCheckError();
+
 		}
-		void OpenGLRenderTarget::bind()
+		void OpenGLRenderTarget::bind(bool isRead)
 		{
 			int unit = 0;
-			glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
+			if (!isRead)
 			{
-				unit = i; //should this match attachment point?
-				if (_buffers[i].used)
+				glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+			}
+			else
+			{
+				for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 				{
-					glActiveTexture(GL_TEXTURE0+unit);
-					glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
+					unit = i; //should this match attachment point?
+					if (_buffers[i].used)
+					{
+						glActiveTexture(GL_TEXTURE0+unit);
+						glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
+					}
 				}
 			}
 		}

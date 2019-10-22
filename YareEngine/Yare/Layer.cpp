@@ -20,6 +20,11 @@ namespace yare
 	}
 	Layer::~Layer()
 	{
+		_quad.reset(0);
+		_shader = 0;
+		_target = 0;
+
+
 	}
 	
 	void Layer::setQuad(const glm::vec2 & pos, const glm::vec2 & size)
@@ -40,9 +45,10 @@ namespace yare
 	{
 		if (_target)
 		{
-			_target->bind();
+			_target->bind(true);
 		}
 		_shader->bind();
+		_quad->bind();
 		renderer->renderMesh(_quad.get());
 	}
 	

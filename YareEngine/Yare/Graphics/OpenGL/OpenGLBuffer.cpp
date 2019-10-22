@@ -6,7 +6,10 @@ namespace yare { namespace graphics {
 OpenGLVertexBuffer::OpenGLVertexBuffer(const BufferLayout & layout)
 	:_layout(layout)
 {
+
 	glCreateBuffers(1, &_vbo);
+	OpenGLCheckError();
+
 
 }
 OpenGLVertexBuffer::~OpenGLVertexBuffer()
@@ -17,8 +20,12 @@ OpenGLVertexBuffer::~OpenGLVertexBuffer()
 
 void OpenGLVertexBuffer::load(const void* data, unsigned int size, bool isDynamic )
 {
+
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+
 	glBufferData(GL_ARRAY_BUFFER, size, data, isDynamic ? GL_DYNAMIC_DRAW  : GL_STATIC_DRAW);
+	OpenGLCheckError();
+
 }
 
 void OpenGLVertexBuffer::bind() const
@@ -60,6 +67,8 @@ void OpenGLIndexBuffer::load(const unsigned int * data, unsigned int size)
 	_count = size / sizeof(data[0]);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size , data, GL_STATIC_DRAW);
+	OpenGLCheckError();
+
 }
 
 unsigned int OpenGLIndexBuffer::getIndexCount() const 

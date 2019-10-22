@@ -3,6 +3,7 @@
 #include <queue>
 
 #include "Scene.hpp"
+#include "Layer.hpp"
 #include "Renderable.hpp"
 #include "Graphics/Camera.hpp"
 #include "Graphics/Texture.hpp"
@@ -48,9 +49,10 @@ namespace yare {
 
 		virtual void render();
 
-	protected:
 		virtual void renderMesh(const VertexArray* vertexArray) = 0 ;
 		virtual void renderIndexedMesh(const graphics::VertexArray * vertexArray) = 0;
+	
+	protected:
 		virtual void updateState(const RenderState & state) = 0;
 
 		/*
@@ -63,7 +65,7 @@ namespace yare {
 
 		std::vector<RenderCommand * > _commands;
 		std::stack<RenderState> _stateStack;
-
+		Layer * _layer;
 
 		//current environment map. Rendered to in deferred pass. and used for reflection/refractions in transparency 
 		//Or, create CaptureCube. Renders all item within the region to a cubemap. This can then be bound to the environment map

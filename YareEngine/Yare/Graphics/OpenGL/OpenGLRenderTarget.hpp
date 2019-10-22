@@ -18,7 +18,8 @@ namespace yare {
 		void use(RenderTargetAttachment attachment) override;
 		void resize(int width, int height) override;
 		void setup() override;
-		void bind() override;
+		void bind(bool isRead = false) override;
+		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
 
 	private:
 		//

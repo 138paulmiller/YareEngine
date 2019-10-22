@@ -34,7 +34,7 @@ in vec3 frag_normal;
 in vec2 frag_uv;
 
 //--------------- Outputs ------------------//
-out vec4 color;
+out vec4 out_color;
 
 
 //--------------- Uniforms ------------------//
@@ -91,17 +91,17 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
 void main(void)
 {       
 
-	color = vec4(0);
+	out_color = vec4(0);
 	vec3 view_dir = normalize(view_pos - frag_pos.xyz);
 	vec3 normal  = normalize(frag_normal);
 	
 	for(int i = 0; i < dir_light_count; i++){
-		color.xyz += calcDirectionalLight(dir_lights[i], normal, view_dir); 
+		out_color.xyz += calcDirectionalLight(dir_lights[i], normal, view_dir); 
 	}
 	
 	for(int i = 0; i < pt_light_count; i++){
-		color.xyz += calcPointLight(pt_lights[i], frag_pos.xyz, normal, view_dir);
+		out_color.xyz += calcPointLight(pt_lights[i], frag_pos.xyz, normal, view_dir);
 	}
 
-	color.w=  1.0;
+	out_color.w=  1.0;
 }
