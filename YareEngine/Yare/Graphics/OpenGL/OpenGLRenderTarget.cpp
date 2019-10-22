@@ -9,10 +9,22 @@ namespace yare {
 		{
 
 			glGenFramebuffers(1, &_framebuffer);
+			bind();
 			OpenGLCheckError();
 
 			glGenRenderbuffers(1, &_renderbuffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
 			OpenGLCheckError();
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 0,0); // use a single renderbuffer object for both a depth AND stencil buffer.
+			OpenGLCheckError();
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _renderbuffer); // now actually attach it
+			OpenGLCheckError();
+
+			glBindRenderbuffer(GL_RENDERBUFFER, 0);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+			OpenGLCheckError();
+
 
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
@@ -32,10 +44,7 @@ namespace yare {
 		{
 			RenderTarget::resize(width, height);
 
-			glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
-			//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-			//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _renderbuffer);
-
+			bind();
 			OpenGLCheckError();
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
@@ -46,8 +55,16 @@ namespace yare {
 
 				}
 			}
+			glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
+			OpenGLCheckError();
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getWidth(), getHeight()); // use a single renderbuffer object for both a depth AND stencil buffer.
+			OpenGLCheckError();
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _renderbuffer); // now actually attach it
 			OpenGLCheckError();
 
+			glBindRenderbuffer(GL_RENDERBUFFER, 0);
+			OpenGLCheckError();
+			unbind();
 		}
 
 		void OpenGLRenderTarget::use(RenderTargetAttachment attachment) 
@@ -73,8 +90,6 @@ namespace yare {
 			switch (attachment)
 			{
 			case RenderTargetAttachment::Color:
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (int)attachment, GL_TEXTURE_2D, buffer.texture, 0);
-				break;
 			case RenderTargetAttachment::Position:
 			case RenderTargetAttachment::Normal:
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + (int)attachment, GL_TEXTURE_2D, buffer.texture, 0);

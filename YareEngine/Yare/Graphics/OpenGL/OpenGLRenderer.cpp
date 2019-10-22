@@ -54,7 +54,6 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		glDepthFunc(GL_NOTEQUAL);
 		break;
 	case RenderTestFunc::Disabled:
-		glClear(GL_DEPTH);
 		glDisable(GL_DEPTH_TEST);
 		break;
 

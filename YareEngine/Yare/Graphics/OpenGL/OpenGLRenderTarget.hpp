@@ -22,7 +22,7 @@ namespace yare {
 		void bindTextures() override;
 		void unbind() override;
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
-		
+
 	private:
 		//
 		struct OpenGLRenderBuffer

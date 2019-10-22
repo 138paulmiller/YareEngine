@@ -28,6 +28,7 @@ OpenGLVertexArray::OpenGLVertexArray()
 {
 	glCreateVertexArrays(1, &_vao);
 	_vertexAttributeIndex = 0;
+	OpenGLCheckError();
 }
 
 OpenGLVertexArray::~OpenGLVertexArray()
@@ -67,7 +68,6 @@ void OpenGLVertexArray::attachVertexBuffer(VertexBuffer* buffer)
 			reinterpret_cast<void*>(element.offset));
 		_vertexAttributeIndex++;
 	}
-	OpenGLCheckError();
 	OpenGLCheckError();
 
 }
