@@ -15,7 +15,7 @@ namespace yare {
 
 			//Create the Skybox Shader
 
-			_shader= AssetManager::GetInstance().get<Shader>("Shader_SkyBox");
+			_shader= AssetManager::GetInstance().get<Shader>("skybox");
 
 			Mesh::command.shader = _shader;
 			Mesh::command.state.cullFace = RenderCullFace::Front;

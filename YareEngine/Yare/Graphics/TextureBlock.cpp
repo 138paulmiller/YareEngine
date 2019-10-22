@@ -19,7 +19,7 @@ namespace yare {
 		{
 			int i = 0;
 			Texture* texture;
-			const  std::string* name;
+			std::string const * name;
 			for (std::pair<std::string, Texture* > pair : _textures)
 			{
 				texture = pair.second;

@@ -15,12 +15,12 @@ namespace yare {
 			std::vector<QuadVertex>	vertices = {
 				//face -z
 				{{x, -y,  0.0f},        {0.0f, 0.0f}},
-				{{x+w,  y+h,  0.0f},    {1.0f, 1.0f}},
 				{{x + w, y,  0.0f},     {1.0f, 0.0f}},
+				{{x+w,  y+h,  0.0f},    {1.0f, 1.0f}},
 									   
 				{{x + w,  y+h,  0.0f},   {1.0f, 1.0f}},
-				{{x, y,  0.0f},         {0.0f, 0.0f}},
 				{{x,  y+h,  0.0f},      {0.0f, 1.0f}},
+				{{x, y,  0.0f},         {0.0f, 0.0f}},
 
 			};
 

@@ -63,15 +63,13 @@ namespace yare
 	void AssetManager::loadEngineContent()
 	{
 		//By default . Should be one for each lighting model
-		add<graphics::Shader>("Shader_SkyBox", _engineContentDir + "Shaders/skybox");
-		add<graphics::Shader>("Shader_Flat", _engineContentDir + "Shaders/flat");
-		add<graphics::Shader>("Shader_Phong", _engineContentDir + "Shaders/phong");
-		add<graphics::Shader>("Shader_Post_Color", _engineContentDir + "Shaders/post_color");
-
-		add<graphics::Texture>("Image_Container_Diffuse", _engineContentDir + "Images/container_diffuse.png");
-		add<graphics::Texture>("Image_Container_Specular", _engineContentDir + "Images/container_specular.png");
-
-		add<graphics::Cubemap>("Image_SkyBox", _engineContentDir + "Images/skybox.png");
+		add<graphics::Shader>("skybox"              , _engineContentDir + "Shaders/skybox"                );
+		add<graphics::Shader>("mesh_flat"           , _engineContentDir + "Shaders/mesh_flat"             );
+		add<graphics::Shader>("mesh_phong"          , _engineContentDir + "Shaders/mesh_phong"            );
+		add<graphics::Shader>("quad_textured"       , _engineContentDir + "Shaders/quad_textured"         );
+		add<graphics::Texture>("container_diffuse"  , _engineContentDir + "Textures/container_diffuse.png"  );
+		add<graphics::Texture>("container_specular" , _engineContentDir + "Textures/container_specular.png" );
+		add<graphics::Cubemap>("skybox_cubemap"             , _engineContentDir + "Textures/skybox_cubemap.png"             );
 	}
 
 }

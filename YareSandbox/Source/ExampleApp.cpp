@@ -91,8 +91,8 @@ void ExampleApp::onEnter()
 
 	//Create an instance of the phong material. To be shared among meshes
 
-	Texture* diffuse = AssetManager::GetInstance().get<Texture>("Image_Container_Diffuse");
-	Texture * specular = AssetManager::GetInstance().get<Texture>("Image_Container_Specular");
+	Texture* diffuse = AssetManager::GetInstance().get<Texture>("container_diffuse");
+	Texture * specular = AssetManager::GetInstance().get<Texture>("container_specular");
 
 	diffuse->update(TextureWrap::Repeat);
 	specular->update(TextureWrap::Repeat);
@@ -110,12 +110,13 @@ void ExampleApp::onEnter()
 	for (int i = 0; i < BOX_COUNT; i++)
 	{ //phong mesh
 		_boxMeshes[i].reset(new Mesh());
-		_boxMeshes[i]->loadVertexArray(geometry::Quad::CreateVertexArray(0,0,1,1));
-		//_boxMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
+		//_boxMeshes[i]->loadVertexArray(geometry::Quad::CreateVertexArray(0,0,1,1));
+		_boxMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
 		_boxMeshes[i]->setMaterial(_phongMaterial.get());
 		RenderCommand& data = _boxMeshes[i]->command;
 
-		data.shader = AssetManager::GetInstance().get<Shader>("Shader_Phong");
+		data.shader = AssetManager::GetInstance().get<Shader>("mesh_phong");
+		//data.shader = AssetManager::GetInstance().get<Shader>("quad_textured");
 		data.mode = RenderMode::Mesh;
 		data.lighting = RenderLighting::Phong;
 
@@ -138,13 +139,13 @@ void ExampleApp::onEnter()
 		
 		//Setup render config
 		RenderCommand& data = _pointLightMeshes[i]->command;
-		data.shader = AssetManager::GetInstance().get<Shader>("Shader_Flat");
+		data.shader = AssetManager::GetInstance().get<Shader>("mesh_flat");
 		data.mode = RenderMode::Mesh;
 		data.lighting = RenderLighting::Flat;
 	}
 	//Set  up Sky box
 	_skybox.reset(new SkyBox());
-	Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("Image_SkyBox");
+	Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("skybox_cubemap");
 	_skybox->setCubemap(skyboxTexture);
 
 
