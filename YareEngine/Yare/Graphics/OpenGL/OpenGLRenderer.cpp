@@ -19,35 +19,47 @@ void OpenGLRenderer::renderIndexedMesh(const VertexArray * vertexArray)
 		GL_UNSIGNED_INT,      // type
 		NULL                  // element array buffer offset
 	);
+	OpenGLCheckError();
+
 }
-
-unsigned int RenderTestFuncToGLFunc(RenderTestFunc func)
-{
-	switch (func)
-	{
-	case  RenderTestFunc::Less:
-		return GL_LESS;
-	case  RenderTestFunc::LessEqual:
-		return GL_LEQUAL;
-	case  RenderTestFunc::Greater:
-		return GL_GREATER;
-	case  RenderTestFunc::GreaterEqual:
-		return GL_GEQUAL;
-	case  RenderTestFunc::Always:
-		return GL_ALWAYS;
-	case  RenderTestFunc::Never:
-		return GL_NEVER;
-	case  RenderTestFunc::Equal:
-		return GL_EQUAL;
-	case  RenderTestFunc::NotEqual:
-		return GL_NOTEQUAL;
-
-	}
-}
-
 
 void OpenGLRenderer::updateState(const RenderState & state)
 {
+
+	glEnable(GL_DEPTH_TEST);
+	switch (state.depthFunc)
+	{
+	case  RenderTestFunc::Less:
+		glDepthFunc(GL_LESS);
+		break;
+	case  RenderTestFunc::LessEqual:
+		glDepthFunc(GL_LEQUAL);
+		break;
+	case  RenderTestFunc::Greater:
+		glDepthFunc(GL_GREATER);
+		break;
+	case  RenderTestFunc::GreaterEqual:
+		glDepthFunc(GL_GEQUAL);
+		break;
+	case  RenderTestFunc::Always:
+		glDepthFunc(GL_ALWAYS);
+		break;
+	case  RenderTestFunc::Never:
+		glDepthFunc(GL_NEVER);
+		break;
+	case  RenderTestFunc::Equal:
+		glDepthFunc(GL_EQUAL);
+		break;
+	case  RenderTestFunc::NotEqual:
+		glDepthFunc(GL_NOTEQUAL);
+		break;
+	case RenderTestFunc::Disabled:
+		glClear(GL_DEPTH);
+		glDisable(GL_DEPTH_TEST);
+		break;
+
+	}
+
 	glEnable(GL_CULL_FACE);
 	switch (state.cullFace)
 	{
@@ -75,8 +87,6 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		break;
 	}
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(RenderTestFuncToGLFunc(state.depthFunc));
 	//glStencilFunc(RenderTestFuncToGLFunc(state.stencilFunc), ref, mask);
 
 	if(state.wireframe)
@@ -90,6 +100,20 @@ void OpenGLRenderer::updateState(const RenderState & state)
 
 	}
 
+}
+
+void OpenGLRenderer::clear(RenderBufferFlag mask) 
+{
+
+	switch (mask)
+	{
+	case RenderBufferFlag::Color:
+		glClear(GL_COLOR_BUFFER_BIT);
+	break;
+	case RenderBufferFlag::Depth:
+		glClear(GL_DEPTH_BUFFER_BIT);
+	break;
+	}
 }
 
 } } 

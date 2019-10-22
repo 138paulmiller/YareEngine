@@ -139,8 +139,8 @@ void ExampleApp::onEnter()
 		
 		//Setup render config
 		RenderCommand& data = _pointLightMeshes[i]->command;
-		data.shader = AssetManager::GetInstance().get<Shader>("mesh_flat");
-		data.mode = RenderMode::Mesh;
+		data.shader   = AssetManager::GetInstance().get<Shader>("mesh_flat");
+		data.mode     = RenderMode::Mesh;
 		data.lighting = RenderLighting::Flat;
 	}
 	//Set  up Sky box
@@ -202,10 +202,7 @@ void ExampleApp::onRender() {
 	_camera.setProjection(_projection);
 	_camera.setPosition({ 0, 0, -10 });
 	_camera.setForward(glm::normalize( glm::vec3(0) -  _camera.getPosition() ));
-	// clear
-	glClear(GL_COLOR_BUFFER_BIT);
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 
 	////////// Update State ////////////////
  	 _model = glm::translate(_camera.getPosition());

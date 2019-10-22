@@ -27,7 +27,7 @@ class App {
  public:
 	App(const AppConfig & config = {
 		"Yare App", 
-		1920 , 1080, 
+		1920 , 1260, 
 		RenderAPI::OpenGL 
 	});
 

@@ -69,7 +69,7 @@ namespace yare
 		add<graphics::Shader>("quad_textured"       , _engineContentDir + "Shaders/quad_textured"         );
 		add<graphics::Texture>("container_diffuse"  , _engineContentDir + "Textures/container_diffuse.png"  );
 		add<graphics::Texture>("container_specular" , _engineContentDir + "Textures/container_specular.png" );
-		add<graphics::Cubemap>("skybox_cubemap"             , _engineContentDir + "Textures/skybox_cubemap.png"             );
+		add<graphics::Cubemap>("skybox_cubemap"     , _engineContentDir + "Textures/skybox_cubemap.png"             );
 	}
 
 }

@@ -30,9 +30,10 @@ namespace yare {
 		//read attachment into texture
 		virtual void read(RenderTargetAttachment attachment, TexturePixels & pixel) = 0;
 		virtual void setup() = 0; //must be called once before render
-
 		///if isRead is true, then binds textures. Else bind just framebuffer
-		virtual void bind(bool isRead=false) = 0;
+		virtual void bind() = 0;
+		virtual void unbind() = 0;
+		virtual void bindTextures() = 0;
 
 		virtual void resize(int width, int height) { _width = width; _height = height; };
 		inline int getWidth() { return _width; }

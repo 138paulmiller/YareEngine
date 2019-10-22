@@ -54,36 +54,50 @@ void Renderer::end()
 	_cache.scene = 0;
 }
 
+#define DEFERRED_DBG
 void Renderer::render()
 {
-
+#ifdef DEFERRED_DBG
 	///////////// Debug Render Layers ////////////////////////////////////////
-	//RenderTarget *target = RenderTarget::Create();
-	//target->use(RenderTargetAttachment::Color);
-	//target->resize(500, 500);
-	//target->setup();
-	//target->bind();
-	
-	
-	//if (_commands.empty()) return;
-	//renderGeometry(_commands);
-	//_commands.clear();
-	
-	//RenderState layersState; //default state
-	//layersState.cullFace = RenderCullFace::Front;
-	//_layer = new Layer();
-	//updateState(layersState);
-	//_layer->setShader(AssetManager::GetInstance().get<Shader>("Shader_Post_Color"));
-	////_layer->setTarget(target);
-	//_layer->render(this);
-	//delete _layer;
+	RenderTarget *target = RenderTarget::Create();
+	target->use(RenderTargetAttachment::Color);
+	target->setup();
+	target->resize(1920, 1260);
+	target->bind();
 
-	//delete target;
+	this->clear(RenderBufferFlag::Color);
+	this->clear(RenderBufferFlag::Depth);
+	
+	if (_commands.empty()) return;
+	renderGeometry(_commands);
+	_commands.clear();
+	target->unbind();
+	this->clear(RenderBufferFlag::Color);
+	
+	
+	RenderState layersState; //default state
+	layersState.cullFace = RenderCullFace::Back;
+	layersState.depthFunc = RenderTestFunc::Disabled;
+	updateState(layersState);
+
+	_layer = new Layer();
+	Shader * layerShader = AssetManager::GetInstance().get<Shader>("quad_textured");
+	_layer->setQuad({ 0,0 }, { 1, 1 });
+	_layer->setShader(layerShader);
+	layerShader->setUniform("color", 0);
+	_layer->setTarget(target);
+
+	_layer->render(this);
+	delete _layer;
+	delete target;
+#else
 	////////////////////////////////////////////////////////////////////////////
 	if (_commands.empty()) return;
 	renderGeometry(_commands);
 	_commands.clear();
+#endif
 
+#undef DEFERRED_DBG
 }
 void Renderer::renderGeometry(const std::vector<RenderCommand * > & commands)
 {

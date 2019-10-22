@@ -22,7 +22,8 @@ namespace yare {
 		Equal,
 		NotEqual,
 		Never, //Always fails.
-		Always //Always passes
+		Always,//Always passes
+		Disabled //Will disable before draw
 	};
 
 	enum class RenderWinding {

@@ -33,9 +33,10 @@ namespace yare {
 			RenderTarget::resize(width, height);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _renderbuffer);
-		
+			//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+			//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _renderbuffer);
+
+			OpenGLCheckError();
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
 				if (_buffers[i].used)
@@ -80,6 +81,7 @@ namespace yare {
 				break;
 			}
 			OpenGLCheckError();
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		}
 		void OpenGLRenderTarget::setup()
@@ -116,6 +118,7 @@ namespace yare {
 					j++;
 				}
 			}
+			bind();
 			glDrawBuffers(_numUsed, attachments);
 			OpenGLCheckError();
 
@@ -126,23 +129,24 @@ namespace yare {
 			OpenGLCheckError();
 
 		}
-		void OpenGLRenderTarget::bind(bool isRead)
+		void OpenGLRenderTarget::bind()
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+		}
+		void OpenGLRenderTarget::unbind()
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+		void OpenGLRenderTarget::bindTextures()
 		{
 			int unit = 0;
-			if (!isRead)
+			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
-				glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-			}
-			else
-			{
-				for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
+				unit = i; //should this match attachment point?
+				if (_buffers[i].used)
 				{
-					unit = i; //should this match attachment point?
-					if (_buffers[i].used)
-					{
-						glActiveTexture(GL_TEXTURE0+unit);
-						glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
-					}
+					glActiveTexture(GL_TEXTURE0+unit);
+					glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
 				}
 			}
 		}

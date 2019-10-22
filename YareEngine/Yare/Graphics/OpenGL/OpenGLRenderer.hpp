@@ -11,6 +11,7 @@ public:
 	void renderMesh(const VertexArray * vertexArray) override;
 	void renderIndexedMesh(const VertexArray* vertexArray) override;
 	void updateState(const RenderState & state) override ;
+	void clear(RenderBufferFlag mask) override;
 private:
 	unsigned int _primitive;
 	//add cull face, depoth test vars etc...

@@ -45,7 +45,7 @@ namespace yare
 	{
 		if (_target)
 		{
-			_target->bind(true);
+			_target->bindTextures();
 		}
 		_shader->bind();
 		_quad->bind();

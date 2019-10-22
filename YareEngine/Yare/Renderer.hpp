@@ -25,8 +25,12 @@ namespace yare {
 	
 		//see https://blog.molecular-matters.com/2014/11/06/stateless-layered-multi-threaded-rendering-part-1/
 	*/
-
-
+	enum class RenderBufferFlag : char
+	{
+		Color = 0b000001, 
+		Depth = 0b000010,
+	};
+ 
 	//Runs on its own thread 
 	//all render commands should be queued
 	class Renderer
@@ -46,6 +50,7 @@ namespace yare {
 		void submit(Renderable * renderable);
 		void end();
 
+		virtual void clear(RenderBufferFlag mask) = 0;
 
 		virtual void render();
 
