@@ -53,6 +53,7 @@ OpenGLIndexBuffer::OpenGLIndexBuffer()
 {
 	_count = 0;
 	glCreateBuffers(1, &_ibo);
+	OpenGLCheckError();
 
 }
 OpenGLIndexBuffer::~OpenGLIndexBuffer()

@@ -7,6 +7,7 @@ namespace yare { namespace graphics {
 
 void OpenGLRenderer::renderMesh(const VertexArray* vertexArray)
 {
+
 	glDrawArrays(_primitive, 0, vertexArray->getVertexCount());
 	OpenGLCheckError();
 
@@ -98,7 +99,7 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	}
-
+	OpenGLCheckError();
 }
 
 void OpenGLRenderer::clear(RenderBufferFlag mask) 

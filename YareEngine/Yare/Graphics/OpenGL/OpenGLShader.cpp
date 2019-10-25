@@ -152,6 +152,7 @@ void OpenGLShader::cacheAttributeAndUniforms()
 
 void OpenGLShader::bind() const {
 	glUseProgram(_program);
+
 }
 void OpenGLShader::unbind() const {
 	glUseProgram(0);
@@ -168,6 +169,9 @@ int OpenGLShader::getUniform(const std::string& name)
   return it->second;
 }
 
+void OpenGLShader::setUniform(const std::string& name, const glm::vec2& v) {
+	glUniform2fv(getUniform(name), 1, glm::value_ptr(v));
+}
 
 void OpenGLShader::setUniform(const std::string& name, const glm::vec3& v) {
   glUniform3fv(getUniform(name), 1, glm::value_ptr(v));
@@ -203,6 +207,8 @@ void OpenGLShader::setUniform(const std::string& name, float val) {
 
 void OpenGLShader::setUniform(const std::string& name, int val) {
   glUniform1i(getUniform(name), val);
+
+
 }
 
 

@@ -6,7 +6,7 @@
 
 //Remove 
 #include "AssetManager.hpp"
-
+#include "Graphics/OpenGL/OpenGLError.hpp"
 namespace yare { 
 
 Renderer* Renderer::Create(RenderAPI api)
@@ -61,8 +61,8 @@ void Renderer::render()
 	///////////// Debug Render Layers ////////////////////////////////////////
 	RenderTarget *target = RenderTarget::Create();
 	target->use(RenderTargetAttachment::Color);
+	target->resize(1920, 1260); //should send screen resolution to shader
 	target->setup();
-	target->resize(1920, 1260);
 	target->bind();
 
 	this->clear(RenderBufferFlag::Color);
@@ -72,20 +72,32 @@ void Renderer::render()
 	renderGeometry(_commands);
 	_commands.clear();
 	target->unbind();
-	this->clear(RenderBufferFlag::Color);
+	//this->clear(RenderBufferFlag::Color);
 	
 	
 	RenderState layersState; //default state
 	layersState.cullFace = RenderCullFace::Back;
 	layersState.depthFunc = RenderTestFunc::Disabled;
 	updateState(layersState);
+	OpenGLCheckError();
 
 	_layer = new Layer();
+	OpenGLCheckError();
+
 	Shader * layerShader = AssetManager::GetInstance().get<Shader>("quad_textured");
+	OpenGLCheckError();
+
 	_layer->setQuad({ 0,0 }, { 1, 1 });
+	OpenGLCheckError();
 	_layer->setShader(layerShader);
+	OpenGLCheckError();
+
 	layerShader->setUniform("color", 0);
+	//layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
+	OpenGLCheckError();
 	_layer->setTarget(target);
+	
+	OpenGLCheckError();
 
 	_layer->render(this);
 	delete _layer;

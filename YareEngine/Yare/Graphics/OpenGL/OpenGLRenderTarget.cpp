@@ -13,13 +13,7 @@ namespace yare {
 			OpenGLCheckError();
 
 			glGenRenderbuffers(1, &_renderbuffer);
-			glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
-			OpenGLCheckError();
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 0,0); // use a single renderbuffer object for both a depth AND stencil buffer.
-			OpenGLCheckError();
-			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _renderbuffer); // now actually attach it
-			OpenGLCheckError();
-
+			
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -35,7 +29,12 @@ namespace yare {
 
 		OpenGLRenderTarget::~OpenGLRenderTarget()
 		{
-			bind();
+			unbind();
+			
+			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
+			{
+					glDeleteTextures(1, &_buffers[i].texture);
+			}
 			glDeleteRenderbuffers(1, &_renderbuffer);
 			glDeleteFramebuffers(1, &_framebuffer);
 		}
@@ -160,8 +159,10 @@ namespace yare {
 				unit = i; //should this match attachment point?
 				if (_buffers[i].used)
 				{
+					
 					glActiveTexture(GL_TEXTURE0+unit);
 					glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
+					OpenGLCheckError();
 				}
 			}
 		}
