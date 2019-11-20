@@ -41,21 +41,20 @@ namespace yare {
 		static Renderer* Create(RenderAPI api);
 		//static Renderer *GetInstance();
 
-
 		virtual ~Renderer() = default;
+
+		virtual void clear(RenderBufferFlag mask) = 0;
+		virtual void renderMesh(const VertexArray* vertexArray) = 0 ;
+		virtual void renderIndexedMesh(const graphics::VertexArray * vertexArray) = 0;
 		
+		virtual void resizeViewport(int width, int height);
 		//Used by the Scene Rendering . If target is null, forward renders to screen 
 		void begin(Scene * scene);
-
 		void submit(Renderable * renderable);
 		void end();
 
-		virtual void clear(RenderBufferFlag mask) = 0;
-
 		virtual void render();
 
-		virtual void renderMesh(const VertexArray* vertexArray) = 0 ;
-		virtual void renderIndexedMesh(const graphics::VertexArray * vertexArray) = 0;
 	
 	protected:
 		virtual void updateState(const RenderState & state) = 0;
@@ -80,5 +79,8 @@ namespace yare {
 			//Cached for begin/end blocks
 			Scene * scene; //current scene 
 		} _cache;
+
+		//todo : create viewport  class
+		int _width, _height;
 	};
 }

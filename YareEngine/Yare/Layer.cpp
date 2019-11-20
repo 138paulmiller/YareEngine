@@ -23,13 +23,10 @@ namespace yare
 		_quad.reset(0);
 		_shader = 0;
 		_target = 0;
-
-
 	}
 	
 	void Layer::setQuad(const glm::vec2 & pos, const glm::vec2 & size)
 	{
-
 		_quad.reset(Quad::CreateVertexArray(pos.x, pos.y, size.x, size.y).release());
 	}
 	void Layer::setShader(Shader * shader)

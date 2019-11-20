@@ -13,6 +13,12 @@ void OpenGLRenderer::renderMesh(const VertexArray* vertexArray)
 
 }
 
+void OpenGLRenderer::resizeViewport(int width, int height)
+{
+	Renderer::resizeViewport(width, height);
+	glViewport(0, 0, width, height);
+}
+
 void OpenGLRenderer::renderIndexedMesh(const VertexArray * vertexArray)
 {
 	glDrawElements(_primitive,         // mode

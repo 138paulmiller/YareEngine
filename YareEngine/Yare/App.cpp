@@ -55,6 +55,7 @@ App::App(const AppConfig & config)
 	std::cout << "Renderer: " << renderer << std::endl;
 	std::cout << "OpenGL version supported " << version << std::endl;
 
+	resizeWindow(_config.width, _config.height);
 	
 	// vsync
 	// glfwSwapInterval(false);
@@ -146,7 +147,7 @@ void App::detectWindowResize()
 void App::resizeWindow(int newWidth, int newHeight) {
 	_config.width = newWidth;
 	_config.height = newHeight;
-	glViewport(0, 0, _config.width, _config.height);
+	this->_renderer->resizeViewport(_config.width, _config.height);
 }
 
 

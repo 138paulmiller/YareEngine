@@ -27,6 +27,11 @@ Renderer* Renderer::Create(RenderAPI api)
 	return renderer;
 }
 
+void Renderer::resizeViewport(int width, int height)
+{
+	_width = width;
+	_height = height;
+}
 
 void Renderer::begin(Scene* scene)
 {
@@ -54,26 +59,26 @@ void Renderer::end()
 	_cache.scene = 0;
 }
 
-#define DEFERRED_DBG
+#define DEFERRED_DBG 1
 void Renderer::render()
 {
-#ifdef DEFERRED_DBG
+#if DEFERRED_DBG
 	///////////// Debug Render Layers ////////////////////////////////////////
 	RenderTarget *target = RenderTarget::Create();
 	target->use(RenderTargetAttachment::Color);
-	target->resize(1920, 1260); //should send screen resolution to shader
+	target->resize(_width, _height); //should send screen resolution to shader
 	target->setup();
 	target->bind();
 
 	this->clear(RenderBufferFlag::Color);
 	this->clear(RenderBufferFlag::Depth);
-	
+
 	if (_commands.empty()) return;
 	renderGeometry(_commands);
 	_commands.clear();
+
 	target->unbind();
 	//this->clear(RenderBufferFlag::Color);
-	
 	
 	RenderState layersState; //default state
 	layersState.cullFace = RenderCullFace::Back;
@@ -84,17 +89,17 @@ void Renderer::render()
 	_layer = new Layer();
 	OpenGLCheckError();
 
-	Shader * layerShader = AssetManager::GetInstance().get<Shader>("quad_textured");
+	Shader * layerShader = AssetManager::GetInstance().get<Shader>("layer");
 	OpenGLCheckError();
 
-	_layer->setQuad({ 0,0 }, { 1, 1 });
+	_layer->setQuad({ -1,-1 }, { 1, 1 });
 	OpenGLCheckError();
 	_layer->setShader(layerShader);
 	OpenGLCheckError();
 
 	layerShader->setUniform("color", 0);
-	//layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
-	OpenGLCheckError();
+	layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
+	std::cout << target->getWidth() <<" ," << target->getHeight();
 	_layer->setTarget(target);
 	
 	OpenGLCheckError();
@@ -104,9 +109,13 @@ void Renderer::render()
 	delete target;
 #else
 	////////////////////////////////////////////////////////////////////////////
+	this->clear(RenderBufferFlag::Color);
+	this->clear(RenderBufferFlag::Depth);
+
 	if (_commands.empty()) return;
 	renderGeometry(_commands);
 	_commands.clear();
+
 #endif
 
 #undef DEFERRED_DBG

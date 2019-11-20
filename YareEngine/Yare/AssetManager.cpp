@@ -62,11 +62,13 @@ namespace yare
 	//Defulat engine assets. Should load from config file
 	void AssetManager::loadEngineContent()
 	{
+		//AUTOMATE THIS !
 		//By default . Should be one for each lighting model
 		add<graphics::Shader>("skybox"              , _engineContentDir + "Shaders/skybox"                );
 		add<graphics::Shader>("mesh_flat"           , _engineContentDir + "Shaders/mesh_flat"             );
 		add<graphics::Shader>("mesh_phong"          , _engineContentDir + "Shaders/mesh_phong"            );
 		add<graphics::Shader>("quad_textured"       , _engineContentDir + "Shaders/quad_textured"         );
+		add<graphics::Shader>("layer"               , _engineContentDir + "Shaders/layer"                 );
 		add<graphics::Texture>("container_diffuse"  , _engineContentDir + "Textures/container_diffuse.png"  );
 		add<graphics::Texture>("container_specular" , _engineContentDir + "Textures/container_specular.png" );
 		add<graphics::Cubemap>("skybox_cubemap"     , _engineContentDir + "Textures/skybox_cubemap.png"             );

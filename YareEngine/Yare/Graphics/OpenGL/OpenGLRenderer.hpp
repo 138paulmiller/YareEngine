@@ -7,7 +7,8 @@ namespace yare { namespace graphics {
 class OpenGLRenderer : public Renderer
 {
 public:
-	
+	void resizeViewport(int width, int height) override;
+
 	void renderMesh(const VertexArray * vertexArray) override;
 	void renderIndexedMesh(const VertexArray* vertexArray) override;
 	void updateState(const RenderState & state) override ;

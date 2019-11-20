@@ -50,13 +50,13 @@ namespace yare {
 				if (_buffers[i].used)
 				{
 					glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, width, 0, GL_RGB, GL_FLOAT, NULL);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width, height, 0, GL_RGB, GL_FLOAT, NULL);
 
 				}
 			}
 			glBindRenderbuffer(GL_RENDERBUFFER, _renderbuffer);
 			OpenGLCheckError();
-			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, getWidth(), getHeight()); // use a single renderbuffer object for both a depth AND stencil buffer.
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height); // use a single renderbuffer object for both a depth AND stencil buffer.
 			OpenGLCheckError();
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _renderbuffer); // now actually attach it
 			OpenGLCheckError();
