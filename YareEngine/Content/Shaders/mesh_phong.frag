@@ -34,7 +34,8 @@ in vec3 frag_normal;
 in vec2 frag_uv;
 
 //--------------- Outputs ------------------//
-out vec4 out_color;
+//Write to RenderTarget 0 - See Attachment points in Rendertarget
+layout(location = 0) out vec4 out_color;
 
 
 //--------------- Uniforms ------------------//

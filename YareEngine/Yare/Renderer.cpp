@@ -67,7 +67,8 @@ void Renderer::render()
 	RenderTarget *target = RenderTarget::Create();
 	target->use(RenderTargetAttachment::Color);
 	target->resize(_width, _height); //should send screen resolution to shader
-	target->setup();
+
+	//target->use(RenderTargetAttachment::Depth);
 	target->bind();
 
 	this->clear(RenderBufferFlag::Color);
@@ -78,31 +79,23 @@ void Renderer::render()
 	_commands.clear();
 
 	target->unbind();
-	//this->clear(RenderBufferFlag::Color);
 	
 	RenderState layersState; //default state
 	layersState.cullFace = RenderCullFace::Back;
 	layersState.depthFunc = RenderTestFunc::Disabled;
 	updateState(layersState);
-	OpenGLCheckError();
 
 	_layer = new Layer();
-	OpenGLCheckError();
 
 	Shader * layerShader = AssetManager::GetInstance().get<Shader>("layer");
-	OpenGLCheckError();
 
 	_layer->setQuad({ -1,-1 }, { 1, 1 });
-	OpenGLCheckError();
 	_layer->setShader(layerShader);
-	OpenGLCheckError();
 
-	layerShader->setUniform("color", 0);
-	layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
-	std::cout << target->getWidth() <<" ," << target->getHeight();
+//	layerShader->setUniform("color", 0);
+//	layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
 	_layer->setTarget(target);
 	
-	OpenGLCheckError();
 
 	_layer->render(this);
 	delete _layer;

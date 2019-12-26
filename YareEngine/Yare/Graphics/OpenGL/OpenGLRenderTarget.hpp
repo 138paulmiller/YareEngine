@@ -17,13 +17,13 @@ namespace yare {
 		~OpenGLRenderTarget() ;		
 		void use(RenderTargetAttachment attachment) override;
 		void resize(int width, int height) override;
-		void setup() override;
 		void bind() override;
 		void bindTextures() override;
 		void unbind() override;
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
 
 	private:
+		
 		//
 		struct OpenGLRenderBuffer
 		{
@@ -33,7 +33,8 @@ namespace yare {
 		OpenGLRenderBuffer _buffers[(const int)RenderTargetAttachment::Count]; //corresponding texture handle
 		
 		//buffer for frame to write depth and stencil data to. 
-		unsigned int _renderbuffer; 
+		unsigned int _depthStencilbuffer;
+	//unsigned int _renderbuffer; 
 		unsigned int _framebuffer;
 		char _numUsed; //cached, intialized on setup
 	};

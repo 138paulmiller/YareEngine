@@ -17,6 +17,8 @@ namespace yare {
 		Color=0, //Multiple Color Attachments are allowed Color are RGBA 32 bit
 		Position,  //Uses RGB 16 floating bit point
 		Normal,  //Uses RGB 16 floating bit point
+		Depth, //
+		Stencil, //
 		Count
 	};
 ;	class RenderTarget
@@ -29,7 +31,6 @@ namespace yare {
 		virtual void use(RenderTargetAttachment attachment) = 0;
 		//read attachment into texture
 		virtual void read(RenderTargetAttachment attachment, TexturePixels & pixel) = 0;
-		virtual void setup() = 0; //must be called once before render
 		///if isRead is true, then binds textures. Else bind just framebuffer
 		virtual void bind() = 0;
 		virtual void unbind() = 0;

@@ -134,20 +134,18 @@ void OpenGLShader::cacheAttributeAndUniforms()
 	GLenum type; // type of the variable (float, vec3 or mat4, etc)
 	// maximum name length is 16
 	int uniformLen = 25;
-	//glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniformLen);
-	std::cout << "Uniform len : " << uniformLen;
-	char name[25]; // variable name in GLSL
+	glGetProgramiv(_program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &uniformLen);
+	char *name = new char[uniformLen]; // variable name in GLSL
 	GLsizei length; // name length
 
 	glGetProgramiv(_program, GL_ACTIVE_UNIFORMS, &count);
 	for (int i = 0; i < count; i++)
 	{
-		glGetActiveUniform(_program, (GLuint)i, sizeof(name) / sizeof(GLchar), &length, &size, &type, name);
+		glGetActiveUniform(_program, (GLuint)i, uniformLen / sizeof(GLchar), &length, &size, &type, name);
 		//cache its location
 		_uniforms[name] = glGetUniformLocation(_program, name);
-	//	printf("Uniform #%d Type: %u Name: %s\n", i, type, name);
 	}
-	//delete name;
+	delete [] name;
 }
 
 void OpenGLShader::bind() const {
