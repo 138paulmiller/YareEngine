@@ -40,11 +40,11 @@ namespace yare
 	}
 	void Layer::render(Renderer * renderer)
 	{
-		if (_target)
-		{
-			_target->bindTextures();
-		}
+		
+		_target->bindTextures();
+		
 		_shader->bind();
+		_target->loadUniforms(_shader);
 		_quad->bind();
 		renderer->renderMesh(_quad.get());
 	}

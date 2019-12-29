@@ -65,7 +65,13 @@ void Renderer::render()
 #if DEFERRED_DBG
 	///////////// Debug Render Layers ////////////////////////////////////////
 	RenderTarget *target = RenderTarget::Create();
-	target->use(RenderTargetAttachment::Color);
+	target->use({
+		RenderTargetAttachment::Position,
+		RenderTargetAttachment::Color,
+		RenderTargetAttachment::Normal 
+		}
+	);
+
 	target->resize(_width, _height); //should send screen resolution to shader
 
 	//target->use(RenderTargetAttachment::Depth);
@@ -92,10 +98,8 @@ void Renderer::render()
 	_layer->setQuad({ -1,-1 }, { 1, 1 });
 	_layer->setShader(layerShader);
 
-//	layerShader->setUniform("color", 0);
-//	layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
+	//layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
 	_layer->setTarget(target);
-	
 
 	_layer->render(this);
 	delete _layer;

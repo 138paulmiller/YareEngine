@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 // --------------------------- Defs  ------------------------------
 #define POINT_LIGHT_COUNT 64
@@ -35,8 +35,9 @@ in vec2 frag_uv;
 
 //--------------- Outputs ------------------//
 //Write to RenderTarget 0 - See Attachment points in Rendertarget
-layout(location = 0) out vec4 out_color;
-
+layout(location = 0) out vec3 out_position;
+layout(location = 1) out vec3 out_normal;
+layout(location = 2) out vec4 out_color;
 
 //--------------- Uniforms ------------------//
 
@@ -47,6 +48,8 @@ uniform DirectionalLight dir_lights[DIRECTIONAL_LIGHT_COUNT];
 
 uniform int pt_light_count;
 uniform int dir_light_count;
+
+//move lighting calc to lightpass layer
 
 vec3 calcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir)
 {
@@ -87,22 +90,29 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
 
 }
 
+vec4 getColor(vec3 view_dir, vec3 normal)
+{
+	vec4 color = vec4(0);
+
+	for (int i = 0; i < dir_light_count; i++) {
+		color.xyz += calcDirectionalLight(dir_lights[i], normal, view_dir);
+	}
+
+	for (int i = 0; i < pt_light_count; i++) {
+		color.xyz += calcPointLight(pt_lights[i], frag_pos.xyz, normal, view_dir);
+	}
+
+	color.w = 1.0;
+	return color;
+}
 
 // ------------ Entry -----------------------------------
 void main(void)
 {       
-
-	out_color = vec4(0);
 	vec3 view_dir = normalize(view_pos - frag_pos.xyz);
-	vec3 normal  = normalize(frag_normal);
 	
-	for(int i = 0; i < dir_light_count; i++){
-		out_color.xyz += calcDirectionalLight(dir_lights[i], normal, view_dir); 
-	}
-	
-	for(int i = 0; i < pt_light_count; i++){
-		out_color.xyz += calcPointLight(pt_lights[i], frag_pos.xyz, normal, view_dir);
-	}
+	out_position = frag_pos.xyz;
+	out_normal = normalize(frag_normal);
+	out_color = getColor(view_dir, out_normal);
 
-	out_color.w=  1.0;
 }

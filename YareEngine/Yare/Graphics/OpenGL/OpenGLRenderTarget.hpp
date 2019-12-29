@@ -3,6 +3,7 @@
 
 #include "../RenderTarget.hpp"
 #include "OpenGLTexture.hpp"
+#include "../Shader.hpp"
 #include <vector>
 
 //https://learnopengl.com/Advanced-Lighting/Deferred-Shading
@@ -15,13 +16,13 @@ namespace yare {
 	public:
 		OpenGLRenderTarget();
 		~OpenGLRenderTarget() ;		
-		void use(RenderTargetAttachment attachment) override;
+		void use(const std::vector<RenderTargetAttachment>& attachments) override;
 		void resize(int width, int height) override;
 		void bind() override;
 		void bindTextures() override;
 		void unbind() override;
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
-
+		void loadUniforms(Shader * shader);
 	private:
 		
 		//
