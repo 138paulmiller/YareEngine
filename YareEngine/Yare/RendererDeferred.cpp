@@ -24,33 +24,7 @@ Renderer* Renderer::Create(RenderAPI api)
 		YARE_ASSERT(true,"Cannot Create Renderer, Invalid API");
 		return 0;
 	}
-	
 	return renderer;
-}
-
-
-Renderer::Renderer()
-{
-	for (int i = 0; i < (const int)RenderPass::Count; i++) {
-		_passes[i].target = 0;
-	}
-	
-	RenderTarget * gbuffer = RenderTarget::Create();
-	gbuffer->use({
-		RenderTargetAttachment::Position,
-		RenderTargetAttachment::Color,
-		RenderTargetAttachment::Normal
-		}
-	);
-	
-	_passes[(const int)RenderPass::Geometry].target = gbuffer;
-}
-Renderer::~Renderer()
-{
-	for (int i = 0; i < (const int)RenderPass::Count; i++) {
-		delete _passes[i].target;
-	}
-
 }
 
 void Renderer::resizeViewport(int width, int height)
@@ -67,14 +41,13 @@ void Renderer::begin(Scene* scene)
 
 }
 
-void Renderer::submit(Renderable * renderable, RenderPass pass)
+void Renderer::submit(Renderable * renderable)
 {
-
-	_passes[(int)pass].commands.push_back(&renderable->command);
+	_commands.push_back(&renderable->command);
 	
 	if (_cache.scene)
 	{
-		RenderCommand * newestCommand = _passes[(int)pass].commands.back();
+		RenderCommand * newestCommand = _commands.back();
 		//if a scene is bound. load it uniforms
 		//use UBOs and render views for this
 		_cache.scene->loadUniforms(newestCommand->uniforms, newestCommand->lighting);
@@ -85,64 +58,69 @@ void Renderer::end()
 {
 	_cache.scene = 0;
 }
+
+#define DEFERRED_DBG 1
 void Renderer::render()
 {
-	RenderTarget * gbuffer;
-	
-	for (int i = 0; i < (const int)RenderPass::Count; i++) 
-	{
-		switch (RenderPass(i)) 
-		{
-		case RenderPass::Geometry:
-			renderGeometry(_passes[i]);
-			gbuffer = _passes[i].target; //current target being rendered to
-			_passes[i].commands.clear();
-			break;
-		default://do nothing
-			break;
+#if DEFERRED_DBG
+	///////////// Debug Render Layers ////////////////////////////////////////
+	RenderTarget *target = RenderTarget::Create();
+	target->use({
+		RenderTargetAttachment::Position,
+		RenderTargetAttachment::Color,
+		RenderTargetAttachment::Normal 
 		}
+	);
 
-	}
-	//Move this a custom pass
-	{
-		RenderState layersState; //default state
-		layersState.cullFace = RenderCullFace::Back;
-		layersState.depthFunc = RenderTestFunc::Disabled;
-		updateState(layersState);
+	target->resize(_width, _height); //should send screen resolution to shader
 
-		Layer * _layer = new Layer();
+	//target->use(RenderTargetAttachment::Depth);
+	target->bind();
 
-		Shader * layerShader = AssetManager::GetInstance().get<Shader>("layer");
-		//layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
-
-		_layer->setQuad({ -1,-1 }, { 1, 1 });
-		_layer->setShader(layerShader);
-
-		_layer->addInput(gbuffer);
-
-		_layer->render(this);
-		delete _layer;
-	}
-
-
-}
-void Renderer::renderGeometry(const RenderPassCommand & pass)
-{
-
-	if (pass.target) {
-		if (pass.target->getWidth() != _width || pass.target->getHeight() != _height) {
-			pass.target->resize(_width * pass.sampleRate, _height* pass.sampleRate);
-		}
-		pass.target->bind();
-
-	}
-	
 	this->clear(RenderBufferFlag::Color);
 	this->clear(RenderBufferFlag::Depth);
 
+	if (_commands.empty()) return;
+	renderGeometry(_commands);
+	_commands.clear();
 
+	target->unbind();
+	
+	RenderState layersState; //default state
+	layersState.cullFace = RenderCullFace::Back;
+	layersState.depthFunc = RenderTestFunc::Disabled;
+	updateState(layersState);
+
+	_layer = new Layer();
+
+	Shader * layerShader = AssetManager::GetInstance().get<Shader>("layer");
+
+	_layer->setQuad({ -1,-1 }, { 1, 1 });
+	_layer->setShader(layerShader);
+
+	//layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
+	_layer->setTarget(target);
+
+	_layer->render(this);
+	delete _layer;
+	delete target;
+#else
+	////////////////////////////////////////////////////////////////////////////
+	this->clear(RenderBufferFlag::Color);
+	this->clear(RenderBufferFlag::Depth);
+
+	if (_commands.empty()) return;
+	renderGeometry(_commands);
+	_commands.clear();
+
+#endif
+
+#undef DEFERRED_DBG
+}
+void Renderer::renderGeometry(const std::vector<RenderCommand * > & commands)
+{
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
-	for(RenderCommand const * command : pass.commands)
+	for(RenderCommand const * command : commands)
 	{		
 		updateState(command->state);
 		static Shader* prevShader = nullptr;
@@ -151,7 +129,6 @@ void Renderer::renderGeometry(const RenderPassCommand & pass)
 			command->shader->bind();
 			prevShader = command->shader;
 		}
-
 		/*
 		Instead of loading all uniforms and texture each frame. Create Shader Instances that are copies of a base shader. 
 		Will only have to bind when dirty. Since they are copies, they should not be affected by other renderables that share the same parent shader
@@ -175,8 +152,6 @@ void Renderer::renderGeometry(const RenderPassCommand & pass)
 
 		command->vertexArray->unbind();
 	}
-
-	if (pass.target)pass.target->unbind();
 }
 
 

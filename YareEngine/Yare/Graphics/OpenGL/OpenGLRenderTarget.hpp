@@ -19,10 +19,12 @@ namespace yare {
 		void use(const std::vector<RenderTargetAttachment>& attachments) override;
 		void resize(int width, int height) override;
 		void bind() override;
-		void bindTextures() override;
+		void bindTextures(int offset = 0) override;
 		void unbind() override;
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
 		void loadUniforms(Shader * shader);
+		int getNumberOfAttachments() ;
+
 	private:
 		
 		//

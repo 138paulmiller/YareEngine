@@ -4,6 +4,7 @@
 
 #include "Graphics/Error.hpp"
 #include "Graphics/Shader.hpp"
+#include "Graphics/RenderTarget.hpp"
 #include "Graphics/VertexArray.hpp"
 #include "Graphics/TextureBlock.hpp"
 #include "Graphics/UniformBlock.hpp"
@@ -64,7 +65,6 @@ namespace yare {
 	//Should order render data.
 	struct RenderCommand
 	{
-		//Render Targets 
 		//Viewport
 		graphics::UniformBlock uniforms;
 		graphics::TextureBlock textures;

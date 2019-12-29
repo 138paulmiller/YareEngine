@@ -15,7 +15,6 @@ namespace yare
 App::App(const AppConfig & config)
     : _state(AppState::Ready), _time(0), _deltaTime(0), _config(config){
 	
-	_renderer = Renderer::Create(config.renderAPI);
 	std::cout << "[Info] GLFW initialisation" << std::endl;
 
 	// initialize the GLFW library
@@ -55,8 +54,12 @@ App::App(const AppConfig & config)
 	std::cout << "Renderer: " << renderer << std::endl;
 	std::cout << "OpenGL version supported " << version << std::endl;
 
+
+	_renderer = Renderer::Create(config.renderAPI);
+
 	resizeWindow(_config.width, _config.height);
 	
+
 	// vsync
 	// glfwSwapInterval(false);
 }

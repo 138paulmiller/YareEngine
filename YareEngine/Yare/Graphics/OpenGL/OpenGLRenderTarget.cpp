@@ -96,11 +96,8 @@ namespace yare {
 				}
 			}
 		}
-		void OpenGLRenderTarget::resize(int width, int height)
+		int OpenGLRenderTarget::getNumberOfAttachments()
 		{
-			RenderTarget::resize(width, height);
-			bind();
-			//count number of used buffers to allocat
 			_numUsed = 0;
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
@@ -109,6 +106,13 @@ namespace yare {
 					_numUsed++;
 				}
 			}
+			return _numUsed;
+		}
+		void OpenGLRenderTarget::resize(int width, int height)
+		{
+			RenderTarget::resize(width, height);
+			bind();
+			//count number of used buffers to allocat
 			unsigned int* attachments = new unsigned int[_numUsed];
 			int j = 0;
 
@@ -179,6 +183,7 @@ namespace yare {
 
 			}
 			unbind();
+			getNumberOfAttachments();
 
 		}
 		void OpenGLRenderTarget::bind()
@@ -189,9 +194,9 @@ namespace yare {
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
-		void OpenGLRenderTarget::bindTextures()
+		void OpenGLRenderTarget::bindTextures(int offset)
 		{
-			int unit = 0;
+			int unit = offset;
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
 				if (_buffers[i].used)

@@ -34,9 +34,10 @@ namespace yare {
 		///if isRead is true, then binds textures. Else bind just framebuffer
 		virtual void bind() = 0;
 		virtual void unbind() = 0;
-		virtual void bindTextures() = 0;
+		virtual void bindTextures(int offset=0) = 0; //int is the texture unit offset
 		virtual void loadUniforms(Shader * shader)= 0 ;
 		virtual void resize(int width, int height) { _width = width; _height = height; };
+		virtual int getNumberOfAttachments() = 0;
 		inline int getWidth() { return _width; }
 		inline int getHeight() { return _height; }
 

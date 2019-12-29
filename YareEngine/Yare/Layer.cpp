@@ -33,6 +33,16 @@ namespace yare
 	{
 		_shader = shader;
 	}
+
+	void Layer::addInput(RenderTarget * target)
+	{
+		_inputs.push_back(target);
+	}
+	void Layer::clearInputs()
+	{
+		_inputs.clear();
+	}
+
 	
 	void Layer::setTarget(RenderTarget * target)
 	{
@@ -40,13 +50,23 @@ namespace yare
 	}
 	void Layer::render(Renderer * renderer)
 	{
-		
-		_target->bindTextures();
-		
+		if(_target)
+		_target->bind();
 		_shader->bind();
-		_target->loadUniforms(_shader);
+
+		int offsetTextureUnit = 0;
+		for (RenderTarget * input : _inputs) 
+		{
+			input->bindTextures(offsetTextureUnit);
+			input->loadUniforms(_shader);
+			offsetTextureUnit += input->getNumberOfAttachments();
+		}
+
 		_quad->bind();
 		renderer->renderMesh(_quad.get());
+		
+		if (_target)
+			_target->unbind();
 	}
 	
 
