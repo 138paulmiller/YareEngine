@@ -84,19 +84,7 @@ namespace yare
 				//Default loads RGBA8 image
 				static Texture* CreateFromFile(const std::string& filepath);
 
-				//Creates and loads a Cubemapped raster formatted as such
-				/*
-					-----------------------
-					|    | top |     |     |
-					|____|_____|_____|_____|
-					|left|front|right|back |
-					|____|_____|_____|_____|
-					|    |bottom     |     |
-					|____|_____|_____|_____|
-
-				*/
-				static Texture* CreateCubemapFromFile(const std::string& filepath);
-		
+				
 				//
 				static void ReadFile(const std::string & filepath, TexturePixels & pixels);
 				static void ReadRegion(
