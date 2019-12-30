@@ -48,6 +48,7 @@ namespace yare {
 		//Each Pass
 		std::vector<RenderCommand * > commands;
 		RenderTarget * target;
+
 		//0-1 scalar that will scale the resolution of the target. low value higher perf
 		float sampleRate = 1.0;
 	};

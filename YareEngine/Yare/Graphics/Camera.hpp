@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/matrix_operation.hpp>
 #include <glm/gtx/transform.hpp>
-
+#include "UniformBlock.hpp"
 namespace yare { namespace graphics {
 
 	class Camera
@@ -40,6 +40,8 @@ namespace yare { namespace graphics {
 		const glm::mat4& getProjection() const { return _projection; }
 		const glm::mat4& getView() const { return _view; }
 
+		void loadUniforms(UniformBlock& uniforms) const;
+		
 	private:
 		glm::vec3 _position;
 		glm::vec3 _up;

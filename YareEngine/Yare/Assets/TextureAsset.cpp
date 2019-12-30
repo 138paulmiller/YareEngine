@@ -67,6 +67,7 @@ namespace yare {
 			os::FileSystem::ReadFile(Asset::getFilePath() + ".frag", fragSource);
 
 			_shader.reset(graphics::Shader::Create());
+			std::cout << "Compiling : Shader at " << Asset::getFilePath() << "\n";
 			_shader->compile(vertSource, fragSource);
 
 		}

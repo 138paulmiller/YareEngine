@@ -1,8 +1,10 @@
 #version 330
 
-uniform sampler2D color;
 uniform sampler2D position;
 uniform sampler2D normal;
+uniform sampler2D diffuse;
+uniform sampler2D specular;
+uniform sampler2D emissive;
 
 uniform vec2 resolution;
 in vec2 frag_uv;
@@ -13,7 +15,7 @@ void main(void)
 {
 	out_color = vec4(1.0);
 	vec2 uv = frag_uv;
-	vec4 c = texture(color, uv);
+	vec4 c = texture(diffuse, uv);
 	vec3 p = texture(position, uv).rgb;
 	vec3 n = texture(normal, uv).rgb;
 	out_color.rgb = p.rgb;

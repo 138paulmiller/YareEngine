@@ -10,9 +10,10 @@ in vec4 view_pos;
 uniform struct Material {
     vec3 base;
 } material;
-
-out vec4 color;
+layout(location = 0) out vec3 out_position;
+layout(location = 1) out vec3 out_normal;
+layout(location = 2) out vec4 out_diffuse;
 void main(void)
 {    
-	color =  vec4(material.base,1);
+	out_diffuse =  vec4(material.base,1);
 }

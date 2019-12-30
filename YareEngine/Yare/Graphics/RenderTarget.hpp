@@ -16,7 +16,9 @@ namespace yare {
 		//Depth = 0//Not Implemented yet
 		Position=0,  //Uses RGB floating bit point
 		Normal,  //Uses RGB 
-		Color, //RGBA floating
+		Diffuse, //RGBA floating
+		Specular, //RGBA floating
+		Emissive, //RGBA floating
 		Depth, //
 		Stencil, //
 		Count

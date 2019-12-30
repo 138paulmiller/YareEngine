@@ -113,8 +113,7 @@ void App::run() {
 
 		// execute the rendering
 		onRender();
-		//present the render data
-		_renderer->render();
+
 
 		// Swap Front and Back buffers (double buffering)
 		glfwSwapBuffers(_window);

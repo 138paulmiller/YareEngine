@@ -110,13 +110,12 @@ void ExampleApp::onEnter()
 	for (int i = 0; i < BOX_COUNT; i++)
 	{ //phong mesh
 		_boxMeshes[i].reset(new Mesh());
-		//_boxMeshes[i]->loadVertexArray(geometry::Quad::CreateVertexArray(0,0,1,1));
 		_boxMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
+
 		_boxMeshes[i]->setMaterial(_phongMaterial.get());
 		RenderCommand& data = _boxMeshes[i]->command;
 
-		data.shader = AssetManager::GetInstance().get<Shader>("mesh_phong");
-		//data.shader = AssetManager::GetInstance().get<Shader>("quad_textured");
+		data.shader = AssetManager::GetInstance().get<Shader>("phong_mesh");
 		data.mode = RenderMode::Mesh;
 		data.lighting = RenderLighting::Phong;
 
@@ -128,18 +127,19 @@ void ExampleApp::onEnter()
 	{	
 		//Create the light and the mesh
 		_pointLights[i].reset(new PointLight());
-		_pointLights[i]->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+		_pointLights[i]->setAmbient(glm::vec3(0.5f, 0.5f, 0.5f));
 		_pointLights[i]->setDiffuse(glm::vec3(0.54f, 0.52f, 0.52f));
 		_pointLights[i]->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
 		_pointLights[i]->setAttenuation(glm::vec3(1, 0.5, 0.00004 ));
 		
 		_pointLightMeshes[i].reset(new Mesh());
+
 		_pointLightMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
 		_pointLightMeshes[i]->setMaterial(_flatMaterial.get());
 		
 		//Setup render config
 		RenderCommand& data = _pointLightMeshes[i]->command;
-		data.shader   = AssetManager::GetInstance().get<Shader>("mesh_flat");
+		data.shader   = AssetManager::GetInstance().get<Shader>("flat_mesh");
 		data.mode     = RenderMode::Mesh;
 		data.lighting = RenderLighting::Flat;
 	}
@@ -243,7 +243,7 @@ void ExampleApp::demoMovingBoxesAndLights(float time)
 		};
 
 
-		yaw =   time *  (speed + 0.0);
+		yaw =   time *  (speed + 0.25);
 		pitch = time *  (speed + 0.25);
 		roll =  time *  (speed + 0.50);
 		glm::mat4 transform = glm::mat4(1);

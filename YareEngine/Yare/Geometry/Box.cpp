@@ -102,8 +102,6 @@ namespace yare {
 			//Not Indexed 
 			vertexArray->setVertexCount(vertices.size());
 
-			/*
-			Indexed 
 			std::vector<unsigned int> indices = {
 				//size +z
 				0,1,2,
@@ -128,8 +126,7 @@ namespace yare {
 			//indexBuffer->load(&indices[0], sizeof(indices));
 			indexBuffer->load(&indices[0], indices.size() * sizeof(indices[0]));
 			vertexArray->setIndexBuffer(indexBuffer);
-			
-			*/
+	
 
 			vertexArray->unbind();
 			return std::unique_ptr<graphics::VertexArray>(vertexArray);

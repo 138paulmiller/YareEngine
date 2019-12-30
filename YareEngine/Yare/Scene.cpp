@@ -18,27 +18,6 @@ namespace yare
 		return _camera;
 	}
 	
-	void Scene::loadUniforms(UniformBlock& uniforms, RenderLighting lighting) const
-	{
-		//If this is a deferred render. instead of adding lights to the pass. Specify which buffers are going to be written to. 
-		//e.g. For flat, it should only be color
-		//use UBOs and render views for this
-		uniforms.setUniform("view", _camera->getView());
-		uniforms.setUniform("projection", _camera->getProjection());
-		switch (lighting)
-		{
-		case RenderLighting::Unlit:
-			break;
-		case RenderLighting::Phong:
-			//load lighting for phong shading
-			
-			_lights.loadUniforms(uniforms);
-			uniforms.setUniform("view_pos", _camera->getPosition());
-
-			break;
-		}
-
-	}
 
 	void Scene::add(const std::string& name, Renderable* renderable)
 	{
@@ -58,6 +37,8 @@ namespace yare
 		{
 			renderer->submit(pair.second);
 		}
+		//present the render data
+		renderer->render();
 		renderer->end();
 	}
 }

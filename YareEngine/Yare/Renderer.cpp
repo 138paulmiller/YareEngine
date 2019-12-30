@@ -38,8 +38,10 @@ Renderer::Renderer()
 	RenderTarget * gbuffer = RenderTarget::Create();
 	gbuffer->use({
 		RenderTargetAttachment::Position,
-		RenderTargetAttachment::Color,
-		RenderTargetAttachment::Normal
+		RenderTargetAttachment::Normal,
+		RenderTargetAttachment::Diffuse,
+		RenderTargetAttachment::Specular,
+		RenderTargetAttachment::Emissive,
 		}
 	);
 	
@@ -77,7 +79,8 @@ void Renderer::submit(Renderable * renderable, RenderPass pass)
 		RenderCommand * newestCommand = _passes[(int)pass].commands.back();
 		//if a scene is bound. load it uniforms
 		//use UBOs and render views for this
-		_cache.scene->loadUniforms(newestCommand->uniforms, newestCommand->lighting);
+		_cache.scene->getLights().loadUniforms(newestCommand->uniforms);
+		_cache.scene->getCamera()->loadUniforms(newestCommand->uniforms);
 
 	}
 }
@@ -85,6 +88,9 @@ void Renderer::end()
 {
 	_cache.scene = 0;
 }
+
+//Enable forward rendering, for all unlit, render these to the screen unlit.
+//the render deferred passes 
 void Renderer::render()
 {
 	RenderTarget * gbuffer;
@@ -101,9 +107,10 @@ void Renderer::render()
 		default://do nothing
 			break;
 		}
-
 	}
-	//Move this a custom pass
+	//First Render Unlit Commands
+	//Then render lit command
+	//Move this a custom pass. 
 	{
 		RenderState layersState; //default state
 		layersState.cullFace = RenderCullFace::Back;
@@ -112,9 +119,13 @@ void Renderer::render()
 
 		Layer * _layer = new Layer();
 
-		Shader * layerShader = AssetManager::GetInstance().get<Shader>("layer");
-		//layerShader->setUniform("resolution", glm::vec2(target->getWidth(), target->getHeight()));
-
+		Shader * layerShader = AssetManager::GetInstance().get<Shader>("phong_lighting");
+		UniformBlock uniforms;
+		_cache.scene->getLights().loadUniforms(uniforms);
+		_cache.scene->getCamera()->loadUniforms(uniforms);
+		layerShader->bind();
+		uniforms.load(layerShader);
+		layerShader->unbind();
 		_layer->setQuad({ -1,-1 }, { 1, 1 });
 		_layer->setShader(layerShader);
 
@@ -123,8 +134,6 @@ void Renderer::render()
 		_layer->render(this);
 		delete _layer;
 	}
-
-
 }
 void Renderer::renderGeometry(const RenderPassCommand & pass)
 {
@@ -134,7 +143,6 @@ void Renderer::renderGeometry(const RenderPassCommand & pass)
 			pass.target->resize(_width * pass.sampleRate, _height* pass.sampleRate);
 		}
 		pass.target->bind();
-
 	}
 	
 	this->clear(RenderBufferFlag::Color);

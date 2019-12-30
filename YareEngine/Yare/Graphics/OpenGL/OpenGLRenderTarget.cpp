@@ -46,7 +46,9 @@ namespace yare {
 			{
 				switch (attachment)
 				{
-				case RenderTargetAttachment::Color:
+				case RenderTargetAttachment::Diffuse:
+				case RenderTargetAttachment::Specular:
+				case RenderTargetAttachment::Emissive:
 				case RenderTargetAttachment::Position:
 				case RenderTargetAttachment::Normal:
 					return GL_COLOR_ATTACHMENT0 + (int)attachment;
@@ -58,7 +60,9 @@ namespace yare {
 			{
 				switch (attachment)
 				{
-				case RenderTargetAttachment::Color:
+				case RenderTargetAttachment::Diffuse:
+				case RenderTargetAttachment::Specular:
+				case RenderTargetAttachment::Emissive:
 					return GL_RGBA;
 				case RenderTargetAttachment::Position:
 				case RenderTargetAttachment::Normal:
@@ -71,7 +75,9 @@ namespace yare {
 			{
 				switch (attachment)
 				{
-				case RenderTargetAttachment::Color:
+				case RenderTargetAttachment::Diffuse:
+				case RenderTargetAttachment::Specular:
+				case RenderTargetAttachment::Emissive:
 					return GL_RGBA;
 				case RenderTargetAttachment::Position:
 				case RenderTargetAttachment::Normal:
@@ -85,9 +91,14 @@ namespace yare {
 			{
 				switch (attachment)
 				{
-				case RenderTargetAttachment::Color:
-					return "color";
+				case RenderTargetAttachment::Diffuse:
+					return "diffuse";
+				case RenderTargetAttachment::Specular:
+					return "specular";
+				case RenderTargetAttachment::Emissive:
+					return "emissive";
 				case RenderTargetAttachment::Position:
+					return "position";
 				case RenderTargetAttachment::Normal:
 					return "normal";
 				case RenderTargetAttachment::Depth:
@@ -196,7 +207,7 @@ namespace yare {
 		}
 		void OpenGLRenderTarget::bindTextures(int offset)
 		{
-			int unit = offset;
+			int unit = 0;
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
 				if (_buffers[i].used)
