@@ -20,7 +20,7 @@ namespace yare
 		void setCamera(const Camera * camera);
 		const Camera* getCamera() const;
 		//Loads all camera nd light data into uniform block
-		void loadUniforms(UniformBlock& uniforms, RenderLighting lighting) const;
+		void loadUniforms(UniformBlock& uniforms) const;
 
 		void add(const std::string & name, Renderable * renderable) ;
 		void remove(const std::string& name);

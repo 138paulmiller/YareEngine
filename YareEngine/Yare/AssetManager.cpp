@@ -64,13 +64,17 @@ namespace yare
 	{
 		//AUTOMATE THIS !
 		//By default . Should be one for each lighting model
-		add<graphics::Shader>("skybox"              , _engineContentDir + "Shaders/skybox"                );
-		add<graphics::Shader>("flat_mesh"           , _engineContentDir + "Shaders/flat_mesh"             );
+		add<graphics::Shader>("unlit_mesh"           , _engineContentDir + "Shaders/unlit_mesh"             );
+		add<graphics::Shader>("unlit_layer", _engineContentDir + "Shaders/unlit_layer");
 		add<graphics::Shader>("phong_mesh"          , _engineContentDir + "Shaders/phong_mesh"            );
-		add<graphics::Shader>("phong_lighting"      , _engineContentDir + "Shaders/phong_lighting"       );
+		add<graphics::Shader>("phong_layer"      , _engineContentDir + "Shaders/phong_layer"       );
+		
+		add<graphics::Shader>("skybox"              , _engineContentDir + "Shaders/skybox"                );
 		add<graphics::Shader>("quad_textured"       , _engineContentDir + "Shaders/quad_textured"         );
+		
 		add<graphics::Texture>("container_diffuse"  , _engineContentDir + "Textures/container_diffuse.png"  );
 		add<graphics::Texture>("container_specular" , _engineContentDir + "Textures/container_specular.png" );
+		
 		add<graphics::Cubemap>("skybox_cubemap"     , _engineContentDir + "Textures/skybox_cubemap.png"             );
 	}
 

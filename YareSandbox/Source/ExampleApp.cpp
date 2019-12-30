@@ -139,9 +139,9 @@ void ExampleApp::onEnter()
 		
 		//Setup render config
 		RenderCommand& data = _pointLightMeshes[i]->command;
-		data.shader   = AssetManager::GetInstance().get<Shader>("flat_mesh");
+		data.shader   = AssetManager::GetInstance().get<Shader>("unlit_mesh");
 		data.mode     = RenderMode::Mesh;
-		data.lighting = RenderLighting::Flat;
+		data.lighting = RenderLighting::Unlit;
 	}
 	//Set  up Sky box
 	_skybox.reset(new SkyBox());

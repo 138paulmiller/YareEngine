@@ -79,9 +79,7 @@ void Renderer::submit(Renderable * renderable, RenderPass pass)
 		RenderCommand * newestCommand = _passes[(int)pass].commands.back();
 		//if a scene is bound. load it uniforms
 		//use UBOs and render views for this
-		_cache.scene->getLights().loadUniforms(newestCommand->uniforms);
-		_cache.scene->getCamera()->loadUniforms(newestCommand->uniforms);
-
+		_cache.scene->loadUniforms(newestCommand->uniforms);
 	}
 }
 void Renderer::end()
@@ -93,8 +91,7 @@ void Renderer::end()
 //the render deferred passes 
 void Renderer::render()
 {
-	RenderTarget * gbuffer;
-	
+	RenderTarget * gbuffer;	
 	for (int i = 0; i < (const int)RenderPass::Count; i++) 
 	{
 		switch (RenderPass(i)) 
@@ -119,10 +116,10 @@ void Renderer::render()
 
 		Layer * _layer = new Layer();
 
-		Shader * layerShader = AssetManager::GetInstance().get<Shader>("phong_lighting");
+		Shader * layerShader = AssetManager::GetInstance().get<Shader>("phong_layer");
 		UniformBlock uniforms;
-		_cache.scene->getLights().loadUniforms(uniforms);
-		_cache.scene->getCamera()->loadUniforms(uniforms);
+		_cache.scene->loadUniforms(uniforms);
+
 		layerShader->bind();
 		uniforms.load(layerShader);
 		layerShader->unbind();

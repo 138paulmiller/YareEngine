@@ -46,7 +46,7 @@ namespace yare {
 	};
 
 	enum class RenderLighting {
-		Unlit = 0, Flat, Phong, 
+		Unlit = 0, Phong, 
 	};
 
 	//overload == to only update if changed 
