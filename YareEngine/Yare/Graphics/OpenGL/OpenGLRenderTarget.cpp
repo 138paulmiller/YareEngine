@@ -271,14 +271,14 @@ namespace yare {
 			}
 
 		}
-		void OpenGLRenderTarget::unloadAttachment(RenderTargetAttachment source, RenderTargetAttachment destination, RenderTarget* target)
+		void OpenGLRenderTarget::unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height)
 		{
 			bind(RenderTargetMode::Read);
 			glReadBuffer(GetOpenGLAttachment(source));
 			if (target) {
 				target->bind(RenderTargetMode::Draw);
 				glDrawBuffer(GetOpenGLAttachment(destination));
-				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), 0, 0, target->getWidth(), target->getHeight(),
+				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff+ width, yoff+height,
 					GL_COLOR_BUFFER_BIT, GL_LINEAR);
 			}
 			else
@@ -287,7 +287,7 @@ namespace yare {
 				unbind(RenderTargetMode::Draw);
 				glDrawBuffer(GetOpenGLAttachment(destination));
 
-				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), 0, 0, this->getWidth(), this->getHeight(),
+				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
 					GL_COLOR_BUFFER_BIT, GL_LINEAR);
 			}
 

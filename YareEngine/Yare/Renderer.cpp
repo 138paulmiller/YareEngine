@@ -125,7 +125,7 @@ void Renderer::setupRenderPasses()
 	
 	//Setup lighting pass
 	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
-	lightingPass.sampleRate = 1.0;
+	lightingPass.sampleRate = 1.0 / 5.0;
 
 	lightingPass.render = &Renderer::renderLightingPass;
 	lightingPass.inputs = { geometryPass.target };//default framebuffer;
@@ -148,7 +148,7 @@ void Renderer::render()
 
 	renderPass(RenderPass::Geometry);
 	renderPass(RenderPass::Lighting);
-	// renderPass(RenderPass::Forward);
+	renderPass(RenderPass::Forward);
 
 	for(int i = 0; i < (const int)RenderPass::Count; i++)
 		_passes[i].commands.clear();
@@ -163,9 +163,11 @@ void Renderer::renderPass(RenderPass pass)
 	//Resize target to match desired dimensions
 	if (passCommand.target) {
 		//bind the target to render to
-		if (passCommand.target->getWidth() != _width || passCommand.target->getHeight() != _height) {
-			passCommand.target->resize(_width * passCommand.sampleRate, _height* passCommand.sampleRate);
-		}
+		int w = _width ;
+		int h = _height;
+		if (passCommand.target->getWidth() != w || passCommand.target->getHeight() != h) {
+			passCommand.target->resize(w * passCommand.sampleRate, h * passCommand.sampleRate);
+		}								  
 		passCommand.target->bind();
 		resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
 
@@ -264,10 +266,16 @@ void  Renderer::renderForwardPass(const RenderPassCommand & pass)
 
 void  Renderer::renderColor()
 {
-	RenderTarget* target = _passes[(int)RenderPass::Forward].target;
+
+	RenderTarget* target = 0;//defail;t framebuffer
+	float sampleRate = _passes[(int)RenderPass::Lighting].sampleRate;
 	RenderTarget* input = _passes[(int)RenderPass::Lighting].target;
+	//target rect
+	int x = 0, y = 0;
+	int width = _width / sampleRate, height  = _height / sampleRate;
+	
 	//copy color buffer target
-	input->unloadAttachment(RenderTargetAttachment::Position, RenderTargetAttachment::Position, target);
+	input->unloadAttachment(target, RenderTargetAttachment::Position, RenderTargetAttachment::Position, x, y, width, height);
 	input->copyDepthBuffer(target);
 	return;
 	//or render 
