@@ -26,6 +26,8 @@ class OpenGLShader  : public Shader{
 	// bind the program
 	void bind() const  override;
 	void unbind() const override;
+
+
 	void setUniform(const std::string& name, const glm::vec2& v);
 	void setUniform(const std::string& name, const glm::vec3&  v ) override;
 	void setUniform(const std::string& name, const glm::dvec3& v ) override;

@@ -168,44 +168,95 @@ int OpenGLShader::getUniform(const std::string& name)
 }
 
 void OpenGLShader::setUniform(const std::string& name, const glm::vec2& v) {
-	glUniform2fv(getUniform(name), 1, glm::value_ptr(v));
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniform2fv(location, 1, glm::value_ptr(v));
+		OpenGLCheckError();
+	}
+
 }
 
 void OpenGLShader::setUniform(const std::string& name, const glm::vec3& v) {
-  glUniform3fv(getUniform(name), 1, glm::value_ptr(v));
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniform3fv(location, 1, glm::value_ptr(v));
+		OpenGLCheckError();
+	}
 }
 
 void OpenGLShader::setUniform(const std::string& name, const glm::dvec3& v) {
-  glUniform3dv(getUniform(name), 1, glm::value_ptr(v));
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniform3dv(location, 1, glm::value_ptr(v));
+		OpenGLCheckError();
+	}
 }
 
 void OpenGLShader::setUniform(const std::string& name, const glm::vec4& v) {
-  glUniform4fv(getUniform(name), 1, glm::value_ptr(v));
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniform4fv(location, 1, glm::value_ptr(v));
+		OpenGLCheckError();
+	}
 }
 
 void OpenGLShader::setUniform(const std::string& name, const glm::dvec4& v) {
-  glUniform4dv(getUniform(name), 1, glm::value_ptr(v));
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniform4dv(location, 1, glm::value_ptr(v));
+		OpenGLCheckError();
+	}
 }
 
 void OpenGLShader::setUniform(const std::string& name, const glm::dmat4& m) {
-  glUniformMatrix4dv(getUniform(name), 1, GL_FALSE, glm::value_ptr(m));
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniformMatrix4dv(location, 1, GL_FALSE, glm::value_ptr(m));
+		OpenGLCheckError();
+	}
 }
 
 void OpenGLShader::setUniform(const std::string& name, const glm::mat4& m) {
-  glUniformMatrix4fv(getUniform(name), 1, GL_FALSE, glm::value_ptr(m));
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
+		OpenGLCheckError();
+	}
 }
 
 void OpenGLShader::setUniform(const std::string& name, const glm::mat3& m) {
-  glUniformMatrix3fv(getUniform(name), 1, GL_FALSE, glm::value_ptr(m));
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(m));
+		OpenGLCheckError();
+	}
 }
 
 void OpenGLShader::setUniform(const std::string& name, float val) {
-  glUniform1f(getUniform(name), val);
+
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniform1f(location, val);
+		OpenGLCheckError();
+	}
 }
 
 void OpenGLShader::setUniform(const std::string& name, int val) {
-  glUniform1i(getUniform(name), val);
-
+	int location = getUniform(name);
+	if (location != -1)
+	{
+		glUniform1i(location, val);
+		OpenGLCheckError();
+	}
 
 }
 

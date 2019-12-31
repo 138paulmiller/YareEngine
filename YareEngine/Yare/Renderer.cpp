@@ -31,6 +31,8 @@ Renderer* Renderer::Create(RenderAPI api)
 
 Renderer::Renderer()
 {
+	
+	_cache.scene = 0;
 	setupRenderPasses();
 }
 Renderer::~Renderer()
@@ -91,7 +93,6 @@ void Renderer::setupRenderPasses()
 {
 	for (int i = 0; i < (const int)RenderPass::Count; i++) {
 		_passes[i].target = 0;
-		_passes[i].sampleRate = 1.0;
 	}
 
 	RenderTarget * gbuffer = RenderTarget::Create();
@@ -105,32 +106,38 @@ void Renderer::setupRenderPasses()
 	);
 	_targets.push_back(gbuffer);
 	
-	RenderTarget * color = RenderTarget::Create();
+
+	RenderTarget* color = RenderTarget::Create();
 	color->setup({
-		RenderTargetAttachment::Position,
-		RenderTargetAttachment::Normal,
-		RenderTargetAttachment::Diffuse,
+		RenderTargetAttachment::Position
 		}
 	);
 	_targets.push_back(color);
 
+
+
 	//Setup geometry pass
 	RenderPassCommand & geometryPass = _passes[(const int)RenderPass::Geometry];
 	geometryPass.render = &Renderer::renderGeometryPass;
+	geometryPass.sampleRate = 1.0;
 	geometryPass.target = gbuffer;
 
 	
 	//Setup lighting pass
 	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
+	lightingPass.sampleRate = 1.0;
+
 	lightingPass.render = &Renderer::renderLightingPass;
 	lightingPass.inputs = { geometryPass.target };//default framebuffer;
-//	lightingPass.target = color;//uses gbuffers depth buffer 
+	lightingPass.target = color;//uses gbuffers depth buffer 
 
 	//Setup forward pass
 	RenderPassCommand & forwardPass = _passes[(const int)RenderPass::Forward];
+	forwardPass.sampleRate = 1.0;
+
 	forwardPass.render = &Renderer::renderForwardPass;
 	forwardPass.inputs = { geometryPass.target };//uses gbuffers depth buffer 
-//	forwardPass.target = color;//uses gbuffers depth buffer 
+	forwardPass.target = 0;//uses gbuffers depth buffer 
 
 }
 
@@ -146,7 +153,7 @@ void Renderer::render()
 	for(int i = 0; i < (const int)RenderPass::Count; i++)
 		_passes[i].commands.clear();
 
-	//renderColor();
+	renderColor();
 }
 
 
@@ -156,10 +163,11 @@ void Renderer::renderPass(RenderPass pass)
 	//Resize target to match desired dimensions
 	if (passCommand.target) {
 		//bind the target to render to
-		passCommand.target->bind();
 		if (passCommand.target->getWidth() != _width || passCommand.target->getHeight() != _height) {
 			passCommand.target->resize(_width * passCommand.sampleRate, _height* passCommand.sampleRate);
 		}
+		passCommand.target->bind();
+		resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
 
 	}
 	//render
@@ -168,7 +176,8 @@ void Renderer::renderPass(RenderPass pass)
 
 	//unbind the rendered target
 	if (passCommand.target)passCommand.target->unbind();
-	
+	resizeViewport(_width, _height);
+
 }
 
 
@@ -234,7 +243,7 @@ void  Renderer::renderLightingPass(const RenderPassCommand & pass)
 
 	Shader * layerShader = AssetManager::GetInstance().get<Shader>("phong_layer");
 	_cache.scene->unloadUniforms(_layer->getUniforms());
-	_layer->setQuad({ -1,-1 }, { 1, 1 });
+	_layer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
 	_layer->setShader(layerShader);
 	_layer->getInputs().clear();
 	_layer->getInputs().insert(_layer->getInputs().begin(), pass.inputs.begin(), pass.inputs.end());
@@ -255,24 +264,32 @@ void  Renderer::renderForwardPass(const RenderPassCommand & pass)
 
 void  Renderer::renderColor()
 {
-
+	RenderTarget* target = _passes[(int)RenderPass::Forward].target;
+	RenderTarget* input = _passes[(int)RenderPass::Lighting].target;
+	//copy color buffer target
+	input->unloadAttachment(RenderTargetAttachment::Position, RenderTargetAttachment::Position, target);
+	input->copyDepthBuffer(target);
+	return;
+	//or render 
 	RenderState layersState; //default state
 	layersState.cullFace = RenderCullFace::Back;
 	layersState.depthFunc = RenderTestFunc::Disabled;
 	updateState(layersState);
-
+	
 	Layer * _layer = new Layer();
-
+	
 	Shader * layerShader = AssetManager::GetInstance().get<Shader>("unlit_layer");
 	_cache.scene->unloadUniforms(_layer->getUniforms());
-	_layer->setQuad({ -1,-1 }, { 1, 1 });
+	_layer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
 	_layer->setShader(layerShader);
 	_layer->getInputs().clear();
-
-	_layer->addInput(_passes[(int)RenderPass::Forward].target);
+	
+	_layer->addInput(target);
+	//_layer->setTarget(target);
 	_layer->render(this);
-
+	
 	delete _layer;
+	
+	}
 
-}
 } 

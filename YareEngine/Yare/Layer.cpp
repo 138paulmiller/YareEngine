@@ -51,7 +51,7 @@ namespace yare
 	void Layer::render(Renderer * renderer)
 	{
 		if(_target)
-			_target->bind();
+			_target->bind(RenderTargetMode::Draw);
 		_shader->bind();
 
 		int offsetTextureUnit = 0;
@@ -59,6 +59,7 @@ namespace yare
 		{
 			if (input)
 			{
+				input->bind(RenderTargetMode::Read);
 				input->bindTextures(offsetTextureUnit);
 				input->unloadUniforms(_uniforms);
 				offsetTextureUnit += input->getNumberOfAttachments();
@@ -68,10 +69,17 @@ namespace yare
 
 		_quad->bind();
 		renderer->renderMesh(_quad.get());
-		
+
+		for (RenderTarget* input : _inputs)
+		{
+			if (input)
+			{
+				input->unbind(RenderTargetMode::Read);
+			}
+		}
 
 		if (_target)
-			_target->unbind();
+			_target->unbind(RenderTargetMode::Draw);
 	}
 	
 

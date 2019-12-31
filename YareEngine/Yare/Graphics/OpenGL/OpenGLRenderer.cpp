@@ -105,7 +105,6 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	}
-	OpenGLCheckError();
 }
 
 void OpenGLRenderer::clear(RenderBufferFlag mask) 

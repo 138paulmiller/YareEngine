@@ -23,6 +23,7 @@ namespace yare {
 		void unbind(RenderTargetMode mode = RenderTargetMode::ReadWrite) override;
 		void unloadUniforms(UniformBlock& uniforms);
 		int getNumberOfAttachments() ;
+		void unloadAttachment(RenderTargetAttachment source, RenderTargetAttachment destination, RenderTarget* target = 0);
 
 		void copyDepthBuffer(RenderTarget * target = 0);
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }

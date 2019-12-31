@@ -264,10 +264,31 @@ namespace yare {
 			}
 			else
 			{
-
-				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+				//bind to default
+				unbind(RenderTargetMode::Draw);
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), 0, 0, this->getWidth(), this->getHeight(),
 				GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			}
+
+		}
+		void OpenGLRenderTarget::unloadAttachment(RenderTargetAttachment source, RenderTargetAttachment destination, RenderTarget* target)
+		{
+			bind(RenderTargetMode::Read);
+			glReadBuffer(GetOpenGLAttachment(source));
+			if (target) {
+				target->bind(RenderTargetMode::Draw);
+				glDrawBuffer(GetOpenGLAttachment(destination));
+				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), 0, 0, target->getWidth(), target->getHeight(),
+					GL_COLOR_BUFFER_BIT, GL_LINEAR);
+			}
+			else
+			{
+				//bind to default
+				unbind(RenderTargetMode::Draw);
+				glDrawBuffer(GetOpenGLAttachment(destination));
+
+				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), 0, 0, this->getWidth(), this->getHeight(),
+					GL_COLOR_BUFFER_BIT, GL_LINEAR);
 			}
 
 		}
