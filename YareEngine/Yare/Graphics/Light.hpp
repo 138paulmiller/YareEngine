@@ -16,7 +16,7 @@ namespace yare {
 
 			virtual ~Light() = default;
 			//Lights are placed into an array. So, index must be specified
-			virtual void loadUniforms(UniformBlock& uniforms, int lightIndex) const= 0;
+			virtual void unloadUniforms(UniformBlock& uniforms, int lightIndex) const= 0;
 		};
 
 		class PointLight : public Light
@@ -24,7 +24,7 @@ namespace yare {
 		public:
 
 			virtual ~PointLight() = default;
-			void loadUniforms(UniformBlock& uniforms, int lightIndex) const override;
+			void unloadUniforms(UniformBlock& uniforms, int lightIndex) const override;
 
 			void setPosition   (const glm::vec3 &position );
 			void setAmbient    (const glm::vec3 &ambient  );
@@ -55,7 +55,7 @@ namespace yare {
 		{
 		public:
 			virtual ~DirectionalLight() = default;
-			void loadUniforms(UniformBlock& uniforms, int lightIndex)const override;
+			void unloadUniforms(UniformBlock& uniforms, int lightIndex)const override;
 			void setDirection(glm::vec3& position);
 			void setAmbient(glm::vec3& ambient);
 			void setDiffuse(glm::vec3& diffuse);

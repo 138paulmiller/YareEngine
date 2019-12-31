@@ -90,7 +90,7 @@ void Mesh::setMaterial(Material* material)
 	if (_material)
 	{
 		//loads materials uniform into uniform block
-		_material->loadUniforms(Renderable::command.uniforms);
+		_material->unloadUniforms(Renderable::command.uniforms);
 		_material->loadTextures(Renderable::command.textures);
 	}
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <stack>
 #include <queue>
-
+#include <functional>
 #include "Scene.hpp"
 #include "Layer.hpp"
 #include "Renderable.hpp"
@@ -38,7 +38,8 @@ namespace yare {
 		Geometry = 0,
 		//Uses Gbuffer data to write lit scene info to a buffer
 		Lighting,
-		SSAO, //write geometry AO infor to a texture, use this texture in the SSAO pass
+		//SSAO,
+		Forward,
 		Count 
 	};
 
@@ -48,7 +49,10 @@ namespace yare {
 		//Each Pass
 		std::vector<RenderCommand * > commands;
 		RenderTarget * target;
-
+		//layer can also have input targets, just bind all the textures for input
+		std::vector<RenderTarget *> inputs;
+		
+		void (Renderer::*render)(const RenderPassCommand & passCommand);
 		//0-1 scalar that will scale the resolution of the target. low value higher perf
 		float sampleRate = 1.0;
 	};
@@ -73,7 +77,7 @@ namespace yare {
 		virtual void resizeViewport(int width, int height);
 		//Used by the Scene Rendering . If target is null, forward renders to screen 
 		void begin(Scene * scene);
-		void submit(Renderable * renderable, RenderPass pass = RenderPass::Geometry);
+		void submit(Renderable * renderable);
 		void end();
 
 		virtual void render();
@@ -81,19 +85,30 @@ namespace yare {
 	
 	protected:
 		virtual void updateState(const RenderState & state) = 0;
+		void renderCommands(const std::vector<RenderCommand * > & commands);
 
 		/*
 			cached config state. render command only updates if different
 		*/
 	private:
 		//The varying render passes
-		void renderGeometry(const RenderPassCommand & pass);
+		//returns target that was rendered to
+		void setupRenderPasses();
+		void renderPass(RenderPass pass);
+		void renderGeometryPass(const RenderPassCommand & pass);
+		void renderLightingPass(const RenderPassCommand & pass);
+		void renderForwardPass(const RenderPassCommand & pass);
+		
+		
+		void renderColor();
+		
+		RenderPassCommand _passes[(const int)RenderPass::Count];
 		//Each pass will read from this queue
-
+		using RenderBuffers = std::vector<RenderTarget *>;
+		RenderBuffers _targets;
 
 		std::stack<RenderState> _stateStack;
 
-		RenderPassCommand _passes[(const int)RenderPass::Count];
 
 		//current environment map. Rendered to in deferred pass. and used for reflection/refractions in transparency 
 		//Or, create CaptureCube. Renders all item within the region to a cubemap. This can then be bound to the environment map

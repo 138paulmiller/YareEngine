@@ -160,7 +160,7 @@ int OpenGLShader::getUniform(const std::string& name)
 {
   auto it = _uniforms.find(name);
   if (it == _uniforms.end()) {
- 	std::cout << "[Error] uniform " << name << " doesn't exist in program" << std::endl;
+ 	//std::cout << "[Error] uniform " << name << " doesn't exist in program" << std::endl;
     return -1;
 
   } 

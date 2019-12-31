@@ -31,26 +31,13 @@ Renderer* Renderer::Create(RenderAPI api)
 
 Renderer::Renderer()
 {
-	for (int i = 0; i < (const int)RenderPass::Count; i++) {
-		_passes[i].target = 0;
-	}
-	
-	RenderTarget * gbuffer = RenderTarget::Create();
-	gbuffer->use({
-		RenderTargetAttachment::Position,
-		RenderTargetAttachment::Normal,
-		RenderTargetAttachment::Diffuse,
-		RenderTargetAttachment::Specular,
-		RenderTargetAttachment::Emissive,
-		}
-	);
-	
-	_passes[(const int)RenderPass::Geometry].target = gbuffer;
+	setupRenderPasses();
 }
 Renderer::~Renderer()
 {
-	for (int i = 0; i < (const int)RenderPass::Count; i++) {
-		delete _passes[i].target;
+	for (RenderBuffers::iterator it = _targets.begin();it != _targets.end(); it++) {
+		delete *it;
+		*it = 0;
 	}
 
 }
@@ -69,86 +56,127 @@ void Renderer::begin(Scene* scene)
 
 }
 
-void Renderer::submit(Renderable * renderable, RenderPass pass)
+void Renderer::submit(Renderable * renderable)
 {
-
-	_passes[(int)pass].commands.push_back(&renderable->command);
-	
+	RenderCommand * command  = &renderable->command;
 	if (_cache.scene)
 	{
-		RenderCommand * newestCommand = _passes[(int)pass].commands.back();
 		//if a scene is bound. load it uniforms
 		//use UBOs and render views for this
-		_cache.scene->loadUniforms(newestCommand->uniforms);
+		_cache.scene->unloadUniforms(command->uniforms);
 	}
+	switch (renderable->command.lighting)
+	{
+		case RenderLighting::Surface:
+			//surface, add commands to 
+			_passes[(int)RenderPass::Geometry].commands.push_back(command);
+			break;
+		case RenderLighting::Unlit:
+			_passes[(int)RenderPass::Geometry].commands.push_back(command);
+			//_passes[(int)RenderPass::Forward].commands.push_back(command);
+			break;
+
+	}
+	
+
 }
 void Renderer::end()
 {
 	_cache.scene = 0;
 }
 
+
+
+void Renderer::setupRenderPasses()
+{
+	for (int i = 0; i < (const int)RenderPass::Count; i++) {
+		_passes[i].target = 0;
+		_passes[i].sampleRate = 1.0;
+	}
+
+	RenderTarget * gbuffer = RenderTarget::Create();
+	gbuffer->setup({
+		RenderTargetAttachment::Position,
+		RenderTargetAttachment::Normal,
+		RenderTargetAttachment::Diffuse,
+		RenderTargetAttachment::Specular,
+		RenderTargetAttachment::Emissive,
+		}
+	);
+	_targets.push_back(gbuffer);
+	
+	RenderTarget * color = RenderTarget::Create();
+	color->setup({
+		RenderTargetAttachment::Position,
+		RenderTargetAttachment::Normal,
+		RenderTargetAttachment::Diffuse,
+		}
+	);
+	_targets.push_back(color);
+
+	//Setup geometry pass
+	RenderPassCommand & geometryPass = _passes[(const int)RenderPass::Geometry];
+	geometryPass.render = &Renderer::renderGeometryPass;
+	geometryPass.target = gbuffer;
+
+	
+	//Setup lighting pass
+	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
+	lightingPass.render = &Renderer::renderLightingPass;
+	lightingPass.inputs = { geometryPass.target };//default framebuffer;
+//	lightingPass.target = color;//uses gbuffers depth buffer 
+
+	//Setup forward pass
+	RenderPassCommand & forwardPass = _passes[(const int)RenderPass::Forward];
+	forwardPass.render = &Renderer::renderForwardPass;
+	forwardPass.inputs = { geometryPass.target };//uses gbuffers depth buffer 
+//	forwardPass.target = color;//uses gbuffers depth buffer 
+
+}
+
 //Enable forward rendering, for all unlit, render these to the screen unlit.
 //the render deferred passes 
 void Renderer::render()
 {
-	RenderTarget * gbuffer;	
-	for (int i = 0; i < (const int)RenderPass::Count; i++) 
-	{
-		switch (RenderPass(i)) 
-		{
-		case RenderPass::Geometry:
-			renderGeometry(_passes[i]);
-			gbuffer = _passes[i].target; //current target being rendered to
-			_passes[i].commands.clear();
-			break;
-		default://do nothing
-			break;
-		}
-	}
-	//First Render Unlit Commands
-	//Then render lit command
-	//Move this a custom pass. 
-	{
-		RenderState layersState; //default state
-		layersState.cullFace = RenderCullFace::Back;
-		layersState.depthFunc = RenderTestFunc::Disabled;
-		updateState(layersState);
 
-		Layer * _layer = new Layer();
+	renderPass(RenderPass::Geometry);
+	renderPass(RenderPass::Lighting);
+	// renderPass(RenderPass::Forward);
 
-		Shader * layerShader = AssetManager::GetInstance().get<Shader>("phong_layer");
-		UniformBlock uniforms;
-		_cache.scene->loadUniforms(uniforms);
+	for(int i = 0; i < (const int)RenderPass::Count; i++)
+		_passes[i].commands.clear();
 
-		layerShader->bind();
-		uniforms.load(layerShader);
-		layerShader->unbind();
-		_layer->setQuad({ -1,-1 }, { 1, 1 });
-		_layer->setShader(layerShader);
-
-		_layer->addInput(gbuffer);
-
-		_layer->render(this);
-		delete _layer;
-	}
+	//renderColor();
 }
-void Renderer::renderGeometry(const RenderPassCommand & pass)
+
+
+void Renderer::renderPass(RenderPass pass)
 {
-
-	if (pass.target) {
-		if (pass.target->getWidth() != _width || pass.target->getHeight() != _height) {
-			pass.target->resize(_width * pass.sampleRate, _height* pass.sampleRate);
+	RenderPassCommand & passCommand = _passes[(int)pass];
+	//Resize target to match desired dimensions
+	if (passCommand.target) {
+		//bind the target to render to
+		passCommand.target->bind();
+		if (passCommand.target->getWidth() != _width || passCommand.target->getHeight() != _height) {
+			passCommand.target->resize(_width * passCommand.sampleRate, _height* passCommand.sampleRate);
 		}
-		pass.target->bind();
+
 	}
+	//render
+	if(passCommand.render)
+	(this->* (passCommand.render) )(passCommand);
+
+	//unbind the rendered target
+	if (passCommand.target)passCommand.target->unbind();
 	
-	this->clear(RenderBufferFlag::Color);
-	this->clear(RenderBufferFlag::Depth);
+}
 
 
+void Renderer::renderCommands(const std::vector<RenderCommand * > & commands)
+{
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
-	for(RenderCommand const * command : pass.commands)
-	{		
+	for (const RenderCommand * command : commands)
+	{
 		updateState(command->state);
 		static Shader* prevShader = nullptr;
 		if (prevShader != command->shader) {
@@ -158,16 +186,15 @@ void Renderer::renderGeometry(const RenderPassCommand & pass)
 		}
 
 		/*
-		Instead of loading all uniforms and texture each frame. Create Shader Instances that are copies of a base shader. 
+		Instead of loading all uniforms and texture each frame. Create Shader Instances that are copies of a base shader.
 		Will only have to bind when dirty. Since they are copies, they should not be affected by other renderables that share the same parent shader
 		Potentially do this at the material level and have materials instances maintain *blocks.
 		*/
 		command->uniforms.load(command->shader);
 		command->textures.load(command->shader);
 
-
 		command->vertexArray->bind();
-		
+
 		switch (command->mode)
 		{
 		case RenderMode::Mesh:
@@ -175,16 +202,77 @@ void Renderer::renderGeometry(const RenderPassCommand & pass)
 			break;
 		case RenderMode::IndexedMesh:
 			renderIndexedMesh(command->vertexArray);
-		break;
+			break;
 		}
 
 		command->vertexArray->unbind();
-	}
 
-	if (pass.target)pass.target->unbind();
+	}
+}
+
+void Renderer::renderGeometryPass(const RenderPassCommand & pass)
+{
+
+	this->clear(RenderBufferFlag::Color);
+	this->clear(RenderBufferFlag::Depth);
+	renderCommands(pass.commands);
+
 }
 
 
+void  Renderer::renderLightingPass(const RenderPassCommand & pass)
+{
+	this->clear(RenderBufferFlag::Color);
+	this->clear(RenderBufferFlag::Depth);
+
+	RenderState layersState; //default state
+	layersState.cullFace = RenderCullFace::Back;
+	layersState.depthFunc = RenderTestFunc::Disabled; 
+	updateState(layersState);
+
+	Layer * _layer = new Layer();
+
+	Shader * layerShader = AssetManager::GetInstance().get<Shader>("phong_layer");
+	_cache.scene->unloadUniforms(_layer->getUniforms());
+	_layer->setQuad({ -1,-1 }, { 1, 1 });
+	_layer->setShader(layerShader);
+	_layer->getInputs().clear();
+	_layer->getInputs().insert(_layer->getInputs().begin(), pass.inputs.begin(), pass.inputs.end());
+	_layer->setTarget(pass.target);
+	_layer->render(this);
+
+	delete _layer;
+
+}
+void  Renderer::renderForwardPass(const RenderPassCommand & pass)
+{
+
+	pass.inputs[0]->copyDepthBuffer(pass.target);
+	renderCommands(pass.commands);
+
+}
 
 
+void  Renderer::renderColor()
+{
+
+	RenderState layersState; //default state
+	layersState.cullFace = RenderCullFace::Back;
+	layersState.depthFunc = RenderTestFunc::Disabled;
+	updateState(layersState);
+
+	Layer * _layer = new Layer();
+
+	Shader * layerShader = AssetManager::GetInstance().get<Shader>("unlit_layer");
+	_cache.scene->unloadUniforms(_layer->getUniforms());
+	_layer->setQuad({ -1,-1 }, { 1, 1 });
+	_layer->setShader(layerShader);
+	_layer->getInputs().clear();
+
+	_layer->addInput(_passes[(int)RenderPass::Forward].target);
+	_layer->render(this);
+
+	delete _layer;
+
+}
 } 

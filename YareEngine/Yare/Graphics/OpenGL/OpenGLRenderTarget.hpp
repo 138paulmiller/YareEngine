@@ -16,15 +16,16 @@ namespace yare {
 	public:
 		OpenGLRenderTarget();
 		~OpenGLRenderTarget() ;		
-		void use(const std::vector<RenderTargetAttachment>& attachments) override;
+		void setup(const std::vector<RenderTargetAttachment>& attachments) override;
 		void resize(int width, int height) override;
-		void bind() override;
+		void bind(RenderTargetMode mode = RenderTargetMode::ReadWrite) override;
 		void bindTextures(int offset = 0) override;
-		void unbind() override;
-		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
-		void loadUniforms(Shader * shader);
+		void unbind(RenderTargetMode mode = RenderTargetMode::ReadWrite) override;
+		void unloadUniforms(UniformBlock& uniforms);
 		int getNumberOfAttachments() ;
 
+		void copyDepthBuffer(RenderTarget * target = 0);
+		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
 	private:
 		
 		//

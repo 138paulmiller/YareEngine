@@ -15,5 +15,7 @@ layout(location = 1) out vec3 out_normal;
 layout(location = 2) out vec4 out_diffuse;
 void main(void)
 {    
+	out_position = frag_pos.xyz;
+	out_normal   = frag_normal;
 	out_diffuse =  vec4(material.base,1);
 }

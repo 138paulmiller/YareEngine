@@ -29,10 +29,10 @@ namespace yare
 		_renderables.erase(name);
 	}
 
-	void Scene::loadUniforms(UniformBlock& uniforms) const
+	void Scene::unloadUniforms(UniformBlock& uniforms) const
 	{
-		_lights.loadUniforms(uniforms);
-		_camera->loadUniforms(uniforms);
+		_lights.unloadUniforms(uniforms);
+		_camera->unloadUniforms(uniforms);
 	}
 	void Scene::render(Renderer* renderer)
 	{

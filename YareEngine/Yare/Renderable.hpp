@@ -41,12 +41,13 @@ namespace yare {
 
 
 	enum class RenderMode {
-		Mesh=0, //NonIndexed MEsh - Using VertexArray (No Index Buffer Is Set. VertexCount is required however)
+		Mesh=0, //NonIndexed Mesh - Using VertexArray (No Index Buffer Is Set. VertexCount is required however)
 		IndexedMesh 
 	};
-
+	//Lighting type
 	enum class RenderLighting {
-		Unlit = 0, Phong, 
+		Unlit = 0, Surface, 
+		//Translucent, UI
 	};
 
 	//overload == to only update if changed 

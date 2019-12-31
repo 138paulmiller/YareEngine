@@ -9,7 +9,7 @@ namespace yare {
 		public:
 			~FlatMaterial() ;
 			//Load uniform/textures into uniforms/texture block
-			void loadUniforms(UniformBlock& uniforms) override ;
+			void unloadUniforms(UniformBlock& uniforms) override ;
 			void loadTextures(TextureBlock& textures) override ;
 
 			inline glm::vec3 getBase()     { return _base; }

@@ -4,7 +4,7 @@
 namespace yare {
 	namespace graphics {
 
-	void Camera::loadUniforms(UniformBlock& uniforms) const
+	void Camera::unloadUniforms(UniformBlock& uniforms) const
 	{
 		//If this is a deferred render. instead of adding lights to the pass. Specify which buffers are going to be written to. 
 		//e.g. For flat, it should only be color

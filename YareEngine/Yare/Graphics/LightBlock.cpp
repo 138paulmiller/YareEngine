@@ -33,19 +33,19 @@ namespace yare {
 		/*
 		Load all lights into shader
 		*/
-		void LightBlock::loadUniforms(UniformBlock& uniforms) const
+		void LightBlock::unloadUniforms(UniformBlock& uniforms) const
 		{
 			int index = 0;
 			for (const std::pair<std::string, PointLight* >& pair : _pointLights)
 			{
-				pair.second->loadUniforms(uniforms, index++);
+				pair.second->unloadUniforms(uniforms, index++);
 			}
 			uniforms.setUniform("pt_light_count", index);
 
 			index = 0;
 			for (const std::pair<std::string, DirectionalLight* >& pair : _directionalLights)
 			{
-				pair.second->loadUniforms(uniforms, index++);
+				pair.second->unloadUniforms(uniforms, index++);
 			}
 			uniforms.setUniform("dir_light_count", index);
 		}

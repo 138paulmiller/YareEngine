@@ -10,7 +10,7 @@ namespace yare {
 
 		}
 		//Load uniform/textures into uniforms/texture block
-		void PhongMaterial::loadUniforms(UniformBlock& uniforms)
+		void PhongMaterial::unloadUniforms(UniformBlock& uniforms)
 		{
 			uniforms.setUniform("material.shininess", _shininess);
 		}

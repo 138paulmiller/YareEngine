@@ -3,6 +3,7 @@
 #pragma once 
 #include "Texture.hpp"
 #include "Shader.hpp"
+#include "UniformBlock.hpp"
 #include <vector>
 
 //https://learnopengl.com/Advanced-Lighting/Deferred-Shading
@@ -23,6 +24,15 @@ namespace yare {
 		Stencil, //
 		Count
 	};
+
+	enum class RenderTargetMode
+	{
+		ReadWrite =0, 
+		Read,//read from target 
+		Draw //draw to target
+	};
+
+	//TODO - Copy into Attachment  given another rend	ertarget
 ;	class RenderTarget
 	{
 	public:
@@ -30,14 +40,15 @@ namespace yare {
 		static RenderTarget* Create();
 
 		virtual ~RenderTarget()= default;
-		virtual void use(const std::vector<RenderTargetAttachment>& attachments) = 0;
+		virtual void setup(const std::vector<RenderTargetAttachment>& attachments) = 0;
+		//copy targets depth buffer into the targets. if null, copy to default depth buffer
+		virtual void copyDepthBuffer(RenderTarget * target= 0 ) = 0;
 		//read attachment into texture
 		virtual void read(RenderTargetAttachment attachment, TexturePixels & pixel) = 0;
-		///if isRead is true, then binds textures. Else bind just framebuffer
-		virtual void bind() = 0;
-		virtual void unbind() = 0;
+		virtual void bind(RenderTargetMode mode = RenderTargetMode::ReadWrite) = 0;
+		virtual void unbind(RenderTargetMode mode = RenderTargetMode::ReadWrite) = 0;
 		virtual void bindTextures(int offset=0) = 0; //int is the texture unit offset
-		virtual void loadUniforms(Shader * shader)= 0 ;
+		virtual void unloadUniforms(UniformBlock& uniforms)= 0 ;
 		virtual void resize(int width, int height) { _width = width; _height = height; };
 		virtual int getNumberOfAttachments() = 0;
 		inline int getWidth() { return _width; }

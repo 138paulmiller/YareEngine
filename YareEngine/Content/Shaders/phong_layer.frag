@@ -104,9 +104,8 @@ void main(void)
 	vec3 world_normal  =texture(normal, frag_uv).rgb;
 	vec3 world_diffuse = texture(diffuse, frag_uv).rgb;
 
-	vec3 view_dir = normalize(view_pos - world_position.xyz);
+	vec3 view_dir = normalize ( view_pos - world_position.xyz ) ;
 	out_color = getColor(world_position, view_dir, world_normal);
-
-
+	
 
 }

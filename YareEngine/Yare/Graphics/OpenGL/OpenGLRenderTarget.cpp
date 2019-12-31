@@ -26,7 +26,6 @@ namespace yare {
 			{
 				_buffers[i].used = false;
 			}
-
 		}
 
 		OpenGLRenderTarget::~OpenGLRenderTarget()
@@ -168,7 +167,7 @@ namespace yare {
 			unbind();
 		}
 
-		void OpenGLRenderTarget::use(const std::vector<RenderTargetAttachment>& attachments)
+		void OpenGLRenderTarget::setup(const std::vector<RenderTargetAttachment>& attachments)
 		{
 			bind();
 			for (const RenderTargetAttachment & attachment : attachments)
@@ -197,17 +196,39 @@ namespace yare {
 			getNumberOfAttachments();
 
 		}
-		void OpenGLRenderTarget::bind()
+		void OpenGLRenderTarget::bind(RenderTargetMode mode )
 		{
-			glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+			switch (mode)
+			{
+			case RenderTargetMode::ReadWrite:
+				glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+				return;
+			case RenderTargetMode::Read:
+				glBindFramebuffer(GL_READ_FRAMEBUFFER, _framebuffer);
+				return;
+			case RenderTargetMode::Draw:
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _framebuffer);
+				return;
+			}
 		}
-		void OpenGLRenderTarget::unbind()
+		void OpenGLRenderTarget::unbind(RenderTargetMode mode)
 		{
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			switch (mode)
+			{
+			case RenderTargetMode::ReadWrite:
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				return;
+			case RenderTargetMode::Read:
+				glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+				return;
+			case RenderTargetMode::Draw:
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+				return;
+			}
 		}
 		void OpenGLRenderTarget::bindTextures(int offset)
 		{
-			int unit = 0;
+			int unit = offset;
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
 				if (_buffers[i].used)
@@ -219,7 +240,7 @@ namespace yare {
 			}
 		}
 
-		void OpenGLRenderTarget::loadUniforms(Shader * shader)
+		void OpenGLRenderTarget::unloadUniforms(UniformBlock& uniforms)
 		{
 			int j = 0;
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
@@ -227,10 +248,28 @@ namespace yare {
 				RenderTargetAttachment attachment = RenderTargetAttachment(i);
 				if (_buffers[i].used)
 				{
-					shader->setUniform(RenderTargetAttachmentUniformName(attachment), j++);
+					uniforms.setUniform(RenderTargetAttachmentUniformName(attachment), j++);
 
 				}
 			}
+		}
+		
+		void OpenGLRenderTarget::copyDepthBuffer(RenderTarget * destination)
+		{
+			bind(RenderTargetMode::Read);
+			if (destination){
+				destination->bind(RenderTargetMode::Draw);
+				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), 0, 0, destination->getWidth(), destination->getHeight(),
+				GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			}
+			else
+			{
+
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), 0, 0, this->getWidth(), this->getHeight(),
+				GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+			}
+
 		}
 	}
 

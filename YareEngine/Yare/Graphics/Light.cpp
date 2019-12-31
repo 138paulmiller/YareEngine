@@ -32,7 +32,7 @@ namespace yare { namespace graphics {
 		_outerCutOff = outer;
 	}
 
-	void PointLight::loadUniforms(UniformBlock& uniforms, int lightIndex) const
+	void PointLight::unloadUniforms(UniformBlock& uniforms, int lightIndex) const
 	{
 		const std::string elementStr = "pt_lights[" + std::to_string(lightIndex) +"]";
 		uniforms.setUniform(elementStr + ".position", _position);
@@ -44,7 +44,7 @@ namespace yare { namespace graphics {
 	}
 	////////////////// directional /////////////////////////////
 	
-	void DirectionalLight::loadUniforms(UniformBlock& uniforms, int lightIndex) const
+	void DirectionalLight::unloadUniforms(UniformBlock& uniforms, int lightIndex) const
 	{
 		const std::string elementStr = "dir_lights[" + std::to_string(lightIndex) + "]";
 		uniforms.setUniform(elementStr + ".direction", _direction);

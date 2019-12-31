@@ -9,7 +9,7 @@ namespace yare {
 		public:
 			~PhongMaterial() ;
 			//Load uniform/textures into uniforms/texture block
-			void loadUniforms(UniformBlock& uniforms) override ;
+			void unloadUniforms(UniformBlock& uniforms) override ;
 			void loadTextures(TextureBlock& textures) override ;
 
 			//Create a switch for using either map or float3

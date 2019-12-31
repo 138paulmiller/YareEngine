@@ -7,7 +7,7 @@ namespace yare {
 			_base = glm::vec3(1, 0, 0);
 		}
 		//Load uniform/textures into uniforms/texture block
-		void FlatMaterial::loadUniforms(UniformBlock& uniforms)
+		void FlatMaterial::unloadUniforms(UniformBlock& uniforms)
 		{
 			uniforms.setUniform("material.base", _base);
 		}

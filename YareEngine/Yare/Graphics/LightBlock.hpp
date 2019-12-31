@@ -28,7 +28,7 @@ namespace yare {
 			/*
 			Load all lights into shader
 			*/
-			void loadUniforms(UniformBlock & uniforms) const;
+			void unloadUniforms(UniformBlock & uniforms) const;
 		private:
 			std::unordered_map<std::string, PointLight * > _pointLights;
 			std::unordered_map<std::string, DirectionalLight * > _directionalLights;

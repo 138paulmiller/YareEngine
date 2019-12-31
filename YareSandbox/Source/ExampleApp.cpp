@@ -117,7 +117,7 @@ void ExampleApp::onEnter()
 
 		data.shader = AssetManager::GetInstance().get<Shader>("phong_mesh");
 		data.mode = RenderMode::Mesh;
-		data.lighting = RenderLighting::Phong;
+		data.lighting = RenderLighting::Surface;
 
 	}
 
@@ -200,7 +200,7 @@ void ExampleApp::onRender() {
 	_projection = glm::perspective(45.0f,getWindowRatio(), 1.0f, 200.0f);
 	
 	_camera.setProjection(_projection);
-	_camera.setPosition({ 0, 0, -10 });
+	_camera.setPosition({ 0, 0, 10 });
 	_camera.setForward(glm::normalize( glm::vec3(0) -  _camera.getPosition() ));
 	
 
@@ -243,7 +243,7 @@ void ExampleApp::demoMovingBoxesAndLights(float time)
 		};
 
 
-		yaw =   time *  (speed + 0.25);
+		yaw =   time *  (speed + 0.58);
 		pitch = time *  (speed + 0.25);
 		roll =  time *  (speed + 0.50);
 		glm::mat4 transform = glm::mat4(1);
@@ -279,7 +279,7 @@ void ExampleApp::demoRotatingBoxes(float time)
 	int i = 0;
 	float speed = .599995;
 	float amp = 5;
-	glm::vec3 position = { 0, 0, 0 };
+	glm::vec3 position = { 0, 0, 0.0 };
 	const glm::vec3 up = { 0, 1, 0 };
 	const glm::vec3 forward = { 0, 0, 1 };
 	const glm::vec3 right = { 1, 0, 0 };

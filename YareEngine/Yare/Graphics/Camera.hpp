@@ -40,7 +40,7 @@ namespace yare { namespace graphics {
 		const glm::mat4& getProjection() const { return _projection; }
 		const glm::mat4& getView() const { return _view; }
 
-		void loadUniforms(UniformBlock& uniforms) const;
+		void unloadUniforms(UniformBlock& uniforms) const;
 		
 	private:
 		glm::vec3 _position;
