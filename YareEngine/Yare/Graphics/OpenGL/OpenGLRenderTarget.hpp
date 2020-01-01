@@ -25,7 +25,6 @@ namespace yare {
 		int getNumberOfAttachments() ;
 		void unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height);
 
-		void copyDepthBuffer(RenderTarget * target = 0);
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
 	private:
 		

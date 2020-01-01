@@ -52,7 +52,7 @@ namespace yare {
 				case RenderTargetAttachment::Normal:
 					return GL_COLOR_ATTACHMENT0 + (int)attachment;
 				case RenderTargetAttachment::Depth:
-					return GL_DEPTH_STENCIL_ATTACHMENT;
+					return GL_DEPTH_ATTACHMENT;
 				}
 			}
 			unsigned int GetOpenGLAttachmentFormat(RenderTargetAttachment attachment)
@@ -254,41 +254,27 @@ namespace yare {
 			}
 		}
 		
-		void OpenGLRenderTarget::copyDepthBuffer(RenderTarget * destination)
-		{
-			bind(RenderTargetMode::Read);
-			if (destination){
-				destination->bind(RenderTargetMode::Draw);
-				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), 0, 0, destination->getWidth(), destination->getHeight(),
-				GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-			}
-			else
-			{
-				//bind to default
-				unbind(RenderTargetMode::Draw);
-				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), 0, 0, this->getWidth(), this->getHeight(),
-				GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-			}
-
-		}
 		void OpenGLRenderTarget::unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height)
 		{
+			int bufferMask = source == RenderTargetAttachment::Depth ? GL_DEPTH_BUFFER_BIT : GL_COLOR_BUFFER_BIT;
 			bind(RenderTargetMode::Read);
 			glReadBuffer(GetOpenGLAttachment(source));
 			if (target) {
 				target->bind(RenderTargetMode::Draw);
-				glDrawBuffer(GetOpenGLAttachment(destination));
+				if(source != RenderTargetAttachment::Depth)
+					glDrawBuffer(GetOpenGLAttachment(destination));
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff+ width, yoff+height,
-					GL_COLOR_BUFFER_BIT, GL_LINEAR);
+					bufferMask, GL_LINEAR);
 			}
 			else
 			{
 				//bind to default
 				unbind(RenderTargetMode::Draw);
-				glDrawBuffer(GetOpenGLAttachment(destination));
+				if (source != RenderTargetAttachment::Depth)
+					glDrawBuffer(GetOpenGLAttachment(destination));
 
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
-					GL_COLOR_BUFFER_BIT, GL_LINEAR);
+					bufferMask, GL_LINEAR);
 			}
 
 		}

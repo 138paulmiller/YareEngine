@@ -74,8 +74,8 @@ void Renderer::submit(Renderable * renderable)
 			_passes[(int)RenderPass::Geometry].commands.push_back(command);
 			break;
 		case RenderLighting::Unlit:
-			_passes[(int)RenderPass::Geometry].commands.push_back(command);
-			//_passes[(int)RenderPass::Forward].commands.push_back(command);
+			//_passes[(int)RenderPass::Geometry].commands.push_back(command);
+			_passes[(int)RenderPass::Forward].commands.push_back(command);
 			break;
 
 	}
@@ -109,7 +109,9 @@ void Renderer::setupRenderPasses()
 
 	RenderTarget* color = RenderTarget::Create();
 	color->setup({
-		RenderTargetAttachment::Position
+		RenderTargetAttachment::Position,
+		RenderTargetAttachment::Normal,
+		RenderTargetAttachment::Diffuse,
 		}
 	);
 	_targets.push_back(color);
@@ -133,11 +135,11 @@ void Renderer::setupRenderPasses()
 
 	//Setup forward pass
 	RenderPassCommand & forwardPass = _passes[(const int)RenderPass::Forward];
-	forwardPass.sampleRate = 1.0;
+	forwardPass.sampleRate = 1.0 / 5.0;
 
 	forwardPass.render = &Renderer::renderForwardPass;
 	forwardPass.inputs = { geometryPass.target };//uses gbuffers depth buffer 
-	forwardPass.target = 0;//uses gbuffers depth buffer 
+	forwardPass.target = color;//uses gbuffers depth buffer 
 
 }
 
@@ -168,18 +170,23 @@ void Renderer::renderPass(RenderPass pass)
 		if (passCommand.target->getWidth() != w || passCommand.target->getHeight() != h) {
 			passCommand.target->resize(w * passCommand.sampleRate, h * passCommand.sampleRate);
 		}								  
-		passCommand.target->bind();
 		resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
 
 	}
+
+	if (passCommand.target)
+		passCommand.target->bind();
+
 	//render
 	if(passCommand.render)
 	(this->* (passCommand.render) )(passCommand);
 
-	//unbind the rendered target
-	if (passCommand.target)passCommand.target->unbind();
-	resizeViewport(_width, _height);
+	if (passCommand.target)
+		passCommand.target->unbind();
 
+
+	//unbind the rendered target
+	resizeViewport(_width, _height);
 }
 
 
@@ -189,12 +196,8 @@ void Renderer::renderCommands(const std::vector<RenderCommand * > & commands)
 	for (const RenderCommand * command : commands)
 	{
 		updateState(command->state);
-		static Shader* prevShader = nullptr;
-		if (prevShader != command->shader) {
 
-			command->shader->bind();
-			prevShader = command->shader;
-		}
+		command->shader->bind();
 
 		/*
 		Instead of loading all uniforms and texture each frame. Create Shader Instances that are copies of a base shader.
@@ -227,15 +230,18 @@ void Renderer::renderGeometryPass(const RenderPassCommand & pass)
 	this->clear(RenderBufferFlag::Color);
 	this->clear(RenderBufferFlag::Depth);
 	renderCommands(pass.commands);
+	
 
 }
 
 
 void  Renderer::renderLightingPass(const RenderPassCommand & pass)
 {
-	this->clear(RenderBufferFlag::Color);
-	this->clear(RenderBufferFlag::Depth);
 
+	//TODO _ _ This render skybox is uncommented>
+	/*this->clear(RenderBufferFlag::Depth);
+	this->clear(RenderBufferFlag::Color);
+*/
 	RenderState layersState; //default state
 	layersState.cullFace = RenderCullFace::Back;
 	layersState.depthFunc = RenderTestFunc::Disabled; 
@@ -254,11 +260,19 @@ void  Renderer::renderLightingPass(const RenderPassCommand & pass)
 
 	delete _layer;
 
+
 }
 void  Renderer::renderForwardPass(const RenderPassCommand & pass)
 {
+	//pass the inputs depth buffer to the targets
+	//color 
+	RenderTarget * input = pass.inputs[0];
+	RenderState layersState; //default state
+	updateState(layersState);
 
-	pass.inputs[0]->copyDepthBuffer(pass.target);
+	//TODO - do not believe this is copying over correctly
+	input->unloadAttachment(pass.target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, pass.target->getWidth(), pass.target->getHeight());
+
 	renderCommands(pass.commands);
 
 }
@@ -267,17 +281,25 @@ void  Renderer::renderForwardPass(const RenderPassCommand & pass)
 void  Renderer::renderColor()
 {
 
+	this->clear(RenderBufferFlag::Depth);
+	this->clear(RenderBufferFlag::Color);
+
 	RenderTarget* target = 0;//defail;t framebuffer
-	float sampleRate = _passes[(int)RenderPass::Lighting].sampleRate;
-	RenderTarget* input = _passes[(int)RenderPass::Lighting].target;
+	float sampleRate = _passes[(int)RenderPass::Forward].sampleRate;
+	RenderTarget* input = _passes[(int)RenderPass::Forward].target;
 	//target rect
 	int x = 0, y = 0;
 	int width = _width / sampleRate, height  = _height / sampleRate;
 	
+//	RenderTargetAttachment src = RenderTargetAttachment::Position;
+	RenderTargetAttachment src = RenderTargetAttachment::Diffuse;
+	RenderTargetAttachment dest = RenderTargetAttachment::Diffuse;
 	//copy color buffer target
-	input->unloadAttachment(target, RenderTargetAttachment::Position, RenderTargetAttachment::Position, x, y, width, height);
-	input->copyDepthBuffer(target);
+	//input->unloadAttachment(target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, width, height);
+	input->unloadAttachment(target, src, dest, x, y, width, height);
+
 	return;
+
 	//or render 
 	RenderState layersState; //default state
 	layersState.cullFace = RenderCullFace::Back;

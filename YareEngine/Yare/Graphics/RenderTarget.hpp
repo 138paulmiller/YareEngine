@@ -14,8 +14,8 @@ namespace yare {
 	//What buffer will write to the target texture 
 	enum class RenderTargetAttachment
 	{
-		//Depth = 0//Not Implemented yet
-		Position=0,  //Uses RGB floating bit point
+		//Color=0, //Default color 
+		Position = 0,  //Uses RGB floating bit point
 		Normal,  //Uses RGB 
 		Diffuse, //RGBA floating
 		Specular, //RGBA floating
@@ -42,7 +42,6 @@ namespace yare {
 		virtual ~RenderTarget()= default;
 		virtual void setup(const std::vector<RenderTargetAttachment>& attachments) = 0;
 		//copy targets depth buffer into the targets. if null, copy to default depth buffer
-		virtual void copyDepthBuffer(RenderTarget * target= 0 ) = 0;
 		virtual void unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height ) = 0;
 		//read attachment into texture
 		virtual void read(RenderTargetAttachment attachment, TexturePixels & pixel) = 0;

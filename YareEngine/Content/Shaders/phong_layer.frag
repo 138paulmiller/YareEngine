@@ -97,15 +97,18 @@ vec4 getColor(vec3 world_position, vec3 view_dir, vec3 normal)
 
 // ------------ Entry -----------------------------------
 //Write to RenderTarget 0 - See Attachment points in Rendertarget
-layout(location = 0) out vec4 out_color;
+layout(location = 0) out vec3 out_position;
+layout(location = 1) out vec3 out_normal;
+layout(location = 2) out vec4 out_diffuse;
 void main(void)
 {
-	vec3 world_position  = texture(position, frag_uv).rgb;
-	vec3 world_normal  =texture(normal, frag_uv).rgb;
-	vec3 world_diffuse = texture(diffuse, frag_uv).rgb;
 
-	vec3 view_dir = normalize ( view_pos - world_position.xyz ) ;
-	out_color = getColor(world_position, view_dir, world_normal);
-	
+	out_position = texture(position, frag_uv).rgb;
+	out_normal = texture(normal, frag_uv).rgb;
+
+
+	vec3 view_dir = normalize ( view_pos - out_position.xyz ) ;
+	out_diffuse = getColor(out_position, view_dir, out_normal);
+
 
 }
