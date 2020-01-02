@@ -201,7 +201,7 @@ namespace yare {
 		{
 			switch (mode)
 			{
-			case RenderTargetMode::ReadWrite:
+			case RenderTargetMode::ReadDraw:
 				glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 				return;
 			case RenderTargetMode::Read:
@@ -216,7 +216,7 @@ namespace yare {
 		{
 			switch (mode)
 			{
-			case RenderTargetMode::ReadWrite:
+			case RenderTargetMode::ReadDraw:
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				return;
 			case RenderTargetMode::Read:

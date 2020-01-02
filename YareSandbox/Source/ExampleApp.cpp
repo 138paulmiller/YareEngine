@@ -127,8 +127,8 @@ void ExampleApp::onEnter()
 	{	
 		//Create the light and the mesh
 		_pointLights[i].reset(new PointLight());
-		_pointLights[i]->setAmbient(glm::vec3(0.5f, 0.5f, 0.5f));
-		_pointLights[i]->setDiffuse(glm::vec3(0.54f, 0.52f, 0.52f));
+		_pointLights[i]->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+		_pointLights[i]->setDiffuse(glm::vec3(0.654f, 0.652f, 0.652f));
 		_pointLights[i]->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
 		_pointLights[i]->setAttenuation(glm::vec3(1, 0.5, 0.00004 ));
 		
@@ -209,9 +209,18 @@ void ExampleApp::onRender() {
 	 _model *= glm::scale(glm::vec3( 100, 100, 100 ));
 	_skybox->setModel(_model);
 	
+	if (BOX_COUNT > 0)
+	{
+		if (BOX_COUNT > 1)
+		{
+			demoMovingBoxesAndLights(time);
+		}
+		else
+		{
+			demoRotatingBoxes(time);
+		}
 
-	demoMovingBoxesAndLights(time);
-//	demoRotatingBoxes(time);
+	}
 
 	//Submit Scene to be drawn - TODO - SceneRenderer will manage /sort/ cull this process of drawing
 	_scene.render(App::getRenderer());
@@ -229,8 +238,8 @@ void ExampleApp::demoMovingBoxesAndLights(float time)
 	glm::vec3 position;
 	int i = 0;
 	float t;
-	float amp = 1;
-	float speed = 0.015;
+	float amp = 10;
+	float speed = 0.025;
 
 	for (i = 0; i < BOX_COUNT; i++)
 	{
@@ -243,9 +252,9 @@ void ExampleApp::demoMovingBoxesAndLights(float time)
 		};
 
 
-		yaw =   time *  (speed + 0.58);
-		pitch = time *  (speed + 0.25);
-		roll =  time *  (speed + 0.50);
+		yaw =   time *  (speed + 0.0158) + position.x;
+		pitch = time *  (speed + 0.0125) + position.y;
+		roll =  time *  (speed + 0.0150) + position.z;
 		glm::mat4 transform = glm::mat4(1);
 		transform = glm::translate(transform, position);
 		transform = glm::rotate(transform, yaw, up);
@@ -257,14 +266,14 @@ void ExampleApp::demoMovingBoxesAndLights(float time)
 
 	}
 
-	amp = 5;
-	speed = 2;
+	amp = 15;
+	speed = 0.04;
 	for (i = 0; i < LIGHT_COUNT; i++)
 	{
 		t = (float)i / (float)(LIGHT_COUNT) * 360.0f * 3.14156f / 180.0f;
 		position = {
 			cos(t + time * speed) * amp ,
-			0, //sin(t + time * speed) * cos(t * p + time * speed) * amp ,
+			sin(t + time * speed) * cos(t + time * speed) * amp ,
 			sin(t + time * speed) * amp
 		};
 		_pointLights[i]->setPosition(position);
@@ -275,48 +284,40 @@ void ExampleApp::demoMovingBoxesAndLights(float time)
 
 void ExampleApp::demoRotatingBoxes(float time)
 {
-	float yaw=0, pitch=0, roll=0;
-	int i = 0;
-	float speed = .599995;
-	float amp = 5;
-	glm::vec3 position = { 0, 0, 0.0 };
+	float yaw = 0;
 	const glm::vec3 up = { 0, 1, 0 };
-	const glm::vec3 forward = { 0, 0, 1 };
-	const glm::vec3 right = { 1, 0, 0 };
+	
+	glm::vec3 position;
+	int i = 0;
+	float t;
+	float amp = 1;
+	float speed = 0.25;
+
 	for (i = 0; i < BOX_COUNT; i++)
 	{
-		position.x  = (float)i / (float)(BOX_COUNT) * amp;
-		position.y =  (float)i / (float)(BOX_COUNT) * amp;
-		position.z =  (float)i / (float)(BOX_COUNT) * amp;
-
-		yaw =   time * speed;
-		//pitch = time * speed;
-		//roll =  time *  speed;
+		
+		position = { 0,0,0};
+		yaw = time * (speed ) ;
 		glm::mat4 transform = glm::mat4(1);
 		transform = glm::translate(transform, position);
 		transform = glm::rotate(transform, yaw, up);
-		transform = glm::rotate(transform, roll, forward);
-		transform = glm::rotate(transform, pitch, right);
-
-
+		
 		_boxMeshes[i]->setModel(transform);
 
 	}
-	amp = 10;
-	float p, t; //psi theta
+
+	amp = 5;
+	speed = 0.4;
 	for (i = 0; i < LIGHT_COUNT; i++)
 	{
 		t = (float)i / (float)(LIGHT_COUNT) * 360.0f * 3.14156f / 180.0f;
-		p = pow(t, 1.04);
 		position = {
-			cos(t) * sin(p) * amp,
-			sin(t) * cos(p) * amp,
-			cos(t) * amp
-			
+			cos(t + time * speed) * amp ,
+			sin(t + time * speed) * cos(t + time * speed) * amp ,
+			sin(t + time * speed) * amp
 		};
 		_pointLights[i]->setPosition(position);
 		_pointLightMeshes[i]->setModel(glm::translate(position));
 	}
-
 }
 

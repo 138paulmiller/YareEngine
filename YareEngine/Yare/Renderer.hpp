@@ -54,7 +54,7 @@ namespace yare {
 		
 		void (Renderer::*render)(const RenderPassCommand & passCommand);
 		//0-1 scalar that will scale the resolution of the target. low value higher perf
-		float sampleRate = 1.0;
+		float targetScalar = 1.0;
 	};
 
 	//Runs on its own thread 

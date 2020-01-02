@@ -18,9 +18,9 @@ namespace yare {
 		~OpenGLRenderTarget() ;		
 		void setup(const std::vector<RenderTargetAttachment>& attachments) override;
 		void resize(int width, int height) override;
-		void bind(RenderTargetMode mode = RenderTargetMode::ReadWrite) override;
+		void bind(RenderTargetMode mode = RenderTargetMode::ReadDraw) override;
 		void bindTextures(int offset = 0) override;
-		void unbind(RenderTargetMode mode = RenderTargetMode::ReadWrite) override;
+		void unbind(RenderTargetMode mode = RenderTargetMode::ReadDraw) override;
 		void unloadUniforms(UniformBlock& uniforms);
 		int getNumberOfAttachments() ;
 		void unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height);

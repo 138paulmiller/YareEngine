@@ -39,7 +39,7 @@ class ExampleApp : public App
  private:
 	float _elapsedTime = 0.f;
 	int _frames = 0;
-	const int _size = 10;
+	const int _size = 100;
 
 	// shader
 

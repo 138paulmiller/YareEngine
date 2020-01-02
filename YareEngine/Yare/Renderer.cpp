@@ -121,13 +121,13 @@ void Renderer::setupRenderPasses()
 	//Setup geometry pass
 	RenderPassCommand & geometryPass = _passes[(const int)RenderPass::Geometry];
 	geometryPass.render = &Renderer::renderGeometryPass;
-	geometryPass.sampleRate = 1.0;
+	geometryPass.targetScalar = 1.0;
 	geometryPass.target = gbuffer;
 
-	
+	float bufferResolution = 1.0 / 2.0;
 	//Setup lighting pass
 	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
-	lightingPass.sampleRate = 1.0 / 5.0;
+	lightingPass.targetScalar = bufferResolution;
 
 	lightingPass.render = &Renderer::renderLightingPass;
 	lightingPass.inputs = { geometryPass.target };//default framebuffer;
@@ -135,7 +135,7 @@ void Renderer::setupRenderPasses()
 
 	//Setup forward pass
 	RenderPassCommand & forwardPass = _passes[(const int)RenderPass::Forward];
-	forwardPass.sampleRate = 1.0 / 5.0;
+	forwardPass.targetScalar = bufferResolution;
 
 	forwardPass.render = &Renderer::renderForwardPass;
 	forwardPass.inputs = { geometryPass.target };//uses gbuffers depth buffer 
@@ -168,7 +168,7 @@ void Renderer::renderPass(RenderPass pass)
 		int w = _width ;
 		int h = _height;
 		if (passCommand.target->getWidth() != w || passCommand.target->getHeight() != h) {
-			passCommand.target->resize(w * passCommand.sampleRate, h * passCommand.sampleRate);
+			passCommand.target->resize(w * passCommand.targetScalar, h * passCommand.targetScalar);
 		}								  
 		passCommand.target->bind();
 		resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
@@ -284,7 +284,7 @@ void  Renderer::renderColor()
 	this->clear(RenderBufferFlag::Color);
 
 	RenderTarget* target = 0;//defail;t framebuffer
-	float sampleRate = _passes[(int)RenderPass::Forward].sampleRate;
+	float sampleRate = _passes[(int)RenderPass::Forward].targetScalar;
 	RenderTarget* input = _passes[(int)RenderPass::Forward].target;
 	//target rect
 	int x = 0, y = 0;
