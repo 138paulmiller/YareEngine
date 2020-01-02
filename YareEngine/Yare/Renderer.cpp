@@ -241,10 +241,6 @@ void  Renderer::renderLightingPass(const RenderPassCommand & pass)
 	this->clear(RenderBufferFlag::Depth);
 	this->clear(RenderBufferFlag::Color);
 
-	RenderState layersState; //default state
-	layersState.cullFace = RenderCullFace::Back;
-	layersState.depthFunc = RenderTestFunc::Disabled; 
-	updateState(layersState);
 
 	Layer * _layer = new Layer();
 
@@ -264,12 +260,8 @@ void  Renderer::renderLightingPass(const RenderPassCommand & pass)
 void  Renderer::renderForwardPass(const RenderPassCommand & pass)
 {
 	//pass the inputs depth buffer to the targets
-	//color 
 	RenderTarget * input = pass.inputs[0];
-	RenderState layersState; //default state
-	updateState(layersState);
 
-	//TODO - do not believe this is copying over correctly
 	input->unloadAttachment(pass.target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, _width, _height);
 
 	renderCommands(pass.commands);
