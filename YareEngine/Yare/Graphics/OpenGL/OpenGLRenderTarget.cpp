@@ -144,6 +144,7 @@ namespace yare {
 					glFramebufferTexture2D(GL_FRAMEBUFFER, target, GL_TEXTURE_2D, _buffers[i].texture, 0);
 
 					OpenGLCheckError();
+					
 
 				}
 			}
@@ -256,6 +257,7 @@ namespace yare {
 		
 		void OpenGLRenderTarget::unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height)
 		{
+			int filter = source == RenderTargetAttachment::Depth ? GL_NEAREST: GL_LINEAR;
 			int bufferMask = source == RenderTargetAttachment::Depth ? GL_DEPTH_BUFFER_BIT : GL_COLOR_BUFFER_BIT;
 			bind(RenderTargetMode::Read);
 			glReadBuffer(GetOpenGLAttachment(source));
@@ -264,7 +266,7 @@ namespace yare {
 				if(source != RenderTargetAttachment::Depth)
 					glDrawBuffer(GetOpenGLAttachment(destination));
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff+ width, yoff+height,
-					bufferMask, GL_LINEAR);
+					bufferMask, filter);
 			}
 			else
 			{
@@ -274,7 +276,7 @@ namespace yare {
 					glDrawBuffer(GetOpenGLAttachment(destination));
 
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
-					bufferMask, GL_LINEAR);
+					bufferMask, filter);
 			}
 
 		}

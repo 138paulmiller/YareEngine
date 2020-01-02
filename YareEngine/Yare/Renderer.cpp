@@ -115,7 +115,7 @@ void Renderer::setupRenderPasses()
 		}
 	);
 	_targets.push_back(color);
-
+	//color = 0;
 
 
 	//Setup geometry pass
@@ -170,12 +170,11 @@ void Renderer::renderPass(RenderPass pass)
 		if (passCommand.target->getWidth() != w || passCommand.target->getHeight() != h) {
 			passCommand.target->resize(w * passCommand.sampleRate, h * passCommand.sampleRate);
 		}								  
+		passCommand.target->bind();
 		resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
 
 	}
 
-	if (passCommand.target)
-		passCommand.target->bind();
 
 	//render
 	if(passCommand.render)
@@ -239,9 +238,9 @@ void  Renderer::renderLightingPass(const RenderPassCommand & pass)
 {
 
 	//TODO _ _ This render skybox is uncommented>
-	/*this->clear(RenderBufferFlag::Depth);
+	this->clear(RenderBufferFlag::Depth);
 	this->clear(RenderBufferFlag::Color);
-*/
+
 	RenderState layersState; //default state
 	layersState.cullFace = RenderCullFace::Back;
 	layersState.depthFunc = RenderTestFunc::Disabled; 
@@ -271,7 +270,7 @@ void  Renderer::renderForwardPass(const RenderPassCommand & pass)
 	updateState(layersState);
 
 	//TODO - do not believe this is copying over correctly
-	input->unloadAttachment(pass.target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, pass.target->getWidth(), pass.target->getHeight());
+	input->unloadAttachment(pass.target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, _width, _height);
 
 	renderCommands(pass.commands);
 
@@ -291,10 +290,10 @@ void  Renderer::renderColor()
 	int x = 0, y = 0;
 	int width = _width / sampleRate, height  = _height / sampleRate;
 	
-//	RenderTargetAttachment src = RenderTargetAttachment::Position;
 	RenderTargetAttachment src = RenderTargetAttachment::Diffuse;
-	RenderTargetAttachment dest = RenderTargetAttachment::Diffuse;
+	RenderTargetAttachment dest = RenderTargetAttachment::Position; //
 	//copy color buffer target
+	if(input)
 	//input->unloadAttachment(target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, width, height);
 	input->unloadAttachment(target, src, dest, x, y, width, height);
 

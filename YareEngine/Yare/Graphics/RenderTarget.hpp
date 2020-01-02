@@ -20,14 +20,15 @@ namespace yare {
 		Diffuse, //RGBA floating
 		Specular, //RGBA floating
 		Emissive, //RGBA floating
-		Depth, //
+		Depth, // TODO - Do not use internal depth buffer write to depth on geom pass. 
+		//use depth pass to write this texture to depth instead of blitting to it
 		Stencil, //
 		Count
 	};
 
 	enum class RenderTargetMode
 	{
-		ReadWrite =0, 
+		ReadDraw =0, 
 		Read,//read from target 
 		Draw //draw to target
 	};
@@ -45,8 +46,8 @@ namespace yare {
 		virtual void unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height ) = 0;
 		//read attachment into texture
 		virtual void read(RenderTargetAttachment attachment, TexturePixels & pixel) = 0;
-		virtual void bind(RenderTargetMode mode = RenderTargetMode::ReadWrite) = 0;
-		virtual void unbind(RenderTargetMode mode = RenderTargetMode::ReadWrite) = 0;
+		virtual void bind(RenderTargetMode mode = RenderTargetMode::ReadDraw) = 0;
+		virtual void unbind(RenderTargetMode mode = RenderTargetMode::ReadDraw) = 0;
 		virtual void bindTextures(int offset=0) = 0; //int is the texture unit offset
 		virtual void unloadUniforms(UniformBlock& uniforms)= 0 ;
 		virtual void resize(int width, int height) { _width = width; _height = height; };

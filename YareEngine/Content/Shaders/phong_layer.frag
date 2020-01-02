@@ -27,6 +27,7 @@ uniform DirectionalLight dir_lights[DIRECTIONAL_LIGHT_COUNT];
 
 uniform sampler2D position;
 uniform sampler2D normal;
+uniform sampler2D depth;
 uniform sampler2D diffuse;
 uniform sampler2D specular;
 uniform sampler2D emissive;
@@ -109,6 +110,5 @@ void main(void)
 
 	vec3 view_dir = normalize ( view_pos - out_position.xyz ) ;
 	out_diffuse = getColor(out_position, view_dir, out_normal);
-
 
 }
