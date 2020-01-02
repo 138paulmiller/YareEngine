@@ -122,9 +122,7 @@ namespace yare {
 		{
 			RenderTarget::resize(width, height);
 			bind();
-			//count number of used buffers to allocat
-			unsigned int* attachments = new unsigned int[_numUsed];
-			int j = 0;
+
 
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
@@ -134,9 +132,7 @@ namespace yare {
 				unsigned int target = GetOpenGLAttachment(attachment);
 				if (_buffers[i].used)
 				{
-					if (attachment != RenderTargetAttachment::Depth) {
-						attachments[j++] = target;
-					}
+
 					glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
 
 					glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_FLOAT, NULL);
@@ -155,7 +151,6 @@ namespace yare {
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilbuffer);
 			OpenGLCheckError();
 
-			glDrawBuffers(_numUsed, attachments);
 			OpenGLCheckError();
 			//attach it to the framebuffer
 
@@ -167,9 +162,12 @@ namespace yare {
 
 			unbind();
 		}
-
+		//https://stackoverflow.com/questions/51030120/concept-what-is-the-use-of-gldrawbuffer-and-gldrawbuffers
 		void OpenGLRenderTarget::setup(const std::vector<RenderTargetAttachment>& attachments)
 		{
+
+			unsigned int* layout = new unsigned int[attachments.size()];
+			int attachmentPoint = 0;
 			bind();
 			for (const RenderTargetAttachment & attachment : attachments)
 			{
@@ -179,6 +177,10 @@ namespace yare {
 				{
 					std::cout << "Error: Buffer Already Used!";
 					return;
+				}
+				unsigned int target = GetOpenGLAttachment(attachment);
+				if (attachment != RenderTargetAttachment::Depth) {
+					layout[attachmentPoint++] = target;
 				}
 				//create texture
 				buffer.used = true;
@@ -193,8 +195,13 @@ namespace yare {
 				OpenGLCheckError();
 
 			}
+			//setup draw buffer
+			//count number of used buffers to allocat
+			glDrawBuffers(getNumberOfAttachments(), layout);
+
 			unbind();
-			getNumberOfAttachments();
+
+			delete layout;
 
 		}
 		void OpenGLRenderTarget::bind(RenderTargetMode mode )

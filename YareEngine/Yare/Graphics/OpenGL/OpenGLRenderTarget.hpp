@@ -24,13 +24,15 @@ namespace yare {
 		void unloadUniforms(UniformBlock& uniforms);
 		int getNumberOfAttachments() ;
 		void unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height);
-
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
+	
+
 	private:
 		
 		//
 		struct OpenGLRenderBuffer
 		{
+			int unit; //attachment point = color_attachment+unit. matches that layout in glsl
 			bool used;
 			unsigned int texture; //handle
 		};
