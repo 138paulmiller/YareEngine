@@ -52,7 +52,7 @@ namespace yare {
 				case RenderTargetAttachment::Normal:
 					return GL_COLOR_ATTACHMENT0 + (int)attachment;
 				case RenderTargetAttachment::Depth:
-					return GL_DEPTH_ATTACHMENT;
+					return GL_DEPTH_STENCIL_ATTACHMENT;
 				}
 			}
 			unsigned int GetOpenGLAttachmentFormat(RenderTargetAttachment attachment)
@@ -67,7 +67,7 @@ namespace yare {
 				case RenderTargetAttachment::Normal:
 					return GL_RGB;
 				case RenderTargetAttachment::Depth:
-					return GL_DEPTH_COMPONENT;
+					return GL_DEPTH24_STENCIL8;
 				}
 			}
 			unsigned int GetOpenGLAttachmentInternalFormat(RenderTargetAttachment attachment)
@@ -82,7 +82,7 @@ namespace yare {
 				case RenderTargetAttachment::Normal:
 					return GL_RGB;
 				case RenderTargetAttachment::Depth:
-					return GL_DEPTH_COMPONENT24;
+					return GL_DEPTH24_STENCIL8;
 
 				}
 			}
