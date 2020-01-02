@@ -26,9 +26,9 @@ namespace yare {
 		void unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height);
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
 	
-
 	private:
-		
+		int getAttachmentUnit(RenderTargetAttachment attachment);
+
 		//
 		struct OpenGLRenderBuffer
 		{

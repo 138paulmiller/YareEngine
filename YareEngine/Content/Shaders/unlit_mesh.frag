@@ -10,12 +10,8 @@ in vec4 view_pos;
 uniform struct Material {
     vec3 base;
 } material;
-layout(location = 0) out vec3 out_position;
-layout(location = 1) out vec3 out_normal;
-layout(location = 2) out vec4 out_diffuse;
+layout(location = 0) out vec4 out_scene;
 void main(void)
 {    
-	out_position = frag_pos.xyz;
-	out_normal   = frag_normal;
-	out_diffuse =  vec4(material.base,1);
+	out_scene =  vec4(material.base,1);
 }

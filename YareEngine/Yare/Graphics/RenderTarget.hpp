@@ -14,8 +14,8 @@ namespace yare {
 	//What buffer will write to the target texture 
 	enum class RenderTargetAttachment
 	{
-		//Scene =0, //Scene Color 
-		Position= 0,  //Uses RGB floating bit point
+		Scene =0, //Scene Color 
+		Position,  //Uses RGB floating bit point
 		Normal,  //Uses RGB 
 		Diffuse, //RGBA floating
 		Specular, //RGBA floating

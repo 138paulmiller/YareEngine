@@ -40,6 +40,8 @@ namespace yare {
 		Lighting,
 		//SSAO,
 		Forward,
+		Scene,
+		//post process here
 		Count 
 	};
 
@@ -95,16 +97,19 @@ namespace yare {
 		//returns target that was rendered to
 		void setupRenderPasses();
 		void renderPass(RenderPass pass);
+		//renders lit objects to gbuffer
 		void renderGeometryPass(const RenderPassCommand & pass);
+		//uses gbuffer to render lit scene to scene buffer
 		void renderLightingPass(const RenderPassCommand & pass);
+		//renders color directly to lit scene
 		void renderForwardPass(const RenderPassCommand & pass);
 		
-		
-		void renderColor();
+		//renders the scene colors
+		void renderScenePass(const RenderPassCommand& pass);
 		
 		RenderPassCommand _passes[(const int)RenderPass::Count];
 		//Each pass will read from this queue
-		using RenderBuffers = std::vector<RenderTarget *>;
+		using RenderBuffers = std::unordered_map<std::string, RenderTarget *>;
 		RenderBuffers _targets;
 
 		std::stack<RenderState> _stateStack;

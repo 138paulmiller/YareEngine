@@ -41,16 +41,18 @@ namespace yare {
 		}
 		namespace 
 		{
-			unsigned int GetOpenGLAttachment(RenderTargetAttachment attachment)
+
+			unsigned int GetOpenGLAttachment(RenderTargetAttachment attachment, int unit)
 			{
 				switch (attachment)
 				{
+				case RenderTargetAttachment::Scene:
 				case RenderTargetAttachment::Diffuse:
 				case RenderTargetAttachment::Specular:
 				case RenderTargetAttachment::Emissive:
 				case RenderTargetAttachment::Position:
 				case RenderTargetAttachment::Normal:
-					return GL_COLOR_ATTACHMENT0 + (int)attachment;
+					return GL_COLOR_ATTACHMENT0 + unit;
 				case RenderTargetAttachment::Depth:
 					return GL_DEPTH_STENCIL_ATTACHMENT;
 				}
@@ -59,6 +61,8 @@ namespace yare {
 			{
 				switch (attachment)
 				{
+
+				case RenderTargetAttachment::Scene:
 				case RenderTargetAttachment::Diffuse:
 				case RenderTargetAttachment::Specular:
 				case RenderTargetAttachment::Emissive:
@@ -74,6 +78,8 @@ namespace yare {
 			{
 				switch (attachment)
 				{
+
+				case RenderTargetAttachment::Scene:
 				case RenderTargetAttachment::Diffuse:
 				case RenderTargetAttachment::Specular:
 				case RenderTargetAttachment::Emissive:
@@ -90,6 +96,9 @@ namespace yare {
 			{
 				switch (attachment)
 				{
+
+				case RenderTargetAttachment::Scene:
+					return "scene";
 				case RenderTargetAttachment::Diffuse:
 					return "diffuse";
 				case RenderTargetAttachment::Specular:
@@ -129,10 +138,10 @@ namespace yare {
 				RenderTargetAttachment attachment = RenderTargetAttachment(i);
 				unsigned int internalFormat = GetOpenGLAttachmentInternalFormat(attachment);
 				unsigned int format = GetOpenGLAttachmentFormat(attachment);
-				unsigned int target = GetOpenGLAttachment(attachment);
 				if (_buffers[i].used)
 				{
 
+					unsigned int target = GetOpenGLAttachment(attachment, _buffers[i].unit);
 					glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
 
 					glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_FLOAT, NULL);
@@ -167,7 +176,7 @@ namespace yare {
 		{
 
 			unsigned int* layout = new unsigned int[attachments.size()];
-			int attachmentPoint = 0;
+			int unit = 0;
 			bind();
 			for (const RenderTargetAttachment & attachment : attachments)
 			{
@@ -178,13 +187,14 @@ namespace yare {
 					std::cout << "Error: Buffer Already Used!";
 					return;
 				}
-				unsigned int target = GetOpenGLAttachment(attachment);
 				if (attachment != RenderTargetAttachment::Depth) {
-					layout[attachmentPoint++] = target;
+					unsigned int target = GetOpenGLAttachment(attachment, unit);
+					layout[unit] = target;
 				}
 				//create texture
 				buffer.used = true;
-
+				buffer.unit = unit;
+				unit++;
 				glGenTextures(1, &buffer.texture);
 				glBindTexture(GL_TEXTURE_2D, buffer.texture);
 
@@ -198,10 +208,10 @@ namespace yare {
 			//setup draw buffer
 			//count number of used buffers to allocat
 			glDrawBuffers(getNumberOfAttachments(), layout);
+			delete[]layout;
 
 			unbind();
 
-			delete layout;
 
 		}
 		void OpenGLRenderTarget::bind(RenderTargetMode mode )
@@ -241,7 +251,7 @@ namespace yare {
 			{
 				if (_buffers[i].used)
 				{
-					glActiveTexture(GL_TEXTURE0+unit++);
+					glActiveTexture(GL_TEXTURE0+ _buffers[i].unit+offset);
 					glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
 					OpenGLCheckError();
 				}
@@ -256,22 +266,34 @@ namespace yare {
 				RenderTargetAttachment attachment = RenderTargetAttachment(i);
 				if (_buffers[i].used)
 				{
-					uniforms.setUniform(RenderTargetAttachmentUniformName(attachment), j++);
+					uniforms.setUniform(RenderTargetAttachmentUniformName(attachment), _buffers[i].unit);
 
 				}
 			}
 		}
-		
+		int OpenGLRenderTarget::getAttachmentUnit(RenderTargetAttachment attachment)
+		{
+			return GetOpenGLAttachment(attachment, _buffers[(int)attachment].unit);
+
+		}
 		void OpenGLRenderTarget::unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height)
 		{
+			int srcUnit = _buffers[(int)source].unit;
+			int destUnit = 0;
+			OpenGLRenderTarget* openglTarget = dynamic_cast<OpenGLRenderTarget*>(target);
+			if (openglTarget )
+			{
+				destUnit = openglTarget->_buffers[(int)destination].unit;
+			}
+
 			int filter = source == RenderTargetAttachment::Depth ? GL_NEAREST: GL_LINEAR;
 			int bufferMask = source == RenderTargetAttachment::Depth ? GL_DEPTH_BUFFER_BIT : GL_COLOR_BUFFER_BIT;
 			bind(RenderTargetMode::Read);
-			glReadBuffer(GetOpenGLAttachment(source));
+			glReadBuffer(GetOpenGLAttachment(source, srcUnit));
 			if (target) {
 				target->bind(RenderTargetMode::Draw);
 				if(source != RenderTargetAttachment::Depth)
-					glDrawBuffer(GetOpenGLAttachment(destination));
+					glDrawBuffer(GetOpenGLAttachment(destination, destUnit));
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff+ width, yoff+height,
 					bufferMask, filter);
 			}
@@ -280,7 +302,7 @@ namespace yare {
 				//bind to default
 				unbind(RenderTargetMode::Draw);
 				if (source != RenderTargetAttachment::Depth)
-					glDrawBuffer(GetOpenGLAttachment(destination));
+					glDrawBuffer(GetOpenGLAttachment(destination, destUnit));
 
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
 					bufferMask, filter);
