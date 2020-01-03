@@ -109,16 +109,16 @@ void OpenGLRenderer::updateState(const RenderState & state)
 
 void OpenGLRenderer::clear(RenderBufferFlag mask) 
 {
-
-	switch (mask)
+	int glmask = 0;
+	if(  (int)(mask & RenderBufferFlag::Color) )
 	{
-	case RenderBufferFlag::Color:
-		glClear(GL_COLOR_BUFFER_BIT);
-	break;
-	case RenderBufferFlag::Depth:
-		glClear(GL_DEPTH_BUFFER_BIT);
-	break;
+		glmask |= GL_COLOR_BUFFER_BIT;
 	}
+	if ((int)(mask & RenderBufferFlag::Depth))
+	{
+		glmask |= GL_DEPTH_BUFFER_BIT;
+	}
+	glClear(glmask);
 }
 
 } } 

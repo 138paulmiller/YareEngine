@@ -31,6 +31,9 @@ namespace yare {
 		Color = 0b000001, 
 		Depth = 0b000010,
 	};
+																													   
+	RenderBufferFlag operator|(RenderBufferFlag l, RenderBufferFlag r);
+	RenderBufferFlag operator&(RenderBufferFlag l, RenderBufferFlag r);
 
 	enum class RenderPass
 	{
@@ -51,7 +54,7 @@ namespace yare {
 		//Each Pass
 		std::vector<RenderCommand * > commands;
 		RenderTarget * target;
-		//layer can also have input targets, just bind all the textures for input
+		//layer can also have input targets, just bind all the textures for input. Multiple inputs not tested yet
 		std::vector<RenderTarget *> inputs;
 		
 		void (Renderer::*render)(const RenderPassCommand & passCommand);
@@ -88,31 +91,44 @@ namespace yare {
 	protected:
 		virtual void updateState(const RenderState & state) = 0;
 		void renderCommands(const std::vector<RenderCommand * > & commands);
+		void renderLayer(Layer* layer, const std::vector<RenderTarget*> & inputs, RenderTarget* target);
 
 		/*
 			cached config state. render command only updates if different
 		*/
 	private:
-		//The varying render passes
-		//returns target that was rendered to
+
 		void setupRenderPasses();
+		//		
+		RenderPassCommand _passes[(const int)RenderPass::Count];
+
+		//Renders the given pass, binds and resizes target and calls the appropriate method below
 		void renderPass(RenderPass pass);
 		//renders lit objects to gbuffer
-		void renderGeometryPass(const RenderPassCommand & pass);
+		void renderPassGeometry(const RenderPassCommand & pass);
 		//uses gbuffer to render lit scene to scene buffer
-		void renderLightingPass(const RenderPassCommand & pass);
+		void renderPassLighting(const RenderPassCommand & pass);
 		//renders color directly to lit scene
-		void renderForwardPass(const RenderPassCommand & pass);
-		
+		void renderPassForward(const RenderPassCommand & pass);		
 		//renders the scene colors
-		void renderScenePass(const RenderPassCommand& pass);
+		void renderPassScene(const RenderPassCommand& pass);
 		
-		RenderPassCommand _passes[(const int)RenderPass::Count];
-		//Each pass will read from this queue
-		using RenderBuffers = std::unordered_map<std::string, RenderTarget *>;
-		RenderBuffers _targets;
 
-		std::stack<RenderState> _stateStack;
+		void setupTargets();
+		//The target buffers that each pass will render to or read from
+		using RenderTargetMap = std::unordered_map<std::string, RenderTarget *>;
+		RenderTargetMap _targets;
+
+		//Default render layers. Config should enable or disable their use in the various passes
+		void setupLayers();
+		using LayerMap = std::unordered_map<std::string, Layer*>;
+
+		LayerMap _layers;
+
+
+		//void addEffect(Layer * layer);
+		//User defined post process effects whose outputs are chained into next input
+		//std::vector<Layer*> _effects;
 
 
 		//current environment map. Rendered to in deferred pass. and used for reflection/refractions in transparency 
@@ -123,6 +139,8 @@ namespace yare {
 			//Cached for begin/end blocks
 			Scene * scene; //current scene 
 		} _cache;
+
+		std::stack<RenderState> _stateStack;
 
 		//todo : create viewport  class
 		int _width, _height;

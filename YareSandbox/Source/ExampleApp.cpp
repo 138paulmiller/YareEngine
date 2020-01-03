@@ -85,9 +85,6 @@ ExampleApp::ExampleApp()
 
 void ExampleApp::onEnter()
 {
-	//Load default engine assets
-	AssetManager::GetInstance().loadEngineContent();
-
 
 	//Create an instance of the phong material. To be shared among meshes
 

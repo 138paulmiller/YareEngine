@@ -7,7 +7,7 @@
 #include <iostream>
 #include <stdexcept>
 
-
+#include "AssetManager.hpp"
 #include "Graphics/OpenGL/OpenGLError.hpp"
 namespace yare
 {
@@ -54,6 +54,9 @@ App::App(const AppConfig & config)
 	std::cout << "Renderer: " << renderer << std::endl;
 	std::cout << "OpenGL version supported " << version << std::endl;
 
+	//Load default engine assets
+	AssetManager::GetInstance().loadEngineContent();
+
 
 	_renderer = Renderer::Create(config.renderAPI);
 
@@ -84,7 +87,6 @@ float App::getTime() const {
 }
 
 void App::run() {
-
 
 	onEnter();
 

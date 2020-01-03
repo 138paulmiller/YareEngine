@@ -9,6 +9,11 @@
 #include "Graphics/OpenGL/OpenGLError.hpp"
 namespace yare { 
 
+
+RenderBufferFlag operator|(RenderBufferFlag l, RenderBufferFlag r) { return RenderBufferFlag((int)l | (int)r); }
+RenderBufferFlag operator&(RenderBufferFlag l, RenderBufferFlag r) { return RenderBufferFlag((int)l & (int)r); }
+
+
 Renderer* Renderer::Create(RenderAPI api)
 {
 	Graphics::Setup(api);
@@ -33,11 +38,17 @@ Renderer::Renderer()
 {
 	_width = _height = 0;
 	_cache.scene = 0;
+	setupLayers();
+	setupTargets();
 	setupRenderPasses();
 }
 Renderer::~Renderer()
 {
-	for (RenderBuffers::iterator it = _targets.begin();it != _targets.end(); it++) {
+	for (RenderTargetMap::iterator it = _targets.begin();it != _targets.end(); it++) {
+		delete it->second;
+		it->second;
+	}
+	for (LayerMap::iterator it = _layers.begin(); it != _layers.end(); it++) {
 		delete it->second;
 		it->second;
 	}
@@ -88,121 +99,20 @@ void Renderer::end()
 }
 
 
-
-void Renderer::setupRenderPasses()
+void Renderer::renderLayer(Layer * layer, const std::vector<RenderTarget*>& inputs, RenderTarget* target)
 {
-	for (int i = 0; i < (const int)RenderPass::Count; i++) {
-		_passes[i].target = 0;
-	}
-
-	RenderTarget * gbuffer = RenderTarget::Create();
-	gbuffer->setup({
-		RenderTargetAttachment::Position,
-		RenderTargetAttachment::Normal,
-		RenderTargetAttachment::Diffuse,
-		RenderTargetAttachment::Specular,
-		RenderTargetAttachment::Emissive,
-		//should use depth
-
-		}
-	);
-	//glsl must write to scene
-	RenderTarget* scene = RenderTarget::Create();
-	scene->setup({
-		RenderTargetAttachment::Scene,
-		//should use depth
-		}
-	);
-
-	_targets["gbuffer"] = gbuffer;
-	_targets["scene"] = scene;
-
-
-	//Setup geometry pass
-	RenderPassCommand & geometryPass = _passes[(const int)RenderPass::Geometry];
-	geometryPass.render = &Renderer::renderGeometryPass;
-	geometryPass.targetScalar = 1.0;
-	geometryPass.target = gbuffer;
-
-	float sceneBufferScalar = 1.0 / 2.0;
-	//Setup lighting pass
-	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
-	lightingPass.targetScalar = sceneBufferScalar;
-
-	lightingPass.render = &Renderer::renderLightingPass;
-	lightingPass.inputs = { geometryPass.target };//default framebuffer;
-	lightingPass.target = scene;
-	
-	//Setup forward pass
-	RenderPassCommand & forwardPass = _passes[(const int)RenderPass::Forward];
-	forwardPass.targetScalar = sceneBufferScalar;
-
-	forwardPass.render = &Renderer::renderForwardPass;
-	forwardPass.inputs = { geometryPass.target };//uses gbuffers depth buffer 
-	forwardPass.target = scene;
-
-	//Setup forward pass
-	RenderPassCommand& scenePass = _passes[(const int)RenderPass::Scene];
-	scenePass.targetScalar = sceneBufferScalar;
-
-	scenePass.render = &Renderer::renderScenePass;
-	scenePass.inputs = { scene };//uses gbuffers depth buffer 
-	scenePass.target = 0;//uses gbuffers depth buffer 
-
-
-}
-
-//Enable forward rendering, for all unlit, render these to the screen unlit.
-//the render deferred passes 
-void Renderer::render()
-{
-	
-	renderPass(RenderPass::Geometry);
-	renderPass(RenderPass::Lighting);
-	renderPass(RenderPass::Forward);
-
-	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
-	renderPass(RenderPass::Scene);
-	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
-	for(int i = 0; i < (const int)RenderPass::Count; i++)
-		_passes[i].commands.clear();
-
+	_cache.scene->unloadUniforms(layer->getUniforms());
+	layer->getInputs().clear();
+	layer->getInputs().insert(layer->getInputs().begin(), inputs.begin(), inputs.end());
+	layer->setTarget(target);
+	layer->render(this);
 }
 
 
-void Renderer::renderPass(RenderPass pass)
-{
-	RenderPassCommand & passCommand = _passes[(int)pass];
-	//Resize target to match desired dimensions
-	if (passCommand.target) {
-		//bind the target to render to
-		int w = _width ;
-		int h = _height;
-		if (passCommand.target->getWidth() != w || passCommand.target->getHeight() != h) {
-			passCommand.target->resize(w * passCommand.targetScalar, h * passCommand.targetScalar);
-		}								  
-		passCommand.target->bind();
-		resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
-
-	}
-
-	//render
-	if(passCommand.render)
-	(this->* (passCommand.render) )(passCommand);
-
-	if (passCommand.target)
-		passCommand.target->unbind();
-
-
-	//unbind the rendered target
-	resizeViewport(_width, _height);
-}
-
-
-void Renderer::renderCommands(const std::vector<RenderCommand * > & commands)
+void Renderer::renderCommands(const std::vector<RenderCommand* >& commands)
 {
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
-	for (const RenderCommand * command : commands)
+	for (const RenderCommand* command : commands)
 	{
 		updateState(command->state);
 
@@ -233,45 +143,143 @@ void Renderer::renderCommands(const std::vector<RenderCommand * > & commands)
 	}
 }
 
-void Renderer::renderGeometryPass(const RenderPassCommand & pass)
+void Renderer::setupTargets()
 {
+	RenderTarget* gbuffer = RenderTarget::Create();
+	gbuffer->setup({
+		RenderTargetAttachment::Position,
+		RenderTargetAttachment::Normal,
+		RenderTargetAttachment::Diffuse,
+		RenderTargetAttachment::Specular,
+		RenderTargetAttachment::Emissive,
+		//should use depth
 
-	this->clear(RenderBufferFlag::Color);
-	this->clear(RenderBufferFlag::Depth);
-	renderCommands(pass.commands);
+		}
+	);
+	//glsl must write to scene
+	RenderTarget* scene = RenderTarget::Create();
+	scene->setup({
+		RenderTargetAttachment::Scene,
+		//should use depth
+		}
+	);
+
+	_targets["gbuffer"] = gbuffer;
+	_targets["scene"] = scene;
+
+}
+void Renderer::setupLayers()
+{
+	Layer* phongLayer = new Layer();
+	phongLayer->setShader(AssetManager::GetInstance().get<Shader>("phong_layer"));
+	phongLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
+	_layers["phong"] = phongLayer;
+}
+
+void Renderer::setupRenderPasses()
+{
+	for (int i = 0; i < (const int)RenderPass::Count; i++) {
+		_passes[i].target = 0;
+	}
+
+	//Setup geometry pass
+	RenderPassCommand & geometryPass = _passes[(const int)RenderPass::Geometry];
+	geometryPass.render = &Renderer::renderPassGeometry;
+	geometryPass.targetScalar = 1.0;
+	geometryPass.target = _targets["gbuffer"];
+
+	float sceneBufferScalar = 1.0 / 2.0;
+	//Setup lighting pass
+	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
+	lightingPass.targetScalar = sceneBufferScalar;
+
+	lightingPass.render = &Renderer::renderPassLighting;
+	lightingPass.inputs = { _targets["gbuffer"] };//default framebuffer;
+	lightingPass.target = _targets["scene"];
 	
+	//Setup forward pass
+	RenderPassCommand & forwardPass = _passes[(const int)RenderPass::Forward];
+	forwardPass.targetScalar = sceneBufferScalar;
+
+	forwardPass.render = &Renderer::renderPassForward;
+	forwardPass.inputs = { _targets["gbuffer"] };//uses gbuffers depth buffer 
+	forwardPass.target = _targets["scene"];
+
+	//Setup forward pass
+	RenderPassCommand& scenePass = _passes[(const int)RenderPass::Scene];
+	scenePass.targetScalar = sceneBufferScalar;
+
+	scenePass.render = &Renderer::renderPassScene;
+	scenePass.inputs = { _targets["scene"] };//uses gbuffers depth buffer 
+	scenePass.target = 0;//uses gbuffers depth buffer 
+
 
 }
-
-
-void  Renderer::renderLightingPass(const RenderPassCommand & pass)
+//Enable forward rendering, for all unlit, render these to the screen unlit.
+//the render deferred passes 
+void Renderer::render()
 {
 
-	//TODO _ _ This render skybox is uncommented>
-	this->clear(RenderBufferFlag::Depth);
-	this->clear(RenderBufferFlag::Color);
+	renderPass(RenderPass::Geometry);
+	renderPass(RenderPass::Lighting);
+	renderPass(RenderPass::Forward);
 
-
-	Layer * _layer = new Layer();
-
-	Shader * layerShader = AssetManager::GetInstance().get<Shader>("phong_layer");
-	_cache.scene->unloadUniforms(_layer->getUniforms());
-	_layer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
-	_layer->setShader(layerShader);
-	_layer->getInputs().clear();
-	_layer->getInputs().insert(_layer->getInputs().begin(), pass.inputs.begin(), pass.inputs.end());
-	_layer->setTarget(pass.target);
-	_layer->render(this);
-
-	delete _layer;
-
+	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
+	renderPass(RenderPass::Scene);
+	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
+	for (int i = 0; i < (const int)RenderPass::Count; i++)
+		_passes[i].commands.clear();
 
 }
-void  Renderer::renderForwardPass(const RenderPassCommand & pass)
+
+
+void Renderer::renderPass(RenderPass pass)
+{
+	RenderPassCommand& passCommand = _passes[(int)pass];
+	//Resize target to match desired dimensions
+	if (passCommand.target) {
+		//bind the target to render to
+		int w = _width;
+		int h = _height;
+		if (passCommand.target->getWidth() != w || passCommand.target->getHeight() != h) {
+			passCommand.target->resize(w * passCommand.targetScalar, h * passCommand.targetScalar);
+		}
+		passCommand.target->bind();
+		resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
+
+	}
+
+	//render
+	if (passCommand.render)
+		(this->* (passCommand.render))(passCommand);
+
+	if (passCommand.target)
+		passCommand.target->unbind();
+
+
+	//unbind the rendered target
+	resizeViewport(_width, _height);
+}
+
+void Renderer::renderPassGeometry(const RenderPassCommand & pass)
+{
+	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
+
+	renderCommands(pass.commands);	
+}
+
+
+void  Renderer::renderPassLighting(const RenderPassCommand & pass)
+{
+	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
+
+	renderLayer(_layers["phong"], pass.inputs, pass.target);
+}
+void  Renderer::renderPassForward(const RenderPassCommand & pass)
 {
 	//pass the inputs depth buffer to the targets
 	RenderTarget * input = pass.inputs[0];
-
+	//todo - write depth to texture, the render quad and wrtie to gl_FRragDepth
 	input->unloadAttachment(pass.target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, _width, _height);
 
 	renderCommands(pass.commands);
@@ -279,11 +287,10 @@ void  Renderer::renderForwardPass(const RenderPassCommand & pass)
 }
 
 
-void  Renderer::renderScenePass(const RenderPassCommand& pass)
+void  Renderer::renderPassScene(const RenderPassCommand& pass)
 {
 	//Rendering the scene doe nothing but load the Scene attachment to default framebuffers color attachment 0
-	this->clear(RenderBufferFlag::Depth);
-	this->clear(RenderBufferFlag::Color);
+	this->clear( RenderBufferFlag::Depth | RenderBufferFlag::Color);
 
 	float sampleRate = pass.targetScalar;
 	RenderTarget* input = pass.inputs[0];
@@ -296,7 +303,7 @@ void  Renderer::renderScenePass(const RenderPassCommand& pass)
 	RenderTargetAttachment dest = RenderTargetAttachment::Scene; //this is default attachment 0
 	//copy color buffer target
 	if(input)
-	input->unloadAttachment(pass.target, src, dest, x, y, width, height);
+		input->unloadAttachment(pass.target, src, dest, x, y, width, height);
 
 	
 	}
