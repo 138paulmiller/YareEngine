@@ -144,6 +144,11 @@ namespace yare {
 
 		std::stack<RenderState> _stateStack;
 
+		struct RenderSettings
+		{
+			bool debugGBuffer = true;
+		} _settings;
+
 		//todo : create viewport  class
 		int _width, _height;
 	};

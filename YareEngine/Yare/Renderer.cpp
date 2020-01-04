@@ -145,13 +145,14 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands)
 
 void Renderer::setupTargets()
 {
+
 	RenderTarget* gbuffer = RenderTarget::Create();
 	gbuffer->setup({
 		RenderTargetAttachment::Position,
 		RenderTargetAttachment::Normal,
 		RenderTargetAttachment::Diffuse,
 		RenderTargetAttachment::Specular,
-		RenderTargetAttachment::Emissive,
+		//RenderTargetAttachment::Emissive,
 		//should use depth
 
 		}
@@ -188,7 +189,8 @@ void Renderer::setupRenderPasses()
 	geometryPass.targetScalar = 1.0;
 	geometryPass.target = _targets["gbuffer"];
 
-	float sceneBufferScalar = 1.0 / 5.0; 
+	float sceneBufferScalar = 1.0 ; 
+	//float sceneBufferScalar = 1.0 / 5.0;
 	//Setup lighting pass
 	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
 	lightingPass.targetScalar = sceneBufferScalar;
@@ -229,7 +231,8 @@ void Renderer::render()
 	for (int i = 0; i < (const int)RenderPass::Count; i++)
 		_passes[i].commands.clear();
 
-	debugRenderTarget(_targets["gbuffer"]);
+	if(_settings.debugGBuffer)
+		debugRenderTarget(_targets["gbuffer"]);
 
 }
 
@@ -247,7 +250,7 @@ void Renderer::renderPass(RenderPass pass)
 		}
 		passCommand.target->bind();
 
-		//resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
+		resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
 
 	}
 
@@ -320,7 +323,7 @@ void Renderer::debugRenderTarget( RenderTarget* target)
 	std::vector<RenderTargetAttachment> attachments;
 	target->getAttachments(attachments);
 	//divide the screen for each quad
-	int square = sqrt(attachments.size())+1;
+	int square = floor(sqrt(attachments.size()))+1;
 	int x = 0, y = 0;
 	int w = _width / square;
 	int h = _height / square;
