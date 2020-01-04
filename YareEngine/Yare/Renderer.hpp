@@ -113,6 +113,8 @@ namespace yare {
 		//renders the scene colors
 		void renderPassScene(const RenderPassCommand& pass);
 		
+		//unloads all attachments toy default framebuffer
+		void debugRenderTarget(RenderTarget* target);
 
 		void setupTargets();
 		//The target buffers that each pass will render to or read from

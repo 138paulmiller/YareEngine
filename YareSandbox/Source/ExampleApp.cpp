@@ -90,6 +90,16 @@ void ExampleApp::onEnter()
 
 	Texture* diffuse = AssetManager::GetInstance().get<Texture>("container_diffuse");
 	Texture * specular = AssetManager::GetInstance().get<Texture>("container_specular");
+	
+	//All materials should set all textures as empty to default. Move this to texture class to get empty texture
+	Texture* empty = Texture::Create();
+	TexturePixels pixels = { 0, 0, 0};
+	pixels.height = pixels.height = 1;
+	pixels.format = TextureFormat::RGB8;
+	empty->update(TextureWrap::Repeat);
+	empty->load(pixels);
+	empty->generateMipMaps();
+
 
 	diffuse->update(TextureWrap::Repeat);
 	specular->update(TextureWrap::Repeat);
@@ -97,6 +107,7 @@ void ExampleApp::onEnter()
 	_phongMaterial.reset(new PhongMaterial());
 	_phongMaterial->setDiffuseTexture(diffuse);
 	_phongMaterial->setSpecularTexture(specular);
+	_phongMaterial->setEmissiveTexture(empty);
 	_phongMaterial->setShininess(2);
 
 	//Create an instance of the flat material. To be shared among meshes

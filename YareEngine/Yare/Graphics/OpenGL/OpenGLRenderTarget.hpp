@@ -21,8 +21,9 @@ namespace yare {
 		void bind(RenderTargetMode mode = RenderTargetMode::ReadDraw) override;
 		void bindTextures(int offset = 0) override;
 		void unbind(RenderTargetMode mode = RenderTargetMode::ReadDraw) override;
-		void unloadUniforms(UniformBlock& uniforms);
-		int getNumberOfAttachments() ;
+		void unloadUniforms(UniformBlock& uniforms) override;
+		void getAttachments(std::vector<RenderTargetAttachment>& attachments) const override;
+		int getNumberOfAttachments() const;
 		void unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height);
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
 	

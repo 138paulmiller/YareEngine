@@ -3,7 +3,7 @@
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
-    sampler2D emission;
+    sampler2D emissive;
     float     shininess;
 };
 
@@ -33,7 +33,8 @@ void main(void)
 	out_diffuse = texture(material.diffuse, frag_uv);
 	out_specular.rgb = texture(material.specular, frag_uv).rgb;
 	out_specular.a = material.shininess;
-	out_emissive = texture(material.emission, frag_uv);
+
+		out_emissive = texture(material.emissive, frag_uv);
 
 
 }

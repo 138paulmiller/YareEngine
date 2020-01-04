@@ -50,8 +50,10 @@ namespace yare {
 		virtual void unbind(RenderTargetMode mode = RenderTargetMode::ReadDraw) = 0;
 		virtual void bindTextures(int offset=0) = 0; //int is the texture unit offset
 		virtual void unloadUniforms(UniformBlock& uniforms)= 0 ;
+		virtual int getNumberOfAttachments() const = 0;
+		virtual void getAttachments(std::vector<RenderTargetAttachment>& attachments) const =0;
+
 		virtual void resize(int width, int height) { _width = width; _height = height; };
-		virtual int getNumberOfAttachments() = 0;
 		inline int getWidth() { return _width; }
 		inline int getHeight() { return _height; }
 

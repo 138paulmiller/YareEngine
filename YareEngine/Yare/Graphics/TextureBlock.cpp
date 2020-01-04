@@ -25,9 +25,11 @@ namespace yare {
 				texture = pair.second;
 				name = &pair.first;
 				//bind texture to unit i
-				texture->bind(i);
+				if (texture) {
+					texture->bind(i);
+					shader->setUniform(*name, i);
+				}
 				//set sampler to this unit
-				shader->setUniform(*name, i);
 				//next unit
 				i++;
 			}

@@ -188,7 +188,7 @@ void Renderer::setupRenderPasses()
 	geometryPass.targetScalar = 1.0;
 	geometryPass.target = _targets["gbuffer"];
 
-	float sceneBufferScalar = 1.0 / 2.0;
+	float sceneBufferScalar = 1.0 / 5.0; 
 	//Setup lighting pass
 	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
 	lightingPass.targetScalar = sceneBufferScalar;
@@ -223,12 +223,13 @@ void Renderer::render()
 	renderPass(RenderPass::Geometry);
 	renderPass(RenderPass::Lighting);
 	renderPass(RenderPass::Forward);
-
-	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
 	renderPass(RenderPass::Scene);
+	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
 	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
 	for (int i = 0; i < (const int)RenderPass::Count; i++)
 		_passes[i].commands.clear();
+
+	debugRenderTarget(_targets["gbuffer"]);
 
 }
 
@@ -245,7 +246,8 @@ void Renderer::renderPass(RenderPass pass)
 			passCommand.target->resize(w * passCommand.targetScalar, h * passCommand.targetScalar);
 		}
 		passCommand.target->bind();
-		resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
+
+		//resizeViewport(passCommand.target->getWidth(), passCommand.target->getHeight());
 
 	}
 
@@ -306,6 +308,36 @@ void  Renderer::renderPassScene(const RenderPassCommand& pass)
 		input->unloadAttachment(pass.target, src, dest, x, y, width, height);
 
 	
+}
+
+
+//unloads all attachments toy default framebuffer
+void Renderer::debugRenderTarget( RenderTarget* target)
+{
+	if (target == 0) return;
+	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
+
+	std::vector<RenderTargetAttachment> attachments;
+	target->getAttachments(attachments);
+	//divide the screen for each quad
+	int square = sqrt(attachments.size())+1;
+	int x = 0, y = 0;
+	int w = _width / square;
+	int h = _height / square;
+
+	RenderTargetAttachment dest = RenderTargetAttachment::Scene; //this is default color attachment 0
+	//copy color buffer target
+	for (RenderTargetAttachment attachment : attachments)
+	{
+		target->unloadAttachment(0, attachment, dest, x, y, w, h);
+		x += w;
+		if (x >= _width) {
+			x = 0;
+			y += h;
+		}
 	}
 
+}
+
 } 
+

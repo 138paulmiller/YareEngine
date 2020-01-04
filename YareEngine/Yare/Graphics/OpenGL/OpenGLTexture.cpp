@@ -48,12 +48,10 @@ OpenGLTexture::OpenGLTexture(TextureType type, TextureFormat internalFormat )
 	}
 
 	glGenTextures(1, &_texture);
-	glBindTexture(_target, _texture);
 }
 	
 OpenGLTexture::~OpenGLTexture()
 {
-	glBindTexture(_target, 0);
 	glDeleteTextures(1, &_texture);
 }
 	
@@ -114,8 +112,7 @@ void OpenGLTexture::load(
 
 		OpenGLCheckError();
 	}
-
-	glBindTexture(_target, 0);
+	unbind();
 }
 
 void OpenGLTexture::update(TextureWrap wrap , TextureFilter filter )
@@ -150,15 +147,13 @@ void OpenGLTexture::update(TextureWrap wrap , TextureFilter filter )
 	}
 	OpenGLCheckError();
 
-
+	unbind();
 }
 void OpenGLTexture::generateMipMaps()
 {
 
 	glBindTexture(_target, _texture);
-
 	glGenerateMipmap(_target);
-
 }
 void OpenGLTexture::bind(unsigned int unit )
 {

@@ -115,18 +115,25 @@ namespace yare {
 				}
 			}
 		}
-		int OpenGLRenderTarget::getNumberOfAttachments()
+		int OpenGLRenderTarget::getNumberOfAttachments()const
 		{
-			_numUsed = 0;
+
+			return _numUsed;
+		}
+
+		void OpenGLRenderTarget::getAttachments(std::vector<RenderTargetAttachment>& attachments)const
+		{
+			attachments.clear();
+
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
 				if (_buffers[i].used)
 				{
-					_numUsed++;
+					attachments.push_back(RenderTargetAttachment(i));
 				}
 			}
-			return _numUsed;
 		}
+
 		void OpenGLRenderTarget::resize(int width, int height)
 		{
 			RenderTarget::resize(width, height);
@@ -174,7 +181,7 @@ namespace yare {
 		//https://stackoverflow.com/questions/51030120/concept-what-is-the-use-of-gldrawbuffer-and-gldrawbuffers
 		void OpenGLRenderTarget::setup(const std::vector<RenderTargetAttachment>& attachments)
 		{
-
+			_numUsed = attachments.size();
 			unsigned int* layout = new unsigned int[attachments.size()];
 			int unit = 0;
 			bind();
@@ -184,7 +191,9 @@ namespace yare {
 				OpenGLRenderBuffer& buffer = _buffers[(int)attachment];
 				if (buffer.used)
 				{
-					std::cout << "Error: Buffer Already Used!";
+					std::cout << "Error: Buffer Already Used! Failed to add this buffer";
+					_numUsed--; //remove from numused
+					if (_numUsed < 0)_numUsed = 0;
 					return;
 				}
 				if (attachment != RenderTargetAttachment::Depth) {
@@ -276,7 +285,9 @@ namespace yare {
 			return GetOpenGLAttachment(attachment, _buffers[(int)attachment].unit);
 
 		}
-		void OpenGLRenderTarget::unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height)
+		void OpenGLRenderTarget::unloadAttachment(
+			RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, 
+			int xoff, int yoff, int width, int height)
 		{
 			int srcUnit = _buffers[(int)source].unit;
 			int destUnit = 0;
