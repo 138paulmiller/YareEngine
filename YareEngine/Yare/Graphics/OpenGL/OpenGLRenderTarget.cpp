@@ -54,7 +54,8 @@ namespace yare {
 				case RenderTargetAttachment::Normal:
 					return GL_COLOR_ATTACHMENT0 + unit;
 				case RenderTargetAttachment::Depth:
-					return GL_DEPTH_STENCIL_ATTACHMENT;
+					return GL_COLOR_ATTACHMENT0 + unit;
+//					return GL_DEPTH_STENCIL_ATTACHMENT;
 				}
 			}
 			unsigned int GetOpenGLAttachmentFormat(RenderTargetAttachment attachment)
@@ -71,7 +72,8 @@ namespace yare {
 				case RenderTargetAttachment::Normal:
 					return GL_RGB;
 				case RenderTargetAttachment::Depth:
-					return GL_DEPTH24_STENCIL8;
+					return GL_RGB;
+//					return GL_DEPTH24_STENCIL8;
 				}
 			}
 			unsigned int GetOpenGLAttachmentInternalFormat(RenderTargetAttachment attachment)
@@ -88,7 +90,8 @@ namespace yare {
 				case RenderTargetAttachment::Normal:
 					return GL_RGB;
 				case RenderTargetAttachment::Depth:
-					return GL_DEPTH24_STENCIL8;
+					return GL_RGB;
+					//return GL_DEPTH24_STENCIL8;
 
 				}
 			}
@@ -178,7 +181,6 @@ namespace yare {
 
 			unbind();
 		}
-		//https://stackoverflow.com/questions/51030120/concept-what-is-the-use-of-gldrawbuffer-and-gldrawbuffers
 		void OpenGLRenderTarget::setup(const std::vector<RenderTargetAttachment>& attachments)
 		{
 			_numUsed = attachments.size();
@@ -196,7 +198,8 @@ namespace yare {
 					if (_numUsed < 0)_numUsed = 0;
 					return;
 				}
-				if (attachment != RenderTargetAttachment::Depth) {
+				//if (attachment != RenderTargetAttachment::Depth) 
+				{
 					unsigned int target = GetOpenGLAttachment(attachment, unit);
 					layout[unit] = target;
 				}
@@ -285,7 +288,7 @@ namespace yare {
 			return GetOpenGLAttachment(attachment, _buffers[(int)attachment].unit);
 
 		}
-		void OpenGLRenderTarget::unloadAttachment(
+		void OpenGLRenderTarget::blit(
 			RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, 
 			int xoff, int yoff, int width, int height)
 		{
@@ -294,30 +297,57 @@ namespace yare {
 			OpenGLRenderTarget* openglTarget = dynamic_cast<OpenGLRenderTarget*>(target);
 			if (openglTarget )
 			{
-				destUnit = openglTarget->_buffers[(int)destination].unit;
+				bool isValid = true;
+				if (!openglTarget->_buffers[(int)destination].used) {
+					std::cout << "OpenGL RenderTarget : Blit : Destination Buffer " << RenderTargetAttachmentUniformName(destination) << "Not Used";
+					isValid = false;
+				}
+				if (!openglTarget->_buffers[(int)source].used) {
+					std::cout << "OpenGL RenderTarget : Blit : Source Buffer " << RenderTargetAttachmentUniformName(destination) << "Not Used";
+					isValid = false;
+				}
+				if (isValid)
+				{
+					destUnit = openglTarget->_buffers[(int)destination].unit;
+				}
+				else
+				{
+				}
 			}
 
-			int filter = source == RenderTargetAttachment::Depth ? GL_NEAREST: GL_LINEAR;
-			int bufferMask = source == RenderTargetAttachment::Depth ? GL_DEPTH_BUFFER_BIT : GL_COLOR_BUFFER_BIT;
+
+			if (destination == RenderTargetAttachment::Depth) 
+			{
+				bind(RenderTargetMode::Read);
+
+				if (target) {
+					target->bind(RenderTargetMode::Draw);
+				}
+				else {
+					//bind to default
+					unbind(RenderTargetMode::Draw);
+				}
+				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
+					GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+				return;
+			}
+			
 			bind(RenderTargetMode::Read);
 			glReadBuffer(GetOpenGLAttachment(source, srcUnit));
+				
 			if (target) {
 				target->bind(RenderTargetMode::Draw);
-				if(source != RenderTargetAttachment::Depth)
-					glDrawBuffer(GetOpenGLAttachment(destination, destUnit));
-				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff+ width, yoff+height,
-					bufferMask, filter);
 			}
-			else
-			{
+			else {
 				//bind to default
 				unbind(RenderTargetMode::Draw);
-				if (source != RenderTargetAttachment::Depth)
-					glDrawBuffer(GetOpenGLAttachment(destination, destUnit));
-
-				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
-					bufferMask, filter);
 			}
+			glDrawBuffer(GetOpenGLAttachment(destination, destUnit));
+			glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
+				GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+			
+		
 
 		}
 	}

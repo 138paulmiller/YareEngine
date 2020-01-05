@@ -69,6 +69,21 @@ namespace yare {
 
 	public:
 
+
+		//current environment map. Rendered to in deferred pass. and used for reflection/refractions in transparency 
+		//Or, create CaptureCube. Renders all item within the region to a cubemap. This can then be bound to the environment map
+		//SkyBox _skybox; 
+		struct RenderCache
+		{
+			//Cached for begin/end blocks
+			Scene * scene; //current scene 
+		} ;
+		
+		struct RenderSettings
+		{
+			bool debugGBuffer =  true;
+		} ;
+
 		static Renderer* Create(RenderAPI api);
 		//static Renderer *GetInstance();
 
@@ -87,9 +102,14 @@ namespace yare {
 
 		virtual void render();
 
+		RenderSettings & getSettings() { return _settings; }
 	
+		void pushState(const RenderState & state = {});
+		void popState();
+
 	protected:
-		virtual void updateState(const RenderState & state) = 0;
+		virtual void updateState(const RenderState & state) =0 ;
+
 		void renderCommands(const std::vector<RenderCommand * > & commands);
 		void renderLayer(Layer* layer, const std::vector<RenderTarget*> & inputs, RenderTarget* target);
 
@@ -136,18 +156,11 @@ namespace yare {
 		//current environment map. Rendered to in deferred pass. and used for reflection/refractions in transparency 
 		//Or, create CaptureCube. Renders all item within the region to a cubemap. This can then be bound to the environment map
 		//SkyBox _skybox; 
-		struct RenderCache
-		{
-			//Cached for begin/end blocks
-			Scene * scene; //current scene 
-		} _cache;
+		 RenderCache  _cache;
 
+		RenderSettings _settings;
 		std::stack<RenderState> _stateStack;
 
-		struct RenderSettings
-		{
-			bool debugGBuffer = true;
-		} _settings;
 
 		//todo : create viewport  class
 		int _width, _height;

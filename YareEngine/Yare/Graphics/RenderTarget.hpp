@@ -43,7 +43,7 @@ namespace yare {
 		virtual ~RenderTarget()= default;
 		virtual void setup(const std::vector<RenderTargetAttachment>& attachments) = 0;
 		//copy targets depth buffer into the targets. if null, copy to default depth buffer
-		virtual void unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height ) = 0;
+		virtual void blit(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height ) = 0;
 		//read attachment into texture
 		virtual void read(RenderTargetAttachment attachment, TexturePixels & pixel) = 0;
 		virtual void bind(RenderTargetMode mode = RenderTargetMode::ReadDraw) = 0;

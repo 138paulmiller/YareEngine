@@ -34,7 +34,15 @@ namespace yare
 		std::vector<RenderTarget *>  &  getInputs(){
 			return _inputs;
 		}
+		RenderState & getState() {
+			return _state;
+
+		}
+
 	private:
+
+		RenderState _state;
+
 		Shader * _shader;
 		//layer can also have input targets, just bind all the textures for input
 		std::vector<RenderTarget *> _inputs; //textures to read from

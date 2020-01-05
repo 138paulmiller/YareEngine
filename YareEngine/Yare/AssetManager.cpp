@@ -65,10 +65,12 @@ namespace yare
 		//AUTOMATE THIS !
 		//By default . Should be one for each lighting model
 		add<graphics::Shader>("unlit_mesh"           , _engineContentDir + "Shaders/unlit_mesh"             );
-		add<graphics::Shader>("unlit_layer", _engineContentDir + "Shaders/unlit_layer");
 		add<graphics::Shader>("phong_mesh"          , _engineContentDir + "Shaders/phong_mesh"            );
-		add<graphics::Shader>("phong_layer"      , _engineContentDir + "Shaders/phong_layer"       );
 		
+		add<graphics::Shader>("unlit_layer", _engineContentDir + "Shaders/unlit_layer");
+		add<graphics::Shader>("phong_layer"      , _engineContentDir + "Shaders/phong_layer"       );
+		add<graphics::Shader>("depth_layer", _engineContentDir + "Shaders/depth_layer");
+
 		add<graphics::Shader>("skybox"              , _engineContentDir + "Shaders/skybox"                );
 		add<graphics::Shader>("quad_textured"       , _engineContentDir + "Shaders/quad_textured"         );
 		

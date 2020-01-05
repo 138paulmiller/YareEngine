@@ -68,6 +68,18 @@ void Renderer::begin(Scene* scene)
 	//Init layers
 
 }
+void Renderer::pushState(const RenderState & state )
+{
+	updateState(state);
+	_stateStack.push(state);
+}
+
+void Renderer::popState( )
+{
+	_stateStack.pop();
+	if (_stateStack.empty()) return;
+	updateState(_stateStack.top());
+}
 
 void Renderer::submit(Renderable * renderable)
 {
@@ -101,11 +113,13 @@ void Renderer::end()
 
 void Renderer::renderLayer(Layer * layer, const std::vector<RenderTarget*>& inputs, RenderTarget* target)
 {
+
 	_cache.scene->unloadUniforms(layer->getUniforms());
 	layer->getInputs().clear();
 	layer->getInputs().insert(layer->getInputs().begin(), inputs.begin(), inputs.end());
 	layer->setTarget(target);
 	layer->render(this);
+	
 }
 
 
@@ -114,6 +128,7 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands)
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
 	for (const RenderCommand* command : commands)
 	{
+
 		updateState(command->state);
 
 		command->shader->bind();
@@ -148,8 +163,10 @@ void Renderer::setupTargets()
 
 	RenderTarget* gbuffer = RenderTarget::Create();
 	gbuffer->setup({
+		//must match glsl layout
 		RenderTargetAttachment::Position,
 		RenderTargetAttachment::Normal,
+		RenderTargetAttachment::Depth,
 		RenderTargetAttachment::Diffuse,
 		RenderTargetAttachment::Specular,
 		//RenderTargetAttachment::Emissive,
@@ -161,6 +178,8 @@ void Renderer::setupTargets()
 	RenderTarget* scene = RenderTarget::Create();
 	scene->setup({
 		RenderTargetAttachment::Scene,
+		RenderTargetAttachment::Depth,
+
 		//should use depth
 		}
 	);
@@ -175,6 +194,14 @@ void Renderer::setupLayers()
 	phongLayer->setShader(AssetManager::GetInstance().get<Shader>("phong_layer"));
 	phongLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
 	_layers["phong"] = phongLayer;
+
+	Layer* depthLayer = new Layer();
+	depthLayer->setShader(AssetManager::GetInstance().get<Shader>("depth_layer"));
+	depthLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
+	_layers["depth"] = depthLayer;
+	depthLayer->getState().colorMask = RenderColorMask::None;
+
+
 }
 
 void Renderer::setupRenderPasses()
@@ -221,7 +248,6 @@ void Renderer::setupRenderPasses()
 //the render deferred passes 
 void Renderer::render()
 {
-
 	renderPass(RenderPass::Geometry);
 	renderPass(RenderPass::Lighting);
 	renderPass(RenderPass::Forward);
@@ -231,9 +257,12 @@ void Renderer::render()
 	for (int i = 0; i < (const int)RenderPass::Count; i++)
 		_passes[i].commands.clear();
 
-	if(_settings.debugGBuffer)
+	if (_settings.debugGBuffer)
+	{
 		debugRenderTarget(_targets["gbuffer"]);
-
+		
+	}
+	
 }
 
 
@@ -282,11 +311,11 @@ void  Renderer::renderPassLighting(const RenderPassCommand & pass)
 }
 void  Renderer::renderPassForward(const RenderPassCommand & pass)
 {
+
 	//pass the inputs depth buffer to the targets
 	RenderTarget * input = pass.inputs[0];
 	//todo - write depth to texture, the render quad and wrtie to gl_FRragDepth
-	input->unloadAttachment(pass.target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, _width, _height);
-
+	input->blit(pass.target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, _width, _height);
 	renderCommands(pass.commands);
 
 }
@@ -308,7 +337,7 @@ void  Renderer::renderPassScene(const RenderPassCommand& pass)
 	RenderTargetAttachment dest = RenderTargetAttachment::Scene; //this is default attachment 0
 	//copy color buffer target
 	if(input)
-		input->unloadAttachment(pass.target, src, dest, x, y, width, height);
+		input->blit(pass.target, src, dest, x, y, width, height);
 
 	
 }
@@ -318,12 +347,13 @@ void  Renderer::renderPassScene(const RenderPassCommand& pass)
 void Renderer::debugRenderTarget( RenderTarget* target)
 {
 	if (target == 0) return;
-	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
+	//this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
 
 	std::vector<RenderTargetAttachment> attachments;
 	target->getAttachments(attachments);
+	int n = attachments.size(); //also render entire scene
 	//divide the screen for each quad
-	int square = floor(sqrt(attachments.size()))+1;
+	int square = floor(sqrt(n))+1;
 	int x = 0, y = 0;
 	int w = _width / square;
 	int h = _height / square;
@@ -332,7 +362,7 @@ void Renderer::debugRenderTarget( RenderTarget* target)
 	//copy color buffer target
 	for (RenderTargetAttachment attachment : attachments)
 	{
-		target->unloadAttachment(0, attachment, dest, x, y, w, h);
+		target->blit(0, attachment, dest, x, y, w, h);
 		x += w;
 		if (x >= _width) {
 			x = 0;

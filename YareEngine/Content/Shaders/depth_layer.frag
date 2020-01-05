@@ -1,18 +1,13 @@
 #version 330
 
-uniform sampler2D color;
-uniform sampler2D position;
-uniform sampler2D normal;
 uniform sampler2D depth;
-uniform sampler2D diffuse;
-uniform sampler2D specular;
-uniform sampler2D emissive;
-uniform vec2 resolution;
 in vec2 frag_uv;
+
+layout(location = 0) out vec4 out_scene;
 
 void main(void)
 {
-	
-	gl_FragDepth = texture(depth, frag_uv);
+	//out_scene  = texture(depth, frag_uv);
+	gl_FragDepth =  1.0 - texture(depth, frag_uv).r;
 	
 }

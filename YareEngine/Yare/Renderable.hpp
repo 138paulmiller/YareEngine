@@ -38,7 +38,19 @@ namespace yare {
 	enum class RenderPrimitive {
 		Triangles = 0
 	};
+	enum class RenderColorMask : char {
+		None  = 0b0000,
+		R     = 0b0001,
+		G     = 0b0010,
+		B     = 0b0100,
+		A     = 0b1000,
+		RG    = 0b0011,
+		RGB   = 0b0111,
+		RGBA  = 0b1111,
+	};
 
+	RenderColorMask operator|(RenderColorMask l, RenderColorMask r);
+	RenderColorMask operator&(RenderColorMask l, RenderColorMask r);
 
 	enum class RenderMode {
 		Mesh=0, //NonIndexed Mesh - Using VertexArray (No Index Buffer Is Set. VertexCount is required however)
@@ -56,6 +68,7 @@ namespace yare {
 		RenderCullFace cullFace = RenderCullFace::Back;
 		RenderWinding  winding = RenderWinding::Clockwise;
 		RenderTestFunc depthFunc = RenderTestFunc::Less;
+		RenderColorMask colorMask = RenderColorMask::RGBA;
 		RenderTestFunc stencilFunc = RenderTestFunc::Less;
 		RenderPrimitive primitive = RenderPrimitive::Triangles;
 

@@ -68,7 +68,10 @@ namespace yare
 		_uniforms.load(_shader);
 
 		_quad->bind();
+
+		renderer->pushState(_state);
 		renderer->renderMesh(_quad.get());
+		renderer->popState();
 
 		for (RenderTarget* input : _inputs)
 		{

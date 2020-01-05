@@ -33,6 +33,7 @@ void OpenGLRenderer::renderIndexedMesh(const VertexArray * vertexArray)
 void OpenGLRenderer::updateState(const RenderState & state)
 {
 
+	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 	switch (state.depthFunc)
 	{
@@ -62,9 +63,17 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		break;
 	case RenderTestFunc::Disabled:
 		glDisable(GL_DEPTH_TEST);
+		glDepthMask(GL_FALSE);
 		break;
-
 	}
+
+	glColorMask(
+		(char)( state.colorMask & RenderColorMask::R ), 
+		(char)( state.colorMask & RenderColorMask::B ),
+		(char)( state.colorMask & RenderColorMask::B ),
+		(char)( state.colorMask & RenderColorMask::A )
+		);
+	OpenGLCheckError();
 
 	glEnable(GL_CULL_FACE);
 	switch (state.cullFace)
@@ -76,6 +85,9 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		glCullFace(GL_FRONT);
 		break;
 	}
+	OpenGLCheckError();
+
+
 	switch (state.winding)
 	{
 	case RenderWinding::Clockwise:
@@ -85,6 +97,7 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		glFrontFace(GL_CCW);
 		break;
 	}
+	OpenGLCheckError();
 
 	switch (state.primitive)
 	{
@@ -105,6 +118,7 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	}
+	OpenGLCheckError();
 }
 
 void OpenGLRenderer::clear(RenderBufferFlag mask) 

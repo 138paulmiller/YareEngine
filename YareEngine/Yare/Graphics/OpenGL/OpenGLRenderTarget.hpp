@@ -24,7 +24,7 @@ namespace yare {
 		void unloadUniforms(UniformBlock& uniforms) override;
 		void getAttachments(std::vector<RenderTargetAttachment>& attachments) const override;
 		int getNumberOfAttachments() const;
-		void unloadAttachment(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height);
+		void blit(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height);
 		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
 	
 	private:
