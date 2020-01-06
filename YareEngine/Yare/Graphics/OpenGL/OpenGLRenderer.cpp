@@ -17,6 +17,8 @@ void OpenGLRenderer::resizeViewport(int width, int height)
 {
 	Renderer::resizeViewport(width, height);
 	glViewport(0, 0, width, height);
+	OpenGLCheckError();
+
 }
 
 void OpenGLRenderer::renderIndexedMesh(const VertexArray * vertexArray)
@@ -32,9 +34,13 @@ void OpenGLRenderer::renderIndexedMesh(const VertexArray * vertexArray)
 
 void OpenGLRenderer::updateState(const RenderState & state)
 {
+	OpenGLCheckError();
 
 	glDepthMask(GL_TRUE);
+	OpenGLCheckError();
 	glEnable(GL_DEPTH_TEST);
+	OpenGLCheckError();
+
 	switch (state.depthFunc)
 	{
 	case  RenderTestFunc::Less:
@@ -66,6 +72,7 @@ void OpenGLRenderer::updateState(const RenderState & state)
 		glDepthMask(GL_FALSE);
 		break;
 	}
+	OpenGLCheckError();
 
 	glColorMask(
 		(char)( state.colorMask & RenderColorMask::R ), 

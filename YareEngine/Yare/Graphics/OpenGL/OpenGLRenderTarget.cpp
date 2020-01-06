@@ -14,12 +14,14 @@ namespace yare {
 		{
 
 			glGenFramebuffers(1, &_framebuffer);
+			OpenGLCheckError();
+
 			glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 			glGenRenderbuffers(1, &_depthStencilbuffer);
+			OpenGLCheckError();
 
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			OpenGLCheckError();
 
 
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
@@ -170,14 +172,13 @@ namespace yare {
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depthStencilbuffer);
 			OpenGLCheckError();
 
-			OpenGLCheckError();
-			//attach it to the framebuffer
 
 
 			// finally check if framebuffer is complete
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 				std::cout << "Setup Failed ! Incomplete Framebuffer !" << std::endl;
-	
+			OpenGLCheckError();
+
 
 			unbind();
 		}
@@ -220,6 +221,8 @@ namespace yare {
 			//setup draw buffer
 			//count number of used buffers to allocat
 			glDrawBuffers(getNumberOfAttachments(), layout);
+			OpenGLCheckError();
+
 			delete[]layout;
 
 			unbind();
@@ -240,6 +243,8 @@ namespace yare {
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _framebuffer);
 				return;
 			}
+			OpenGLCheckError();
+
 		}
 		void OpenGLRenderTarget::unbind(RenderTargetMode mode)
 		{
@@ -255,6 +260,8 @@ namespace yare {
 				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 				return;
 			}
+			OpenGLCheckError();
+
 		}
 		void OpenGLRenderTarget::bindTextures(int offset)
 		{
@@ -331,22 +338,28 @@ namespace yare {
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
 					GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 				//TODO  - should also allow to load and read from depth, perhaps fbo must be cleared? 
+				OpenGLCheckError();
+
 				return;
 			}
 			
 			bind(RenderTargetMode::Read);
 			glReadBuffer(GetOpenGLAttachment(source, srcUnit));
-				
+			OpenGLCheckError();
+
 			if (target) {
 				target->bind(RenderTargetMode::Draw);
+				glDrawBuffer(GetOpenGLAttachment(destination, destUnit));
+				OpenGLCheckError();
 			}
 			else {
-				//bind to default
+				//bind to default, draws to default
 				unbind(RenderTargetMode::Draw);
 			}
-			glDrawBuffer(GetOpenGLAttachment(destination, destUnit));
+
 			glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
 				GL_COLOR_BUFFER_BIT, GL_LINEAR);
+			OpenGLCheckError();
 
 			
 		

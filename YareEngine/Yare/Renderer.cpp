@@ -37,7 +37,8 @@ Renderer* Renderer::Create(RenderAPI api)
 Renderer::Renderer()
 {
 	_width = _height = 0;
-	_cache.scene = 0;
+	_cache.camera = 0 ;
+	_cache.lights = 0;
 	setupLayers();
 	setupTargets();
 	setupRenderPasses();
@@ -63,7 +64,8 @@ void Renderer::resizeViewport(int width, int height)
 
 void Renderer::begin(Scene* scene)
 {
-	_cache.scene = scene;
+	_cache.camera = scene->getCamera();
+	_cache.lights = &scene->getLights();
 
 	//Init layers
 
@@ -84,12 +86,7 @@ void Renderer::popState( )
 void Renderer::submit(Renderable * renderable)
 {
 	RenderCommand * command  = &renderable->command;
-	if (_cache.scene)
-	{
-		//if a scene is bound. load it uniforms
-		//use UBOs and render views for this
-		_cache.scene->unloadUniforms(command->uniforms);
-	}
+
 	switch (renderable->command.lighting)
 	{
 		case RenderLighting::Surface:
@@ -107,14 +104,16 @@ void Renderer::submit(Renderable * renderable)
 }
 void Renderer::end()
 {
-	_cache.scene = 0;
+	_cache.camera = 0;
+	_cache.lights = 0;
 }
 
 
 void Renderer::renderLayer(Layer * layer, const std::vector<RenderTarget*>& inputs, RenderTarget* target)
 {
 
-	_cache.scene->unloadUniforms(layer->getUniforms());
+	_cache.camera->unloadUniforms(layer->getUniforms());
+	_cache.lights->unloadUniforms(layer->getUniforms());
 	layer->getInputs().clear();
 	layer->getInputs().insert(layer->getInputs().begin(), inputs.begin(), inputs.end());
 	layer->setTarget(target);
@@ -126,7 +125,7 @@ void Renderer::renderLayer(Layer * layer, const std::vector<RenderTarget*>& inpu
 void Renderer::renderCommands(const std::vector<RenderCommand* >& commands)
 {
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
-	for (const RenderCommand* command : commands)
+	for (RenderCommand* command : commands)
 	{
 
 		updateState(command->state);
@@ -138,6 +137,14 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands)
 		Will only have to bind when dirty. Since they are copies, they should not be affected by other renderables that share the same parent shader
 		Potentially do this at the material level and have materials instances maintain *blocks.
 		*/
+
+
+		//get the uniforms from the scene
+
+		_cache.camera->unloadUniforms(command->uniforms);
+		_cache.lights->unloadUniforms(command->uniforms);
+		//load the uniforms into the shader
+
 		command->uniforms.load(command->shader);
 		command->textures.load(command->shader);
 
@@ -152,8 +159,6 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands)
 			renderIndexedMesh(command->vertexArray);
 			break;
 		}
-
-		command->vertexArray->unbind();
 
 	}
 }

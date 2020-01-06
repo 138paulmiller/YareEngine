@@ -81,12 +81,13 @@ namespace yare {
 		struct RenderCache
 		{
 			//Cached for begin/end blocks
-			Scene * scene; //current scene 
+			const Camera* camera; //current cameras scene
+			const LightBlock * lights; //all lights in the current scene
 		} ;
 		
 		struct RenderSettings
 		{
-			bool debugGBuffer =  true;
+			bool debugGBuffer =  false;
 		} ;
 
 		static Renderer* Create(RenderAPI api);

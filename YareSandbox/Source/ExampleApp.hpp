@@ -51,7 +51,7 @@ class ExampleApp : public App
 	Scene _scene;
 	Camera _camera;
 	const int  LIGHT_COUNT = 1;
-	const int  BOX_COUNT = 10;
+	const int  BOX_COUNT = 1;
 	//Use asset manager to load these class from files and manage their gc 
 	std::unique_ptr<SkyBox>		_skybox;
 	std::vector< std::unique_ptr<PointLight > > _pointLights;
