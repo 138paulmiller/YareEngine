@@ -327,8 +327,10 @@ namespace yare {
 					//bind to default
 					unbind(RenderTargetMode::Draw);
 				}
+
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
 					GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+				//TODO  - should also allow to load and read from depth, perhaps fbo must be cleared? 
 				return;
 			}
 			

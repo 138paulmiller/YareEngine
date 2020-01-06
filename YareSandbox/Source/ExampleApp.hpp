@@ -3,10 +3,10 @@
 
 #include <Yare/App.hpp>
 #include <Yare/OS/FileSystem.hpp>
-#include <Yare/Graphics/SkyBox.hpp>
+#include <Yare/SkyBox.hpp>
 
-#include <Yare/Graphics/Materials/PhongMaterial.hpp>
-#include <Yare/Graphics/Materials/FlatMaterial.hpp>
+#include <Yare/Materials/PhongMaterial.hpp>
+#include <Yare/Materials/FlatMaterial.hpp>
 #include <GLFW/glfw3.h>
 
 
@@ -51,7 +51,7 @@ class ExampleApp : public App
 	Scene _scene;
 	Camera _camera;
 	const int  LIGHT_COUNT = 1;
-	const int  BOX_COUNT = 1;
+	const int  BOX_COUNT = 10;
 	//Use asset manager to load these class from files and manage their gc 
 	std::unique_ptr<SkyBox>		_skybox;
 	std::vector< std::unique_ptr<PointLight > > _pointLights;

@@ -169,7 +169,6 @@ void Renderer::setupTargets()
 		RenderTargetAttachment::Depth,
 		RenderTargetAttachment::Diffuse,
 		RenderTargetAttachment::Specular,
-		//RenderTargetAttachment::Emissive,
 		//should use depth
 
 		}

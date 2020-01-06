@@ -2,12 +2,12 @@
 #include <stack>
 #include <queue>
 
-#include "Graphics/Error.hpp"
-#include "Graphics/Shader.hpp"
-#include "Graphics/RenderTarget.hpp"
-#include "Graphics/VertexArray.hpp"
-#include "Graphics/TextureBlock.hpp"
-#include "Graphics/UniformBlock.hpp"
+#include "Error.hpp"
+#include "Shader.hpp"
+#include "RenderTarget.hpp"
+#include "VertexArray.hpp"
+#include "TextureBlock.hpp"
+#include "UniformBlock.hpp"
 
 namespace yare {
 	// End Api
@@ -96,6 +96,7 @@ namespace yare {
 	{
 		virtual ~Renderable() = default;
 		virtual void onBind() = 0;
+		
 		RenderCommand command;
 	};
 

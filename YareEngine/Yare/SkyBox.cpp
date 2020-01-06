@@ -1,6 +1,6 @@
 #include "SkyBox.hpp"
-#include <Yare/Geometry/Box.hpp>
-#include <Yare/AssetManager.hpp>
+#include "Geometry/Box.hpp"
+#include "AssetManager.hpp"
 
 namespace yare {
 	

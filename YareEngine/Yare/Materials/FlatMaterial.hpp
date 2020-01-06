@@ -1,5 +1,5 @@
 #pragma once 
-#include "../Material.hpp"
+#include "../Graphics/Material.hpp"
 
 namespace yare {
 	namespace graphics {
@@ -7,10 +7,11 @@ namespace yare {
 		class FlatMaterial : public Material
 		{
 		public:
-			~FlatMaterial() ;
+			FlatMaterial() ;
+			~FlatMaterial();
 			//Load uniform/textures into uniforms/texture block
 			void unloadUniforms(UniformBlock& uniforms) override ;
-			void loadTextures(TextureBlock& textures) override ;
+			void unloadTextures(TextureBlock& textures) override ;
 
 			inline glm::vec3 getBase()     { return _base; }
 

@@ -78,6 +78,7 @@ void CreateHeightMap(
 
 
 
+
 ExampleApp::ExampleApp() 
 {
 }
@@ -121,11 +122,7 @@ void ExampleApp::onEnter()
 		_boxMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
 
 		_boxMeshes[i]->setMaterial(_phongMaterial.get());
-		RenderCommand& data = _boxMeshes[i]->command;
 
-		data.shader = AssetManager::GetInstance().get<Shader>("phong_mesh");
-		data.mode = RenderMode::Mesh;
-		data.lighting = RenderLighting::Surface;
 
 	}
 
@@ -144,12 +141,7 @@ void ExampleApp::onEnter()
 
 		_pointLightMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
 		_pointLightMeshes[i]->setMaterial(_flatMaterial.get());
-		
-		//Setup render config
-		RenderCommand& data = _pointLightMeshes[i]->command;
-		data.shader   = AssetManager::GetInstance().get<Shader>("unlit_mesh");
-		data.mode     = RenderMode::Mesh;
-		data.lighting = RenderLighting::Unlit;
+
 	}
 	//Set  up Sky box
 	_skybox.reset(new SkyBox());

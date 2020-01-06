@@ -89,9 +89,18 @@ void Mesh::setMaterial(Material* material)
 	_material = material;
 	if (_material)
 	{
-		//loads materials uniform into uniform block
+		//get command details 
+		RenderCommand & materialCommand = _material->getCommand();
+		
+		Renderable::command.lighting = materialCommand.lighting;
+		Renderable::command.mode= materialCommand.mode;
+		Renderable::command.shader = materialCommand.shader;
+		Renderable::command.state = materialCommand.state;
+
+		//loads materials uniforms into uniform block
 		_material->unloadUniforms(Renderable::command.uniforms);
-		_material->loadTextures(Renderable::command.textures);
+		//same with textures
+		_material->unloadTextures(Renderable::command.textures);
 	}
 }
 

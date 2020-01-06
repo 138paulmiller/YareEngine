@@ -1,7 +1,7 @@
 #pragma once
 #include "Graphics/Camera.hpp"
 #include "Graphics/LightBlock.hpp"
-#include "Renderable.hpp"
+#include "Graphics/Renderable.hpp"
 #include "Graphics/UniformBlock.hpp"
 #include "Graphics/RenderTarget.hpp"
 

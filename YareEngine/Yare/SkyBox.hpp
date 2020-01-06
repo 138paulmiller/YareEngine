@@ -2,8 +2,8 @@
 
 #include <string>
 #include <memory>
-#include "Mesh.hpp"
-#include "Texture.hpp"
+#include "Graphics/Mesh.hpp"
+#include "Graphics/Texture.hpp"
 
 
 namespace yare

@@ -14,7 +14,7 @@ source_group(Yare REGULAR_EXPRESSION "Yare/.*")
     source_group(Yare\\Memory REGULAR_EXPRESSION "Yare/Memory/.*")
     source_group(Yare\\Graphics REGULAR_EXPRESSION "Yare/Graphics/.*")
         source_group(Yare\\Graphics\\OpenGL REGULAR_EXPRESSION "Yare/Graphics/OpenGL/.*")
-        source_group(Yare\\Graphics\\Materials REGULAR_EXPRESSION "Yare/Graphics/Materials/.*")
+    source_group(Yare\\Materials REGULAR_EXPRESSION "Yare/Materials/.*")
     source_group(Yare\\Geometry REGULAR_EXPRESSION "Yare/Geometry/.*")
     source_group(Yare\\Assets REGULAR_EXPRESSION "Yare/Assets/.*")
     

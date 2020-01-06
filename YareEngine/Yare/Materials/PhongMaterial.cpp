@@ -1,7 +1,14 @@
 #include "PhongMaterial.hpp"
+#include "../AssetManager.hpp"
 namespace yare {
 	namespace graphics {
-		
+		PhongMaterial::PhongMaterial()
+		{
+			RenderCommand & command = getCommand();
+			command.shader = AssetManager::GetInstance().get<Shader>("phong_mesh");
+			command.mode = RenderMode::Mesh;
+			command.lighting = RenderLighting::Surface;
+		}
 		PhongMaterial::~PhongMaterial()
 		{
 			_diffuseTexture =  nullptr;
@@ -15,7 +22,7 @@ namespace yare {
 			uniforms.setUniform("material.shininess", _shininess);
 		}
 		
-		void PhongMaterial::loadTextures(TextureBlock& textures)
+		void PhongMaterial::unloadTextures(TextureBlock& textures)
 		{
 
 				textures.setTexture("material.diffuse", _diffuseTexture);

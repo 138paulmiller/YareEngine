@@ -4,11 +4,6 @@
 #include <functional>
 #include "Scene.hpp"
 #include "Layer.hpp"
-#include "Renderable.hpp"
-#include "Graphics/RenderTarget.hpp"
-#include "Graphics/Camera.hpp"
-#include "Graphics/Texture.hpp"
-#include "Graphics/LightBlock.hpp"
 
 namespace yare {
 
@@ -62,8 +57,18 @@ namespace yare {
 		float targetScalar = 1.0;
 	};
 
-	//Runs on its own thread 
-	//all render commands should be queued
+	/*
+		Primary Render Interface - Class implements a deferred renderer 
+		usage - 
+			renderer->begin(scene);
+			for(each renderable) renderer->submit(renderable);
+			renderer->end();
+			{ ... }
+			renderer->render();
+			...
+
+	*Should Run on its own thread 
+	*/
 	class Renderer
 	{
 

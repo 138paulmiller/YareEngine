@@ -1,5 +1,5 @@
 #pragma once 
-#include "../Material.hpp"
+#include "../Graphics/Material.hpp"
 
 namespace yare {
 	namespace graphics {
@@ -7,10 +7,11 @@ namespace yare {
 		class PhongMaterial : public Material
 		{
 		public:
-			~PhongMaterial() ;
+			PhongMaterial() ;
+			~PhongMaterial();
 			//Load uniform/textures into uniforms/texture block
 			void unloadUniforms(UniformBlock& uniforms) override ;
-			void loadTextures(TextureBlock& textures) override ;
+			void unloadTextures(TextureBlock& textures) override ;
 
 			//Create a switch for using either map or float3
 			inline const Texture* getDiffuseTexture()  { return _diffuseTexture ; }
@@ -32,6 +33,7 @@ namespace yare {
 			Texture	* _specularTexture;
 			Texture	* _emissiveTexture;
 			float	  _shininess;
+			
 			
 		};
 	}
