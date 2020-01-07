@@ -38,6 +38,7 @@ namespace yare {
 		Lighting,
 		//SSAO,
 		Forward,
+		Shadow, //shadow map creation
 		Scene,
 		//post process here
 		Count 
@@ -87,7 +88,7 @@ namespace yare {
 		
 		struct RenderSettings
 		{
-			bool debugGBuffer =  false;
+			bool debugGBuffer =  true;
 		} ;
 
 		static Renderer* Create(RenderAPI api);
@@ -116,7 +117,8 @@ namespace yare {
 	protected:
 		virtual void updateState(const RenderState & state) =0 ;
 
-		void renderCommands(const std::vector<RenderCommand * > & commands);
+		//Render the command given the camera and lights
+		void renderCommands(const std::vector<RenderCommand * > & commands, const Camera * camera = 0, const LightBlock * lights = 0);
 		void renderLayer(Layer* layer, const std::vector<RenderTarget*> & inputs, RenderTarget* target);
 
 		/*
@@ -136,6 +138,9 @@ namespace yare {
 		void renderPassLighting(const RenderPassCommand & pass);
 		//renders color directly to lit scene
 		void renderPassForward(const RenderPassCommand & pass);		
+		//renders the shadow maps for each light
+		void renderPassShadow(const RenderPassCommand& pass);
+
 		//renders the scene colors
 		void renderPassScene(const RenderPassCommand& pass);
 		

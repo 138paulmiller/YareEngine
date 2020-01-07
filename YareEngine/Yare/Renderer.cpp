@@ -122,7 +122,7 @@ void Renderer::renderLayer(Layer * layer, const std::vector<RenderTarget*>& inpu
 }
 
 
-void Renderer::renderCommands(const std::vector<RenderCommand* >& commands)
+void Renderer::renderCommands(const std::vector<RenderCommand* >& commands, const Camera* camera , const LightBlock* lights )
 {
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
 	for (RenderCommand* command : commands)
@@ -205,7 +205,6 @@ void Renderer::setupLayers()
 	_layers["depth"] = depthLayer;
 	depthLayer->getState().colorMask = RenderColorMask::None;
 
-
 }
 
 void Renderer::setupRenderPasses()
@@ -222,6 +221,7 @@ void Renderer::setupRenderPasses()
 
 	float sceneBufferScalar = 1.0 ; 
 	//float sceneBufferScalar = 1.0 / 5.0;
+
 	//Setup lighting pass
 	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
 	lightingPass.targetScalar = sceneBufferScalar;
@@ -238,7 +238,9 @@ void Renderer::setupRenderPasses()
 	forwardPass.inputs = { _targets["gbuffer"] };//uses gbuffers depth buffer 
 	forwardPass.target = _targets["scene"];
 
-	//Setup forward pass
+
+
+	//Setup scene pass
 	RenderPassCommand& scenePass = _passes[(const int)RenderPass::Scene];
 	scenePass.targetScalar = sceneBufferScalar;
 
@@ -259,12 +261,13 @@ void Renderer::render()
 	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
 	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
 	for (int i = 0; i < (const int)RenderPass::Count; i++)
+	{
 		_passes[i].commands.clear();
+	}
 
 	if (_settings.debugGBuffer)
 	{
 		debugRenderTarget(_targets["gbuffer"]);
-		
 	}
 	
 }
