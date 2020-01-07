@@ -88,7 +88,7 @@ namespace yare {
 		
 		struct RenderSettings
 		{
-			bool debugGBuffer =  true;
+			bool debugGBuffer = 0 * true;
 		} ;
 
 		static Renderer* Create(RenderAPI api);

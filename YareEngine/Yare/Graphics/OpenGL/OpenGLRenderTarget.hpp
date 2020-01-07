@@ -25,8 +25,8 @@ namespace yare {
 		void getAttachments(std::vector<RenderTargetAttachment>& attachments) const override;
 		int getNumberOfAttachments() const;
 		void blit(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height);
-		void read(RenderTargetAttachment attachment, TexturePixels& pixels) override { YARE_ASSERT(false, "Not Implemented"); }
-	
+		Texture* getTexture(RenderTargetAttachment attachment);
+
 	private:
 		int getAttachmentUnit(RenderTargetAttachment attachment);
 
@@ -35,7 +35,8 @@ namespace yare {
 		{
 			int unit; //attachment point = color_attachment+unit. matches that layout in glsl
 			bool used;
-			unsigned int texture; //handle
+			//unsigned int texture; //handle
+			OpenGLTexture* texture;
 		};
 		OpenGLRenderBuffer _buffers[(const int)RenderTargetAttachment::Count]; //corresponding texture handle
 		

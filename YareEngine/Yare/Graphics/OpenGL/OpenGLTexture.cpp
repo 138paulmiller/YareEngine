@@ -125,8 +125,8 @@ void OpenGLTexture::update(TextureWrap wrap , TextureFilter filter )
 		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		break;
 	case TextureFilter::Nearest:
-		glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		break;															 
 	}
 
@@ -154,6 +154,8 @@ void OpenGLTexture::generateMipMaps()
 
 	glBindTexture(_target, _texture);
 	glGenerateMipmap(_target);
+	OpenGLCheckError();
+
 }
 void OpenGLTexture::bind(unsigned int unit )
 {

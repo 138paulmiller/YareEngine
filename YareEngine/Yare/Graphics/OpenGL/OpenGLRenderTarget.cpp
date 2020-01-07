@@ -7,7 +7,83 @@
 //http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/#using-the-depth
 namespace yare {
 	namespace graphics {
+		namespace
+		{
 
+		unsigned int GetOpenGLAttachment(RenderTargetAttachment attachment, int unit)
+		{
+			switch (attachment)
+			{
+			case RenderTargetAttachment::Scene:
+			case RenderTargetAttachment::Diffuse:
+			case RenderTargetAttachment::Specular:
+			case RenderTargetAttachment::Emissive:
+			case RenderTargetAttachment::Position:
+			case RenderTargetAttachment::Normal:
+				return GL_COLOR_ATTACHMENT0 + unit;
+			case RenderTargetAttachment::Depth:
+				return GL_COLOR_ATTACHMENT0 + unit;
+				//					return GL_DEPTH_STENCIL_ATTACHMENT;
+			}
+		}
+
+		TextureFormat GetTextureFormat(RenderTargetAttachment attachment)
+		{
+			switch (attachment)
+			{
+
+			case RenderTargetAttachment::Scene:
+			case RenderTargetAttachment::Diffuse:
+			case RenderTargetAttachment::Specular:
+			case RenderTargetAttachment::Emissive:
+				return TextureFormat::RGBA8;
+			case RenderTargetAttachment::Position:
+			case RenderTargetAttachment::Normal:
+				return TextureFormat::RGB8;
+			case RenderTargetAttachment::Depth:
+				return TextureFormat::RGB8;
+
+			}
+		}
+		TextureType GetTextureType(RenderTargetAttachment attachment)
+		{
+			switch (attachment)
+			{
+
+			case RenderTargetAttachment::Scene:
+			case RenderTargetAttachment::Diffuse:
+			case RenderTargetAttachment::Specular:
+			case RenderTargetAttachment::Emissive:
+			case RenderTargetAttachment::Position:
+			case RenderTargetAttachment::Normal:
+			case RenderTargetAttachment::Depth:
+				return TextureType::Image;
+
+			}
+		}
+		const std::string RenderTargetAttachmentUniformName(RenderTargetAttachment attachment)
+		{
+			switch (attachment)
+			{
+
+			case RenderTargetAttachment::Scene:
+				return "scene";
+			case RenderTargetAttachment::Diffuse:
+				return "diffuse";
+			case RenderTargetAttachment::Specular:
+				return "specular";
+			case RenderTargetAttachment::Emissive:
+				return "emissive";
+			case RenderTargetAttachment::Position:
+				return "position";
+			case RenderTargetAttachment::Normal:
+				return "normal";
+			case RenderTargetAttachment::Depth:
+				return "depth";
+
+			}
+		}
+	}
 
 
 		OpenGLRenderTarget::OpenGLRenderTarget()
@@ -27,6 +103,7 @@ namespace yare {
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
 				_buffers[i].used = false;
+				_buffers[i].texture = 0;
 			}
 		}
 
@@ -36,90 +113,14 @@ namespace yare {
 			
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
-				glDeleteTextures(1, &_buffers[i].texture);
+				//glDeleteTextures(1, &_buffers[i].texture);
+				delete _buffers[i].texture;
 			}
 			glDeleteRenderbuffers(1, &_depthStencilbuffer);
 			glDeleteFramebuffers(1, &_framebuffer);
 		}
-		namespace 
-		{
 
-			unsigned int GetOpenGLAttachment(RenderTargetAttachment attachment, int unit)
-			{
-				switch (attachment)
-				{
-				case RenderTargetAttachment::Scene:
-				case RenderTargetAttachment::Diffuse:
-				case RenderTargetAttachment::Specular:
-				case RenderTargetAttachment::Emissive:
-				case RenderTargetAttachment::Position:
-				case RenderTargetAttachment::Normal:
-					return GL_COLOR_ATTACHMENT0 + unit;
-				case RenderTargetAttachment::Depth:
-					return GL_COLOR_ATTACHMENT0 + unit;
-//					return GL_DEPTH_STENCIL_ATTACHMENT;
-				}
-			}
-			unsigned int GetOpenGLAttachmentFormat(RenderTargetAttachment attachment)
-			{
-				switch (attachment)
-				{
-
-				case RenderTargetAttachment::Scene:
-				case RenderTargetAttachment::Diffuse:
-				case RenderTargetAttachment::Specular:
-				case RenderTargetAttachment::Emissive:
-					return GL_RGBA;
-				case RenderTargetAttachment::Position:
-				case RenderTargetAttachment::Normal:
-					return GL_RGB;
-				case RenderTargetAttachment::Depth:
-					return GL_RGB;
-//					return GL_DEPTH24_STENCIL8;
-				}
-			}
-			unsigned int GetOpenGLAttachmentInternalFormat(RenderTargetAttachment attachment)
-			{
-				switch (attachment)
-				{
-
-				case RenderTargetAttachment::Scene:
-				case RenderTargetAttachment::Diffuse:
-				case RenderTargetAttachment::Specular:
-				case RenderTargetAttachment::Emissive:
-					return GL_RGBA;
-				case RenderTargetAttachment::Position:
-				case RenderTargetAttachment::Normal:
-					return GL_RGB;
-				case RenderTargetAttachment::Depth:
-					return GL_RGB;
-					//return GL_DEPTH24_STENCIL8;
-
-				}
-			}
-			const std::string RenderTargetAttachmentUniformName(RenderTargetAttachment attachment)
-			{
-				switch (attachment)
-				{
-
-				case RenderTargetAttachment::Scene:
-					return "scene";
-				case RenderTargetAttachment::Diffuse:
-					return "diffuse";
-				case RenderTargetAttachment::Specular:
-					return "specular";
-				case RenderTargetAttachment::Emissive:
-					return "emissive";
-				case RenderTargetAttachment::Position:
-					return "position";
-				case RenderTargetAttachment::Normal:
-					return "normal";
-				case RenderTargetAttachment::Depth:
-					return "depth";
-
-				}
-			}
-		}
+			
 		int OpenGLRenderTarget::getNumberOfAttachments()const
 		{
 
@@ -148,17 +149,19 @@ namespace yare {
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
 				RenderTargetAttachment attachment = RenderTargetAttachment(i);
-				unsigned int internalFormat = GetOpenGLAttachmentInternalFormat(attachment);
-				unsigned int format = GetOpenGLAttachmentFormat(attachment);
+
 				if (_buffers[i].used)
 				{
 
 					unsigned int target = GetOpenGLAttachment(attachment, _buffers[i].unit);
-					glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
+					TexturePixels pixels;
+					pixels.data = 0;
+					pixels.height = height; pixels.width = width;
+					pixels.format = GetTextureFormat(attachment);
+					_buffers[i].texture->load(pixels);
 
-					glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_FLOAT, NULL);
 					glBindTexture(GL_TEXTURE_2D, 0);
-					glFramebufferTexture2D(GL_FRAMEBUFFER, target, GL_TEXTURE_2D, _buffers[i].texture, 0);
+					glFramebufferTexture2D(GL_FRAMEBUFFER, target, GL_TEXTURE_2D, _buffers[i].texture->getHandle(), 0);
 
 					OpenGLCheckError();
 					
@@ -208,13 +211,8 @@ namespace yare {
 				buffer.used = true;
 				buffer.unit = unit;
 				unit++;
-				glGenTextures(1, &buffer.texture);
-				glBindTexture(GL_TEXTURE_2D, buffer.texture);
-
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				buffer.texture = new OpenGLTexture(GetTextureType(attachment), GetTextureFormat(attachment));
+				buffer.texture->update();
 				OpenGLCheckError();
 
 			}
@@ -265,16 +263,19 @@ namespace yare {
 		}
 		void OpenGLRenderTarget::bindTextures(int offset)
 		{
-			int unit = offset;
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
 				if (_buffers[i].used)
 				{
-					glActiveTexture(GL_TEXTURE0+ _buffers[i].unit+offset);
-					glBindTexture(GL_TEXTURE_2D, _buffers[i].texture);
+					_buffers[i].texture->bind(_buffers[i].unit + offset);
 					OpenGLCheckError();
 				}
 			}
+		}
+		
+		Texture* OpenGLRenderTarget::getTexture(RenderTargetAttachment attachment)
+		{ 
+			return _buffers[(int)attachment].texture; 
 		}
 
 		void OpenGLRenderTarget::unloadUniforms(UniformBlock& uniforms)
@@ -317,9 +318,6 @@ namespace yare {
 				{
 					destUnit = openglTarget->_buffers[(int)destination].unit;
 				}
-				else
-				{
-				}
 			}
 
 
@@ -334,7 +332,6 @@ namespace yare {
 					//bind to default
 					unbind(RenderTargetMode::Draw);
 				}
-
 				glBlitFramebuffer(0, 0, this->getWidth(), this->getHeight(), xoff, yoff, xoff + width, yoff + height,
 					GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 				//TODO  - should also allow to load and read from depth, perhaps fbo must be cleared? 

@@ -22,7 +22,7 @@ namespace yare {
 		Emissive, //RGBA floating
 		Depth, // TODO - Do not use internal depth buffer write to depth on geom pass. 
 		//use depth pass to write this texture to depth instead of blitting to it
-		Stencil, //
+		//Stencil, //
 		Count
 	};
 
@@ -45,7 +45,7 @@ namespace yare {
 		//copy targets depth buffer into the targets. if null, copy to default depth buffer
 		virtual void blit(RenderTarget* target, RenderTargetAttachment source, RenderTargetAttachment destination, int xoff, int yoff, int width, int height ) = 0;
 		//read attachment into texture
-		virtual void read(RenderTargetAttachment attachment, TexturePixels & pixel) = 0;
+		virtual Texture * getTexture(RenderTargetAttachment attachment) = 0;
 		virtual void bind(RenderTargetMode mode = RenderTargetMode::ReadDraw) = 0;
 		virtual void unbind(RenderTargetMode mode = RenderTargetMode::ReadDraw) = 0;
 		virtual void bindTextures(int offset=0) = 0; //int is the texture unit offset

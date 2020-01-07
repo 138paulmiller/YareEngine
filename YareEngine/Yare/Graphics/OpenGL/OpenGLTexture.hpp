@@ -31,7 +31,7 @@ public:
 	void bind(unsigned int unit = 0)override;
 	void unbind() override;
 
-	inline unsigned int handle() { return _texture; }
+	inline int getHandle()const { return _texture; }
 protected : 
 private:
 	bool _isLoadedMap[(int)TextureFace::Count]; //if data has been loaded
