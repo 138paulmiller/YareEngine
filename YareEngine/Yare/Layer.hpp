@@ -28,6 +28,10 @@ namespace yare
 		UniformBlock & getUniforms(){
 			return _uniforms;
 		}
+		Shader * getShader() {
+			return _shader;
+		}
+
 		RenderTarget * getTarget() {
 			return _target;
 		}

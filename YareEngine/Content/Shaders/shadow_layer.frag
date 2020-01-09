@@ -4,7 +4,6 @@
 #define POINT_LIGHT_COUNT 64
 #define DIRECTIONAL_LIGHT_COUNT 8
 
-
 struct PointLight {
 	vec3 position;
 	vec3 ambient;
@@ -15,6 +14,9 @@ struct PointLight {
 	float radius;
 	int cast_shadow;
 	sampler3D shadowmap; //
+
+	//world to light space
+	mat4 light_space;
 };
 
 struct DirectionalLight {
@@ -24,7 +26,10 @@ struct DirectionalLight {
 	vec3 specular;
 	float radius;
 	int cast_shadow;
+	//depth map
 	sampler2D shadowmap; //
+	//world to light space
+	mat4 light_space;
 };
 //shade is measured as 1.0/TOTAL_LIGHTCOUNT
 
@@ -42,13 +47,6 @@ uniform DirectionalLight dir_lights[DIRECTIONAL_LIGHT_COUNT];
 
 in vec2 frag_uv;
 
-
-uniform sampler2D position;
-uniform sampler2D normal;
-uniform sampler2D depth;
-uniform sampler2D diffuse;
-uniform sampler2D specular;
-uniform sampler2D emissive;
 uniform vec2 resolution;
 uniform vec3 view_pos;
 
@@ -87,7 +85,7 @@ vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
 
 	float distance = length(light.position - pos);
 	//attenuation = 1/(x + d*y + d*d*z ) where coeffs = {x,y,z}
-	vec3 coeffs = light.attenuation;
+	vec3 coeffs = light.coeffs;
 	float attenuation = 1.0 / (coeffs.x + coeffs.y * distance + coeffs.z * (distance * distance));
 
 	//samples 

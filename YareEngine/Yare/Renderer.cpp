@@ -364,18 +364,46 @@ void  Renderer::renderPassScene(const RenderPassCommand& pass)
 //renders the shadow maps for each light
 void Renderer::renderPassShadow(const RenderPassCommand& pass)
 {
+	LightBlock::Lights<PointLight*> pointLights = _cache.lights->getPointLights();
+	LightBlock::Lights<DirectionalLight*>directionalLights = _cache.lights->getDirectionalLights();
+	int lightCount = pointLights.size() + directionalLights.size();
 	//create as many shadowmaps as there are lights? 
-
-	//lights that cast shadows write to scene, it is re
-	RenderTarget* shadowmap = RenderTarget::Create();
-	shadowmap->setup({
-		RenderTargetAttachment::Depth,
-		}
-	);
-	//for each light, render the scene using
-
+	int index = 0;
 	UniformBlock uniforms = _layers["shadow"]->getUniforms();
+	//Create a shadow map for each light.
+	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
+		
+		DirectionalLight * dirLight = value.second;
+		
+		if (dirLight->getCastShadow()) {
+			RenderTarget* shadowmap = RenderTarget::Create();
+			shadowmap->setup({
+				RenderTargetAttachment::Depth,
+				}
+			);
+			Camera * camera = new Camera();//should be ortho camera
+			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Depth));
+			dirLight->setCamera(camera);
+		}
+		index++;
+		//add the newly create
+	}
+	//for poitn lights, create an Env RenderTargetAttachment for cubemap support!!!
+
+	//
+	//for each light, render the scene depth.
+
 	//set uniform sampler2D 
+
+	//cleanup
+	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
+		DirectionalLight * dirLight = value.second;
+
+		delete dirLight->getShadowMap();
+		dirLight->setShadowMap(0);
+		delete dirLight->getCamera();
+		dirLight->setCamera(0);
+	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 

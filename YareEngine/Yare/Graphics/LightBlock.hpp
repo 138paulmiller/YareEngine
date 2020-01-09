@@ -18,11 +18,27 @@ namespace yare {
 		struct LightBlock
 		{
 		public:
+
+			template<class T>
+			using Lights = std::unordered_map<std::string, T>;
+
+
+
 			void setPointLight(const std::string & name, PointLight* light);
 			void setDirectionalLight(const std::string& name, DirectionalLight* light);
 			
 			void removePointLight(const std::string& name);
 			void removeDirectionalLight(const std::string& name );
+
+			const Lights<PointLight * >  & getPointLights()const
+			{
+				return _pointLights;
+			}
+
+			const Lights<DirectionalLight * >& getDirectionalLights() const
+			{
+				return _directionalLights;
+			}
 
 
 			/*
@@ -30,8 +46,8 @@ namespace yare {
 			*/
 			void unloadUniforms(UniformBlock & uniforms) const;
 		private:
-			std::unordered_map<std::string, PointLight * > _pointLights;
-			std::unordered_map<std::string, DirectionalLight * > _directionalLights;
+			Lights<PointLight * > _pointLights;
+			Lights<DirectionalLight * > _directionalLights;
 		};
 
 	}

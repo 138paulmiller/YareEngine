@@ -49,7 +49,7 @@ namespace yare { namespace graphics {
 		virtual const glm::mat4& getView() const { return _view; }
 
 		virtual void unloadUniforms(UniformBlock& uniforms) const;
-		
+
 	private:
 		glm::vec3 _position;
 		glm::vec3 _up;
