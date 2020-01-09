@@ -11,6 +11,9 @@ struct PointLight {
 	vec3 diffuse;
 	vec3 specular;
 	vec3 coeffs;
+	//shadow map
+	int cast_shadow;
+	sampler3D shadowmap; //
 };
 
 struct DirectionalLight {
@@ -18,8 +21,10 @@ struct DirectionalLight {
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
+	int cast_shadow;
+	sampler2D shadowmap; //
 };
-
+//shade is measured as 1.0/TOTAL_LIGHTCOUNT
 in vec2 frag_uv;
 
 uniform PointLight pt_lights[POINT_LIGHT_COUNT];

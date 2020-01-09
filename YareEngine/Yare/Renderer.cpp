@@ -62,14 +62,6 @@ void Renderer::resizeViewport(int width, int height)
 	_height = height;
 }
 
-void Renderer::begin(Scene* scene)
-{
-	_cache.camera = scene->getCamera();
-	_cache.lights = &scene->getLights();
-
-	//Init layers
-
-}
 void Renderer::pushState(const RenderState & state )
 {
 	updateState(state);
@@ -83,6 +75,12 @@ void Renderer::popState( )
 	updateState(_stateStack.top());
 }
 
+void Renderer::begin(Scene* scene)
+{
+	_cache.camera = scene->getCamera();
+	_cache.lights = &scene->getLights();
+
+}
 void Renderer::submit(Renderable * renderable)
 {
 	RenderCommand * command  = &renderable->command;
@@ -94,7 +92,6 @@ void Renderer::submit(Renderable * renderable)
 			_passes[(int)RenderPass::Geometry].commands.push_back(command);
 			break;
 		case RenderLighting::Unlit:
-			//_passes[(int)RenderPass::Geometry].commands.push_back(command);
 			_passes[(int)RenderPass::Forward].commands.push_back(command);
 			break;
 
@@ -109,11 +106,11 @@ void Renderer::end()
 }
 
 
-void Renderer::renderLayer(Layer * layer, const std::vector<RenderTarget*>& inputs, RenderTarget* target)
+void Renderer::renderLayer(Layer * layer, const Camera* camera, const LightBlock* lights, const std::vector<RenderTarget*>& inputs, RenderTarget* target)
 {
 
-	_cache.camera->unloadUniforms(layer->getUniforms());
-	_cache.lights->unloadUniforms(layer->getUniforms());
+	camera->unloadUniforms(layer->getUniforms());
+	lights->unloadUniforms(layer->getUniforms());
 	layer->getInputs().clear();
 	layer->getInputs().insert(layer->getInputs().begin(), inputs.begin(), inputs.end());
 	layer->setTarget(target);
@@ -141,8 +138,8 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands, cons
 
 		//get the uniforms from the scene
 
-		_cache.camera->unloadUniforms(command->uniforms);
-		_cache.lights->unloadUniforms(command->uniforms);
+		camera->unloadUniforms(command->uniforms);
+		lights->unloadUniforms(command->uniforms);
 		//load the uniforms into the shader
 
 		command->uniforms.load(command->shader);
@@ -178,6 +175,7 @@ void Renderer::setupTargets()
 
 		}
 	);
+
 	//glsl must write to scene
 	RenderTarget* scene = RenderTarget::Create();
 	scene->setup({
@@ -198,6 +196,12 @@ void Renderer::setupLayers()
 	phongLayer->setShader(AssetManager::GetInstance().get<Shader>("phong_layer"));
 	phongLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
 	_layers["phong"] = phongLayer;
+
+	Layer* shadowLayer = new Layer();
+	shadowLayer->setShader(AssetManager::GetInstance().get<Shader>("shadow_layer"));
+	shadowLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
+	_layers["shadow"] = shadowLayer;
+	shadowLayer->getState().colorMask = RenderColorMask::None;
 
 	Layer* depthLayer = new Layer();
 	depthLayer->setShader(AssetManager::GetInstance().get<Shader>("depth_layer"));
@@ -238,6 +242,13 @@ void Renderer::setupRenderPasses()
 	forwardPass.inputs = { _targets["gbuffer"] };//uses gbuffers depth buffer 
 	forwardPass.target = _targets["scene"];
 
+	//Setup forward pass
+	RenderPassCommand & shadowPass = _passes[(const int)RenderPass::Shadow];
+	shadowPass.targetScalar = sceneBufferScalar;
+	shadowPass.render = &Renderer::renderPassShadow;
+	shadowPass.inputs = { _targets["gbuffer"] };//uses gbuffers depth buffer 
+	shadowPass.target = _targets["scene"];
+
 
 
 	//Setup scene pass
@@ -257,6 +268,7 @@ void Renderer::render()
 	renderPass(RenderPass::Geometry);
 	renderPass(RenderPass::Lighting);
 	renderPass(RenderPass::Forward);
+	renderPass(RenderPass::Shadow);
 	renderPass(RenderPass::Scene);
 	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
 	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
@@ -306,7 +318,7 @@ void Renderer::renderPassGeometry(const RenderPassCommand & pass)
 {
 	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
 
-	renderCommands(pass.commands);	
+	renderCommands(pass.commands, _cache.camera, _cache.lights);	
 }
 
 
@@ -314,7 +326,7 @@ void  Renderer::renderPassLighting(const RenderPassCommand & pass)
 {
 	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
 
-	renderLayer(_layers["phong"], pass.inputs, pass.target);
+	renderLayer(_layers["phong"], _cache.camera, _cache.lights,pass.inputs, pass.target);
 }
 void  Renderer::renderPassForward(const RenderPassCommand & pass)
 {
@@ -323,7 +335,7 @@ void  Renderer::renderPassForward(const RenderPassCommand & pass)
 	RenderTarget * input = pass.inputs[0];
 	//todo - write depth to texture, the render quad and wrtie to gl_FRragDepth
 	input->blit(pass.target, RenderTargetAttachment::Depth, RenderTargetAttachment::Depth, 0, 0, _width, _height);
-	renderCommands(pass.commands);
+	renderCommands(pass.commands, _cache.camera, _cache.lights);
 
 }
 
@@ -349,6 +361,23 @@ void  Renderer::renderPassScene(const RenderPassCommand& pass)
 	
 }
 
+//renders the shadow maps for each light
+void Renderer::renderPassShadow(const RenderPassCommand& pass)
+{
+	//create as many shadowmaps as there are lights? 
+
+	//lights that cast shadows write to scene, it is re
+	RenderTarget* shadowmap = RenderTarget::Create();
+	shadowmap->setup({
+		RenderTargetAttachment::Depth,
+		}
+	);
+	//for each light, render the scene using
+
+	UniformBlock uniforms = _layers["shadow"]->getUniforms();
+	//set uniform sampler2D 
+}
+//////////////////////////////////////////////////////////////////////////////////////////
 
 //unloads all attachments toy default framebuffer
 void Renderer::debugRenderTarget( RenderTarget* target)

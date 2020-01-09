@@ -5,42 +5,50 @@
 #include "UniformBlock.hpp"
 namespace yare { namespace graphics {
 
+
 	class Camera
 	{
 	public:
 		Camera(
 			const glm::vec3& up = { 0,1,0 },
 			const glm::vec3& forward = { 0,0,-1 }
-		) :_up(up), _position({0,0,0}) {
+		) :_up(up), _position({0,0,0}
+		) {
 
 			setForward(forward);
 		}
 
-		void setForward(const glm::vec3& forward) 
+
+		virtual void setUp(const glm::vec3& up)
+		{
+			_up = up;
+		}
+
+		virtual void setForward(const glm::vec3& forward)
 		{
 			_forward= forward;
 			_right = glm::cross(_forward, _up);
 			_view = glm::lookAt(_position, _position + _forward, _up);
 		}
 
-		void setPosition(const glm::vec3& position)
+		virtual void setPosition(const glm::vec3& position)
 		{
 			_position = position;
 			_view = glm::lookAt(_position, _position + _forward, _up);
 
 		}
 
-		void setProjection(const glm::mat4& projection)
+		virtual void setProjection(const glm::mat4& projection)
 		{
 			_projection = projection;
 		}
 
-		const glm::vec3& getPosition()const { return _position; }
+		virtual const glm::vec3& getPosition()const { return _position; }
 
-		const glm::mat4& getProjection() const { return _projection; }
-		const glm::mat4& getView() const { return _view; }
+		virtual const glm::mat4& getProjection() const { return _projection; }
+		virtual const glm::mat4& getView() const { return _view; }
 
-		void unloadUniforms(UniformBlock& uniforms) const;
+		virtual void unloadUniforms(UniformBlock& uniforms) const;
 		
 	private:
 		glm::vec3 _position;
@@ -49,6 +57,29 @@ namespace yare { namespace graphics {
 		glm::vec3 _forward;
 		glm::mat4 _view;
 		glm::mat4 _projection;
+	};
+
+	class PerspectiveCamera :public Camera
+	{
+	public:
+		PerspectiveCamera(
+			float fovy, float aspect,
+			float near = 0.1, float far = 1000,
+			const glm::vec3& up = { 0,1,0 },
+			const glm::vec3& forward = { 0,0,-1 }) :
+			Camera(up, forward)
+		{
+			Camera::setProjection(glm::perspective(fovy, aspect, near, far));
+		}
+
+		void unloadUniforms(UniformBlock& uniforms) const override {
+			Camera::unloadUniforms(uniforms);
+			uniforms.setUniform("near", near);
+			uniforms.setUniform("far", far);
+		}
+	private:
+		float near, far;
+
 	};
 
 } }

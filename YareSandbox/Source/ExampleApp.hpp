@@ -45,11 +45,10 @@ class ExampleApp : public App
 
 
 	// shader matrix uniform
-	glm::mat4 _projection = glm::mat4(1.0);
 	glm::mat4 _model = glm::mat4(1.0); 
 	
 	Scene _scene;
-	Camera _camera;
+	std::unique_ptr<PerspectiveCamera >_camera;
 	const int  LIGHT_COUNT = 1;
 	const int  BOX_COUNT = 1;
 	//Use asset manager to load these class from files and manage their gc 

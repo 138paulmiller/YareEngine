@@ -38,7 +38,7 @@ namespace yare {
 		Lighting,
 		//SSAO,
 		Forward,
-		Shadow, //shadow map creation
+		Shadow, //shadow map creation and uses gbuffer to shade occluded pixels
 		Scene,
 		//post process here
 		Count 
@@ -88,7 +88,7 @@ namespace yare {
 		
 		struct RenderSettings
 		{
-			bool debugGBuffer = 0 * true;
+			bool debugGBuffer = true;
 		} ;
 
 		static Renderer* Create(RenderAPI api);
@@ -119,7 +119,7 @@ namespace yare {
 
 		//Render the command given the camera and lights
 		void renderCommands(const std::vector<RenderCommand * > & commands, const Camera * camera = 0, const LightBlock * lights = 0);
-		void renderLayer(Layer* layer, const std::vector<RenderTarget*> & inputs, RenderTarget* target);
+		void renderLayer(Layer* layer, const Camera* camera, const LightBlock* lights, const std::vector<RenderTarget*> & inputs, RenderTarget* target);
 
 		/*
 			cached config state. render command only updates if different

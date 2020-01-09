@@ -150,7 +150,6 @@ void ExampleApp::onEnter()
 
 
 	//Set up the scene
-	_scene.setCamera(&_camera);
 	_scene.add("Skybox", _skybox.get());
 	
 	int index = 0;
@@ -179,6 +178,7 @@ void ExampleApp::onEnter()
 
 void ExampleApp::onExit()
 {
+	
 }
 
 void ExampleApp::onRender() {
@@ -197,15 +197,14 @@ void ExampleApp::onRender() {
 		_frames++;
 	}
 	// set matrix : projection + view
-	_projection = glm::perspective(45.0f,getWindowRatio(), 1.0f, 200.0f);
+	_camera.reset(new PerspectiveCamera(45.0f,getWindowRatio(), 1.0f, 200.0f));
 	
-	_camera.setProjection(_projection);
-	_camera.setPosition({ 0, 0, 10 });
-	_camera.setForward(glm::normalize( glm::vec3(0) -  _camera.getPosition() ));
+	_camera->setPosition({ 0, 0, 10 });
+	_camera->setForward(glm::normalize( glm::vec3(0) -  _camera->getPosition() ));
 	
 
 	////////// Update State ////////////////
- 	 _model = glm::translate(_camera.getPosition());
+ 	 _model = glm::translate(_camera->getPosition());
 	 _model *= glm::scale(glm::vec3( 100, 100, 100 ));
 	_skybox->setModel(_model);
 	
@@ -223,6 +222,7 @@ void ExampleApp::onRender() {
 	}
 
 	//Submit Scene to be drawn - TODO - SceneRenderer will manage /sort/ cull this process of drawing
+	_scene.setCamera(_camera.get());
 	_scene.render(App::getRenderer());
 } 
 
