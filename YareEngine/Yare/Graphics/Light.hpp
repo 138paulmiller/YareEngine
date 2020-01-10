@@ -17,7 +17,10 @@ namespace yare {
 		class Light {
 		public:
 
-			virtual ~Light() = default;
+			Light() { _camera = 0; }
+			virtual ~Light() {
+				delete _camera; _camera= 0;
+			}
 			//Lights are placed into an array. So, index must be specified
 			virtual void unloadUniforms(UniformBlock& uniforms, int lightIndex) const= 0;
 			virtual void unloadTextures(TextureBlock& textures, int lightIndex) const = 0;
@@ -42,6 +45,9 @@ namespace yare {
 		{
 		public:
 
+			PointLight() {
+				setCamera(new PerspectiveCamera(90, 1.0));//should be ortho camera
+			};
 			virtual ~PointLight() = default;
 			void unloadUniforms(UniformBlock& uniforms, int lightIndex) const override;
 			void unloadTextures(TextureBlock& textures, int lightIndex) const override;
@@ -73,16 +79,31 @@ namespace yare {
 		class DirectionalLight : public Light
 		{
 		public:
+			DirectionalLight() {
+				setCamera (new OrthographicCamera());//should be ortho camera
+			};
 			virtual ~DirectionalLight() = default;
 			void unloadUniforms(UniformBlock& uniforms, int lightIndex)const override;
 			void unloadTextures(TextureBlock& textures, int lightIndex) const override;
 
-			void setDirection(glm::vec3& position);
+			void setDirection(glm::vec3& direction);
+			void setPosition(glm::vec3& position);
 			void setAmbient(glm::vec3& ambient);
 			void setDiffuse(glm::vec3& diffuse);
 			void setSpecular(glm::vec3& specular);
 			
+
+			const glm::vec3  & getPosition() { return _position; }
+			const glm::vec3  & getAmbient() { return _ambient; }
+			const glm::vec3  & getDiffuse() { return _diffuse; }
+			const glm::vec3  & getSpecular() { return _specular; }
+			const glm::vec3  & getDirection() { return _direction; }
+
+
+
 		private:
+			glm::vec3 _position;
+
 			glm::vec3 _direction;
 			glm::vec3 _ambient;
 			glm::vec3 _diffuse;

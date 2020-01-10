@@ -69,7 +69,7 @@ namespace yare
 		
 		add<graphics::Shader>("unlit_layer", _engineContentDir + "Shaders/unlit_layer");
 		add<graphics::Shader>("phong_layer"      , _engineContentDir + "Shaders/phong_layer"       );
-		add<graphics::Shader>("depth_layer", _engineContentDir + "Shaders/depth_layer");
+		add<graphics::Shader>("light_depth", _engineContentDir + "Shaders/light_depth");
 
 		add<graphics::Shader>("skybox"              , _engineContentDir + "Shaders/skybox"                );
 		add<graphics::Shader>("quad_textured"       , _engineContentDir + "Shaders/quad_textured"         );

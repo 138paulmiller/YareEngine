@@ -7,6 +7,7 @@ namespace yare { namespace graphics {
 
 	void PointLight::setPosition(const glm::vec3& position)
 	{
+		Light::getCamera()->setPosition(position);
 		_position = position;
 	}
 	void PointLight::setAmbient(const glm::vec3& ambient)
@@ -78,13 +79,26 @@ namespace yare { namespace graphics {
 	void DirectionalLight::setDirection(glm::vec3& direction)
 	{
 		_direction = direction;
+		Light::getCamera()->setForward(_direction);
+	}
+
+	void DirectionalLight::setPosition(glm::vec3& position)
+	{
+		_position = position;
+		Light::getCamera()->setPosition(position);
 	}
 	void DirectionalLight::setAmbient(glm::vec3& ambient) 
-	{}
+	{
+		_ambient = ambient;
+	}
 	void DirectionalLight::setDiffuse(glm::vec3& diffuse) 
-	{}
+	{
+		_diffuse = diffuse;
+	}
 	void DirectionalLight::setSpecular(glm::vec3& specular)
-	{}
+	{
+		_specular = specular;
+	}
 	
 
 

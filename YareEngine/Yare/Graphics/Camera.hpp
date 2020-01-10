@@ -12,10 +12,13 @@ namespace yare { namespace graphics {
 		Camera(
 			const glm::vec3& up = { 0,1,0 },
 			const glm::vec3& forward = { 0,0,-1 }
-		) :_up(up), _position({0,0,0}
+		) :_up(up), _position({ 0,0,0 }
 		) {
 
 			setForward(forward);
+		}
+		virtual ~Camera(){
+
 		}
 
 
@@ -72,6 +75,28 @@ namespace yare { namespace graphics {
 			Camera::setProjection(glm::perspective(fovy, aspect, near, far));
 		}
 
+		void unloadUniforms(UniformBlock& uniforms) const override {
+			Camera::unloadUniforms(uniforms);
+			uniforms.setUniform("near", near);
+			uniforms.setUniform("far", far);
+		}
+	private:
+		float near, far;
+
+	};
+	class OrthographicCamera :public Camera
+	{
+	public:
+		OrthographicCamera(
+			float left = -10, float right  =10, float top = 10, float bottom = -10,
+			float near = 0.1, float far = 1000,
+			const glm::vec3& up = { 0,1,0 },
+			const glm::vec3& forward = { 0,0,-1 }) :
+			Camera(up, forward)
+		{
+			Camera::setProjection(glm::ortho(left, right, top, bottom, near, far));
+
+		}
 		void unloadUniforms(UniformBlock& uniforms) const override {
 			Camera::unloadUniforms(uniforms);
 			uniforms.setUniform("near", near);

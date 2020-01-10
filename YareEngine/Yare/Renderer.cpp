@@ -84,15 +84,18 @@ void Renderer::begin(Scene* scene)
 void Renderer::submit(Renderable * renderable)
 {
 	RenderCommand * command  = &renderable->command;
-
+	
 	switch (renderable->command.lighting)
 	{
 		case RenderLighting::Surface:
 			//surface, add commands to 
 			_passes[(int)RenderPass::Geometry].commands.push_back(command);
+			//todo add to transparent?
+			_passes[(int)RenderPass::Shadow].commands.push_back(command);
 			break;
 		case RenderLighting::Unlit:
 			_passes[(int)RenderPass::Forward].commands.push_back(command);
+			_passes[(int)RenderPass::Shadow].commands.push_back(command);
 			break;
 
 	}
@@ -137,9 +140,10 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands, cons
 
 
 		//get the uniforms from the scene
-
-		camera->unloadUniforms(command->uniforms);
-		lights->unloadUniforms(command->uniforms);
+		if(camera)
+			camera->unloadUniforms(command->uniforms);
+		if(lights)
+			lights->unloadUniforms(command->uniforms);
 		//load the uniforms into the shader
 
 		command->uniforms.load(command->shader);
@@ -203,12 +207,6 @@ void Renderer::setupLayers()
 	_layers["shadow"] = shadowLayer;
 	shadowLayer->getState().colorMask = RenderColorMask::None;
 
-	Layer* depthLayer = new Layer();
-	depthLayer->setShader(AssetManager::GetInstance().get<Shader>("depth_layer"));
-	depthLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
-	_layers["depth"] = depthLayer;
-	depthLayer->getState().colorMask = RenderColorMask::None;
-
 }
 
 void Renderer::setupRenderPasses()
@@ -269,7 +267,7 @@ void Renderer::render()
 	renderPass(RenderPass::Lighting);
 	renderPass(RenderPass::Forward);
 	renderPass(RenderPass::Shadow);
-	renderPass(RenderPass::Scene);
+	//renderPass(RenderPass::Scene);
 	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
 	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
 	for (int i = 0; i < (const int)RenderPass::Count; i++)
@@ -364,12 +362,16 @@ void  Renderer::renderPassScene(const RenderPassCommand& pass)
 //renders the shadow maps for each light
 void Renderer::renderPassShadow(const RenderPassCommand& pass)
 {
+	Shader * lightDepthShader = (AssetManager::GetInstance().get<Shader>("light_depth"));
 	LightBlock::Lights<PointLight*> pointLights = _cache.lights->getPointLights();
 	LightBlock::Lights<DirectionalLight*>directionalLights = _cache.lights->getDirectionalLights();
 	int lightCount = pointLights.size() + directionalLights.size();
 	//create as many shadowmaps as there are lights? 
 	int index = 0;
-	UniformBlock uniforms = _layers["shadow"]->getUniforms();
+	std::vector< RenderTarget*> shadowmaps;
+	shadowmaps.resize(lightCount);
+	UniformBlock uniforms;
+	
 	//Create a shadow map for each light.
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
 		
@@ -378,22 +380,59 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 		if (dirLight->getCastShadow()) {
 			RenderTarget* shadowmap = RenderTarget::Create();
 			shadowmap->setup({
-				RenderTargetAttachment::Depth,
+				RenderTargetAttachment::Scene,
 				}
 			);
-			Camera * camera = new Camera();//should be ortho camera
-			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Depth));
-			dirLight->setCamera(camera);
+			shadowmaps[index] = shadowmap;
+			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Scene));
 		}
 		index++;
 		//add the newly create
 	}
-	//for poitn lights, create an Env RenderTargetAttachment for cubemap support!!!
+	//for point lights, create an Env RenderTargetAttachment for cubemap support!!!
 
 	//
+	//updateState(command->state);//cull front face!
+	
+	index = 0;
 	//for each light, render the scene depth.
+	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
+		DirectionalLight * dirLight = value.second;
+		dirLight->getShadowMap()->bind();
+		lightDepthShader->bind();
+		dirLight->getCamera()->unloadUniforms(uniforms);
 
-	//set uniform sampler2D 
+		glm::mat4  model = glm::mat4(1.0);
+		model = glm::translate(model, dirLight->getCamera()->getPosition());
+		uniforms.setUniform("model", model);
+		uniforms.load(lightDepthShader);
+		
+		this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
+		
+		//TODO OPTIMIZE!! - cull, sort, ubo, shader management
+		for (RenderCommand* command : pass.commands)
+		{
+			command->vertexArray->bind();
+			switch (command->mode)
+			{
+			case RenderMode::Mesh:
+				renderMesh(command->vertexArray);
+				break;
+			case RenderMode::IndexedMesh:
+				renderIndexedMesh(command->vertexArray);
+				break;
+			}
+
+		}
+
+		dirLight->getShadowMap()->unbind();
+
+		shadowmaps[index]->blit(pass.target, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
+
+		index++;
+	}
+	//set uniform sampler2Ds and render shadow information to a buffer
+
 
 	//cleanup
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
@@ -401,8 +440,6 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 
 		delete dirLight->getShadowMap();
 		dirLight->setShadowMap(0);
-		delete dirLight->getCamera();
-		dirLight->setCamera(0);
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////

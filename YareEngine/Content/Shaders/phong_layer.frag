@@ -40,21 +40,14 @@ uniform PointLight pt_lights[POINT_LIGHT_COUNT];
 uniform DirectionalLight dir_lights[DIRECTIONAL_LIGHT_COUNT];
 
 
-in vec2 frag_uv;
 
-
-uniform sampler2D position;
-uniform sampler2D normal;
-uniform sampler2D depth;
-uniform sampler2D diffuse;
-uniform sampler2D specular;
-uniform sampler2D emissive;
 uniform vec2 resolution;
 uniform vec3 view_pos;
 
 uniform int pt_light_count;
 uniform int dir_light_count;
 
+in vec2 frag_uv;
 //move lighting calc to lightpass layer
 
 vec3 calcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir)

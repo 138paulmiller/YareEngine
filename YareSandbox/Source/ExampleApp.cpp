@@ -126,6 +126,22 @@ void ExampleApp::onEnter()
 
 	}
 
+	//////////////////////////////////////////////////////////////////////////////////////////////
+	//Create the light and the mesh
+	_directionalLight.reset(new DirectionalLight());
+	_directionalLight->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+	_directionalLight->setDiffuse(glm::vec3(0.654f, 0.652f, 0.652f));
+	_directionalLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
+	
+	_directionalLight->setPosition(glm::vec3( 0, 0, 10 ));
+	_directionalLight->setDirection(glm::normalize(glm::vec3(0) - _directionalLight->getPosition()));
+
+	_directionalLightMesh.reset(new Mesh());
+	_directionalLightMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
+	_directionalLightMesh->setMaterial(_flatMaterial.get());
+
+	//////////////////////////////////////////////////////////////////////////////////////////////
+
 	_pointLights.resize(LIGHT_COUNT);
 	_pointLightMeshes.resize(LIGHT_COUNT);
 	for (int i = 0; i < LIGHT_COUNT; i++)
@@ -151,17 +167,17 @@ void ExampleApp::onEnter()
 
 	//Set up the scene
 	_scene.add("Skybox", _skybox.get());
-	
 	int index = 0;
+	for (const std::unique_ptr<Mesh>& boxMesh : _boxMeshes)
+	{
+		_scene.add("PhongMesh_" + std::to_string(index), boxMesh.get());
+		index++;
+	}
+
+	index = 0;
 	for (const std::unique_ptr<PointLight>& pointLight : _pointLights)
 	{
 		_scene.getLights().setPointLight("PointLight_" + std::to_string(index), pointLight.get());
-		index++;
-	}
-	index = 0;
-	for (const std::unique_ptr<Mesh>& boxMesh: _boxMeshes)
-	{
-		_scene.add("PhongMesh_" + std::to_string(index), boxMesh.get());
 		index++;
 	}
 
@@ -171,6 +187,11 @@ void ExampleApp::onEnter()
 		_scene.add("PointLightMesh_" + std::to_string(index), mesh.get());
 		index++;
 	}
+	index = 0;
+	
+	_scene.getLights().setDirectionalLight("DirectionalLight_" + std::to_string(index), _directionalLight.get());
+	_scene.add("DirectionalLightMesh_" + std::to_string(index), _directionalLightMesh.get());
+	
 
 	
 }
