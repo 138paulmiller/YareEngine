@@ -6,5 +6,5 @@ uniform float far;
 
 void main(void)
 {
-	out_scene = vec4(gl_FragCoord.x,0.0, 0.0,1.0);
+	out_scene = vec4(gl_FragCoord.zzz , 1.0);
 }

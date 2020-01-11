@@ -67,43 +67,53 @@ namespace yare { namespace graphics {
 	public:
 		PerspectiveCamera(
 			float fovy, float aspect,
-			float near = 0.1, float far = 1000,
+			float near = 1, float far = 100,
 			const glm::vec3& up = { 0,1,0 },
 			const glm::vec3& forward = { 0,0,-1 }) :
 			Camera(up, forward)
 		{
+			_near = near;
+			_far = far;
 			Camera::setProjection(glm::perspective(fovy, aspect, near, far));
 		}
 
 		void unloadUniforms(UniformBlock& uniforms) const override {
 			Camera::unloadUniforms(uniforms);
-			uniforms.setUniform("near", near);
-			uniforms.setUniform("far", far);
+			uniforms.setUniform("near", _near);
+			uniforms.setUniform("far", _far);
 		}
 	private:
-		float near, far;
+		float _near, _far;
 
 	};
 	class OrthographicCamera :public Camera
 	{
 	public:
 		OrthographicCamera(
-			float left = -10, float right  =10, float top = 10, float bottom = -10,
-			float near = 0.1, float far = 1000,
+			float left = -10, float right  =10, float bottom = -10,  float top = 10,
+			float near = 1, float far = 100,
 			const glm::vec3& up = { 0,1,0 },
 			const glm::vec3& forward = { 0,0,-1 }) :
 			Camera(up, forward)
 		{
-			Camera::setProjection(glm::ortho(left, right, top, bottom, near, far));
+			_near = near;
+			_far = far;
+			Camera::setProjection(glm::ortho(left, right, bottom, top, near, far));
 
 		}
+
+		void setBounds(float left, float right, float bottom, float top)
+		{
+			Camera::setProjection(glm::ortho(left, right, bottom, top, _near, _far));
+		}
+
 		void unloadUniforms(UniformBlock& uniforms) const override {
 			Camera::unloadUniforms(uniforms);
-			uniforms.setUniform("near", near);
-			uniforms.setUniform("far", far);
+			uniforms.setUniform("near", _near);
+			uniforms.setUniform("far", _far);
 		}
 	private:
-		float near, far;
+		float _near, _far;
 
 	};
 

@@ -76,7 +76,7 @@ void OpenGLRenderer::updateState(const RenderState & state)
 
 	glColorMask(
 		(char)( state.colorMask & RenderColorMask::R ), 
-		(char)( state.colorMask & RenderColorMask::B ),
+		(char)( state.colorMask & RenderColorMask::G ),
 		(char)( state.colorMask & RenderColorMask::B ),
 		(char)( state.colorMask & RenderColorMask::A )
 		);

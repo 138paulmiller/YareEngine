@@ -128,17 +128,20 @@ void ExampleApp::onEnter()
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	//Create the light and the mesh
-	_directionalLight.reset(new DirectionalLight());
-	_directionalLight->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
-	_directionalLight->setDiffuse(glm::vec3(0.654f, 0.652f, 0.652f));
-	_directionalLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
-	
-	_directionalLight->setPosition(glm::vec3( 0, 0, 10 ));
-	_directionalLight->setDirection(glm::normalize(glm::vec3(0) - _directionalLight->getPosition()));
+	//_directionalLight.reset(new DirectionalLight());
+	//_directionalLight->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+	//_directionalLight->setDiffuse(glm::vec3(0.654f, 0.652f, 0.652f));
+	//_directionalLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
+	//
+	//_directionalLight->setPosition(glm::vec3( 0, 0, 10 ));
+	//_directionalLight->setDirection(glm::normalize(glm::vec3(0) - _directionalLight->getPosition()));
+	//
+	//_directionalLightMesh.reset(new Mesh());
+	//_directionalLightMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
+	//_directionalLightMesh->setMaterial(_flatMaterial.get());
+	//_scene.getLights().setDirectionalLight("DirectionalLight_" + std::to_string(index), _directionalLight.get());
+	//_scene.add("DirectionalLightMesh_" + std::to_string(index), _directionalLightMesh.get());
 
-	_directionalLightMesh.reset(new Mesh());
-	_directionalLightMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
-	_directionalLightMesh->setMaterial(_flatMaterial.get());
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -188,9 +191,6 @@ void ExampleApp::onEnter()
 		index++;
 	}
 	index = 0;
-	
-	_scene.getLights().setDirectionalLight("DirectionalLight_" + std::to_string(index), _directionalLight.get());
-	_scene.add("DirectionalLightMesh_" + std::to_string(index), _directionalLightMesh.get());
 	
 
 	

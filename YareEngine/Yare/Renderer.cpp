@@ -266,9 +266,12 @@ void Renderer::render()
 	renderPass(RenderPass::Geometry);
 	renderPass(RenderPass::Lighting);
 	renderPass(RenderPass::Forward);
-	renderPass(RenderPass::Shadow);
-	//renderPass(RenderPass::Scene);
-	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
+	if (_settings.debugShadowmaps) {
+		renderPass(RenderPass::Shadow);
+	}
+	else {
+		renderPass(RenderPass::Scene);
+	}//render post processes, initial post process should use scene as input. chaiun outputs into inputs
 	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
 	for (int i = 0; i < (const int)RenderPass::Count; i++)
 	{
@@ -370,7 +373,6 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 	int index = 0;
 	std::vector< RenderTarget*> shadowmaps;
 	shadowmaps.resize(lightCount);
-	UniformBlock uniforms;
 	
 	//Create a shadow map for each light.
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
@@ -400,18 +402,18 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 		DirectionalLight * dirLight = value.second;
 		dirLight->getShadowMap()->bind();
 		lightDepthShader->bind();
-		dirLight->getCamera()->unloadUniforms(uniforms);
-
-		glm::mat4  model = glm::mat4(1.0);
-		model = glm::translate(model, dirLight->getCamera()->getPosition());
-		uniforms.setUniform("model", model);
-		uniforms.load(lightDepthShader);
-		
+		OrthographicCamera * camera = dynamic_cast<OrthographicCamera*>(dirLight->getCamera());
 		this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
-		
+		float aspect = _width/ _height;
+		float boundX = 10  ;///(aspect * _width)/2.0;
+		float boundY = 10  ;///(aspect * _height)/2.0;
+		camera->setBounds(-1.0 * boundX, boundX, -1.0 * boundY, boundY);
 		//TODO OPTIMIZE!! - cull, sort, ubo, shader management
 		for (RenderCommand* command : pass.commands)
 		{
+			camera->unloadUniforms(command->uniforms);
+			command->uniforms.load(lightDepthShader);
+
 			command->vertexArray->bind();
 			switch (command->mode)
 			{
@@ -422,12 +424,11 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 				renderIndexedMesh(command->vertexArray);
 				break;
 			}
-
 		}
 
 		dirLight->getShadowMap()->unbind();
 
-		shadowmaps[index]->blit(pass.target, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
+		shadowmaps[index]->blit(pass.target, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _width);
 
 		index++;
 	}
