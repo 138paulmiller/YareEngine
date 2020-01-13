@@ -385,6 +385,7 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 				RenderTargetAttachment::Scene,
 				}
 			);
+			shadowmap->resize(_width, _height);
 			shadowmaps[index] = shadowmap;
 			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Scene));
 		}
@@ -404,9 +405,9 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 		lightDepthShader->bind();
 		OrthographicCamera * camera = dynamic_cast<OrthographicCamera*>(dirLight->getCamera());
 		this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
-		float aspect = _width/ _height;
-		float boundX = 10  ;///(aspect * _width)/2.0;
-		float boundY = 10  ;///(aspect * _height)/2.0;
+		float aspect = ((float)_width)/ _height;
+		float boundX = 10  * aspect;
+		float boundY = 10  ;
 		camera->setBounds(-1.0 * boundX, boundX, -1.0 * boundY, boundY);
 		//TODO OPTIMIZE!! - cull, sort, ubo, shader management
 		for (RenderCommand* command : pass.commands)
