@@ -83,15 +83,20 @@ ExampleApp::ExampleApp()
 {
 }
 
-
+//////////////////////////////////// Enter ////////////////////////////////////////////////////////
 void ExampleApp::onEnter()
 {
+
+	//--------------------------------- Init Textures -------------------------------------------
 
 	//Create an instance of the phong material. To be shared among meshes
 
 	Texture* diffuse = AssetManager::GetInstance().get<Texture>("container_diffuse");
-	Texture * specular = AssetManager::GetInstance().get<Texture>("container_specular");
+	diffuse->update(TextureWrap::Repeat);
 	
+	Texture * specular = AssetManager::GetInstance().get<Texture>("container_specular");
+	specular->update(TextureWrap::Repeat);
+
 	//All materials should set all textures as empty to default. Move this to texture class to get empty texture
 	Texture* empty = Texture::Create();
 	TexturePixels pixels = { 0, 0, 0};
@@ -102,9 +107,7 @@ void ExampleApp::onEnter()
 	empty->generateMipMaps();
 
 
-	diffuse->update(TextureWrap::Repeat);
-	specular->update(TextureWrap::Repeat);
-
+	//--------------------------------- Init materials -------------------------------------------
 	_phongMaterial.reset(new PhongMaterial());
 	_phongMaterial->setDiffuseTexture(diffuse);
 	_phongMaterial->setSpecularTexture(specular);
@@ -115,6 +118,16 @@ void ExampleApp::onEnter()
 	_flatMaterial.reset(new FlatMaterial());
 	_flatMaterial->setBase(glm::vec3(1, 0, 0));
 
+	_floorMaterial.reset(new FlatMaterial());
+	_floorMaterial->setBase(glm::vec3(1, 1, 1));
+
+	// --------------- Init Floor ---------------------------------------------------------------
+	_floorMesh.reset(new Mesh());
+	_floorMesh->setMaterial(_floorMaterial.get());
+	_floorMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 1, 1, 1 }));
+
+
+	//--------------------------------- Init boxes -------------------------------------------
 	_boxMeshes.resize(BOX_COUNT);
 	for (int i = 0; i < BOX_COUNT; i++)
 	{ //phong mesh
@@ -126,25 +139,20 @@ void ExampleApp::onEnter()
 
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	////Create the light and the mesh
+
+	//--------------------------------- Init lights and corresponding meshes -------------------------------------------
 	_directionalLight.reset(new DirectionalLight());
 	_directionalLight->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
 	_directionalLight->setDiffuse(glm::vec3(0.654f, 0.652f, 0.652f));
 	_directionalLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
 	
-	_directionalLight->setPosition(glm::vec3( 0, 0, 10 ));
+	_directionalLight->setPosition(glm::vec3( 10, 0, 0 ));
 	_directionalLight->setDirection(glm::normalize(glm::vec3(0) - _directionalLight->getPosition()));
 	
 	_directionalLightMesh.reset(new Mesh());
 	_directionalLightMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
 	_directionalLightMesh->setMaterial(_flatMaterial.get());
 	
-	_scene.getLights().setDirectionalLight("DirectionalLight_" + std::to_string(0), _directionalLight.get());
-	_scene.add("DirectionalLightMesh_" + std::to_string(0), _directionalLightMesh.get());
-
-
-	//////////////////////////////////////////////////////////////////////////////////////////////
 
 	_pointLights.resize(LIGHT_COUNT);
 	_pointLightMeshes.resize(LIGHT_COUNT);
@@ -163,13 +171,13 @@ void ExampleApp::onEnter()
 		_pointLightMeshes[i]->setMaterial(_flatMaterial.get());
 
 	}
-	//Set  up Sky box
+	//--------------------------------- Set  up Sky box---------------------------------
 	_skybox.reset(new SkyBox());
 	Texture* skyboxTexture = AssetManager::GetInstance().get<Cubemap>("skybox_cubemap");
 	_skybox->setCubemap(skyboxTexture);
 
 
-	//Set up the scene
+	//--------------------------------------- Set up the scene ---------------------------------
 	_scene.add("Skybox", _skybox.get());
 	int index = 0;
 	for (const std::unique_ptr<Mesh>& boxMesh : _boxMeshes)
@@ -192,7 +200,11 @@ void ExampleApp::onEnter()
 		index++;
 	}
 	index = 0;
-	
+	_scene.getLights().setDirectionalLight("DirectionalLight_" + std::to_string(index), _directionalLight.get());
+	_scene.add("DirectionalLightMesh_" + std::to_string(index), _directionalLightMesh.get());
+
+	_scene.add("FloorMesh_" + std::to_string(index), _floorMesh.get());
+
 
 	
 }
@@ -230,6 +242,12 @@ void ExampleApp::onRender() {
 	 _model *= glm::scale(glm::vec3( 100, 100, 100 ));
 	_skybox->setModel(_model);
 	
+	_model = glm::rotate(-3.14159f/ 6.f, glm::vec3(0, 0, 1));
+	_model *= glm::translate(glm::vec3({0,-3,0}));
+
+	_model *= glm::scale(glm::vec3(4, 0.120, 5.0));
+	_floorMesh->setModel(_model);
+
 	if (BOX_COUNT > 0)
 	{
 		if (BOX_COUNT > 1)

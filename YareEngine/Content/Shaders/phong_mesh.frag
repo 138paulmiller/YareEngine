@@ -35,7 +35,7 @@ void main(void)
 	out_specular.rgb = texture(material.specular, frag_uv).rgb;
 	out_specular.a = material.shininess;
 
-		out_emissive = texture(material.emissive, frag_uv);
+	out_emissive = texture(material.emissive, frag_uv);
 
 
 }

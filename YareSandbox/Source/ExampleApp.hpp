@@ -53,14 +53,18 @@ class ExampleApp : public App
 	const int  BOX_COUNT = 1;
 	//Use asset manager to load these class from files and manage their gc 
 	std::unique_ptr<SkyBox>		_skybox;
+	std::unique_ptr<Mesh >       _floorMesh;
+	
 	std::unique_ptr<DirectionalLight > _directionalLight;
+
 	std::unique_ptr<Mesh >       _directionalLightMesh;
 	std::vector< std::unique_ptr<PointLight > > _pointLights;
 	std::vector< std::unique_ptr<Mesh > >       _pointLightMeshes;
 	std::vector< std::unique_ptr<Mesh>	>	_boxMeshes;
 
+	std::unique_ptr<FlatMaterial> _floorMaterial;
 	std::unique_ptr<FlatMaterial> _flatMaterial;
 	std::unique_ptr<PhongMaterial> _phongMaterial;
-	
+
 
 };
