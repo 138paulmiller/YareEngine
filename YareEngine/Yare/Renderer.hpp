@@ -75,7 +75,6 @@ namespace yare {
 
 	public:
 
-
 		//current environment map. Rendered to in deferred pass. and used for reflection/refractions in transparency 
 		//Or, create CaptureCube. Renders all item within the region to a cubemap. This can then be bound to the environment map
 		//SkyBox _skybox; 
@@ -83,13 +82,13 @@ namespace yare {
 		{
 			//Cached for begin/end blocks
 			const Camera* camera; //current cameras scene
-			const LightBlock * lights; //all lights in the current scene
+			LightBlock * lights; //all lights in the current scene
 		} ;
 		
 		struct RenderSettings
 		{
 			bool debugGBuffer = false;
-			bool debugShadowmaps = false;
+			bool debugShadowmaps = true;
 		} ;
 
 		static Renderer* Create(RenderAPI api);

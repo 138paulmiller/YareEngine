@@ -366,8 +366,8 @@ void  Renderer::renderPassScene(const RenderPassCommand& pass)
 void Renderer::renderPassShadow(const RenderPassCommand& pass)
 {
 	Shader * lightDepthShader = (AssetManager::GetInstance().get<Shader>("light_depth"));
-	LightBlock::Lights<PointLight*> pointLights = _cache.lights->getPointLights();
-	LightBlock::Lights<DirectionalLight*>directionalLights = _cache.lights->getDirectionalLights();
+	LightBlock::Lights<PointLight*>        pointLights = _cache.lights->getPointLights();
+	LightBlock::Lights<DirectionalLight*> directionalLights = _cache.lights->getDirectionalLights();
 	int lightCount = pointLights.size() + directionalLights.size();
 	//create as many shadowmaps as there are lights? 
 	int index = 0;
@@ -389,6 +389,9 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 			shadowmaps[index] = shadowmap;
 			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Scene));
 		}
+		else {
+			shadowmaps[index] = 0;
+		}
 		index++;
 		//add the newly create
 	}
@@ -400,48 +403,58 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 	index = 0;
 	//for each light, render the scene depth.
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
+		
 		DirectionalLight * dirLight = value.second;
-		dirLight->getShadowMap()->bind();
-		lightDepthShader->bind();
-		OrthographicCamera * camera = dynamic_cast<OrthographicCamera*>(dirLight->getCamera());
-		this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
-		float aspect = ((float)_width)/ _height;
-		float boundX = 10  * aspect;
-		float boundY = 10  ;
-		camera->setBounds(-1.0 * boundX, boundX, -1.0 * boundY, boundY);
-		//TODO OPTIMIZE!! - cull, sort, ubo, shader management
-		for (RenderCommand* command : pass.commands)
-		{
-			camera->unloadUniforms(command->uniforms);
-			command->uniforms.load(lightDepthShader);
-
-			command->vertexArray->bind();
-			switch (command->mode)
+		if (dirLight->getShadowMap()) {
+			shadowmaps[index]->bind();
+			dirLight->getShadowMap()->bind();
+			lightDepthShader->bind();
+			OrthographicCamera * camera = dynamic_cast<OrthographicCamera*>(dirLight->getCamera());
+			this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
+			float aspect = ((float)_width)/ _height;
+			float boundX = 10  * aspect;
+			float boundY = 10  ;
+			camera->setBounds(-1.0 * boundX, boundX, -1.0 * boundY, boundY);
+			//TODO OPTIMIZE!! - cull, sort, ubo, shader management
+			for (RenderCommand* command : pass.commands)
 			{
-			case RenderMode::Mesh:
-				renderMesh(command->vertexArray);
-				break;
-			case RenderMode::IndexedMesh:
-				renderIndexedMesh(command->vertexArray);
-				break;
+				camera->unloadUniforms(command->uniforms);
+				command->uniforms.load(lightDepthShader);
+
+				command->vertexArray->bind();
+				switch (command->mode)
+				{
+				case RenderMode::Mesh:
+					renderMesh(command->vertexArray);
+					break;
+				case RenderMode::IndexedMesh:
+					renderIndexedMesh(command->vertexArray);
+					break;
+				}
 			}
-		}
 
-		dirLight->getShadowMap()->unbind();
-		//set the lights shadow map
-		shadowmaps[index]->blit(pass.target, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
-
+			dirLight->getShadowMap()->unbind();
+			//set the lights shadow map
+			//shadowmaps[index]->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
+			dirLight->setShadowMap(shadowmaps[index]->getTexture(RenderTargetAttachment::Scene));
+			}
 		index++;
 	}
+	index = 0 ;
+
 	//set uniform sampler2Ds and render shadow information to a buffer
 
+	renderLayer(_layers["shadow"], _cache.camera, _cache.lights, pass.inputs,0);
+	//pass.target->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
 
+	index = 0;
 	//cleanup
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
 		DirectionalLight * dirLight = value.second;
 
-		delete dirLight->getShadowMap();
 		dirLight->setShadowMap(0);
+		//deleteing render target removes the textures
+		delete shadowmaps[index++];
 	}
 }
 //////////////////////////////////////////////////////////////////////////////////////////

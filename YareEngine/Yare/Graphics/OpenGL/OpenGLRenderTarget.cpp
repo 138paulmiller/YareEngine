@@ -113,8 +113,10 @@ namespace yare {
 			
 			for (int i = 0; i < (const int)RenderTargetAttachment::Count; i++)
 			{
-				//glDeleteTextures(1, &_buffers[i].texture);
-				delete _buffers[i].texture;
+				if (_buffers[i].used)
+				{
+					delete _buffers[i].texture;
+				}
 			}
 			glDeleteRenderbuffers(1, &_depthStencilbuffer);
 			glDeleteFramebuffers(1, &_framebuffer);

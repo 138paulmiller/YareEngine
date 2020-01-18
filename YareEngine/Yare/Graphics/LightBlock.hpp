@@ -30,12 +30,12 @@ namespace yare {
 			void removePointLight(const std::string& name);
 			void removeDirectionalLight(const std::string& name );
 
-			const Lights<PointLight * >  & getPointLights()const
+			 Lights<PointLight * >  & getPointLights()
 			{
 				return _pointLights;
 			}
 
-			const Lights<DirectionalLight * >& getDirectionalLights() const
+			 Lights<DirectionalLight * >& getDirectionalLights() 
 			{
 				return _directionalLights;
 			}

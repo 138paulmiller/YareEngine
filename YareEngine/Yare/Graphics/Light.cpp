@@ -38,16 +38,22 @@ namespace yare { namespace graphics {
 		if (Light::getCamera())
 			uniforms.setUniform(elementStr + ".light_space", Light::getCamera()->getView());
 
-		uniforms.setUniform(elementStr + ".cast_shadow", getCastShadow());
 
+		if (Light::getShadowMap()) {
+
+			uniforms.setUniform(elementStr + ".shadowmap", getShadowMap());
+			uniforms.setUniform(elementStr + ".cast_shadow", 1);
+		}
+		else
+		{
+			uniforms.setUniform(elementStr + ".cast_shadow", 0);
+		}
 		uniforms.setUniform(elementStr + ".position", _position);
 		uniforms.setUniform(elementStr + ".ambient", _ambient);
 		uniforms.setUniform(elementStr + ".diffuse", _diffuse);
 		uniforms.setUniform(elementStr + ".specular", _specular);
 		uniforms.setUniform(elementStr + ".attenuation", _attenuation);
 		uniforms.setUniform(elementStr + ".radius", _radius);
-		if (Light::getShadowMap())
-			uniforms.setUniform(elementStr + ".shadowmap", getShadowMap());
 	}
 	////////////////// directional /////////////////////////////
 	
@@ -57,14 +63,20 @@ namespace yare { namespace graphics {
 		if (Light::getCamera())
 			uniforms.setUniform(elementStr + ".light_space", Light::getCamera()->getView());
 
-		uniforms.setUniform(elementStr + ".cast_shadow", getCastShadow());
+		if (Light::getShadowMap()) {
+
+			uniforms.setUniform(elementStr + ".shadowmap", getShadowMap());
+			uniforms.setUniform(elementStr + ".cast_shadow", 1);
+		}
+		else
+		{
+			uniforms.setUniform(elementStr + ".cast_shadow", 0);
+		}
 
 		uniforms.setUniform(elementStr + ".direction", _direction);
 		uniforms.setUniform(elementStr + ".ambient", _ambient);
 		uniforms.setUniform(elementStr + ".diffuse", _diffuse);
 		uniforms.setUniform(elementStr + ".specular", _specular);
-		if (Light::getShadowMap())
-			uniforms.setUniform(elementStr + ".shadowmap", getShadowMap());
 	}
 	void DirectionalLight::setDirection(glm::vec3& direction)
 	{
