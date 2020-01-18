@@ -47,9 +47,17 @@ namespace yare {
 				uniform.type = UniformType::Mat4;
 			}
 
+			void UniformBlock::setUniform(const std::string& name, Texture* texture)
+			{
+				Uniform& uniform = _uniforms[name];
+				uniform.name = name;
+				uniform.value.texture= texture;
+				uniform.type = UniformType::Texture;
+			}
 
 			void UniformBlock::load(Shader* shader) const
 			{
+				int unit = 0;
 				for (std::pair<std::string, Uniform > pair : _uniforms)
 				{
 
@@ -70,6 +78,19 @@ namespace yare {
 						break;
 					case UniformType::Mat4:
 						shader->setUniform(pair.first, uniform.value.mat4);
+						break;
+					case UniformType::Texture:
+						Texture * texture = uniform.value.texture;
+						const std::string &  name = pair.first;
+						//bind texture to unit i
+						if (texture) {
+							texture->bind(unit);
+							shader->setUniform(name, unit);
+							//set sampler to this unit
+							//next unit
+							unit++;
+						}
+			
 						break;
 					}
 				}

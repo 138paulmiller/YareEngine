@@ -1,6 +1,5 @@
 #include "Mesh.hpp"
 #include "UniformBlock.hpp"
-#include "TextureBlock.hpp"
 #include <GL/glew.h>
 
 namespace yare { namespace graphics {  
@@ -99,8 +98,6 @@ void Mesh::setMaterial(Material* material)
 
 		//loads materials uniforms into uniform block
 		_material->unloadUniforms(Renderable::command.uniforms);
-		//same with textures
-		_material->unloadTextures(Renderable::command.textures);
 	}
 }
 

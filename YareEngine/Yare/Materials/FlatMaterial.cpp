@@ -19,9 +19,6 @@ namespace yare {
 			uniforms.setUniform("material.base", _base);
 		}
 		
-		void FlatMaterial::unloadTextures(TextureBlock& textures)
-		{
-		}
 
 		//Create a switch for using either map or float3
 

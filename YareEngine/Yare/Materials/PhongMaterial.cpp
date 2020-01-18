@@ -20,15 +20,11 @@ namespace yare {
 		void PhongMaterial::unloadUniforms(UniformBlock& uniforms)
 		{
 			uniforms.setUniform("material.shininess", _shininess);
+			uniforms.setUniform("material.diffuse", _diffuseTexture);
+			uniforms.setUniform("material.specular", _specularTexture);
+			uniforms.setUniform("material.emissive", _emissiveTexture);
 		}
 		
-		void PhongMaterial::unloadTextures(TextureBlock& textures)
-		{
-
-				textures.setTexture("material.diffuse", _diffuseTexture);
-				textures.setTexture("material.specular", _specularTexture);
-				textures.setTexture("material.emissive", _emissiveTexture);
-		}
 
 		//Create a switch for using either map or float3
 

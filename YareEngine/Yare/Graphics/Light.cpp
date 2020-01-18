@@ -46,14 +46,8 @@ namespace yare { namespace graphics {
 		uniforms.setUniform(elementStr + ".specular", _specular);
 		uniforms.setUniform(elementStr + ".attenuation", _attenuation);
 		uniforms.setUniform(elementStr + ".radius", _radius);
-
-	}
-	void PointLight::unloadTextures(TextureBlock& textures, int lightIndex) const
-	{
-		const std::string elementStr = "pt_lights[" + std::to_string(lightIndex) + "]";
 		if (Light::getShadowMap())
-			textures.setTexture(elementStr + ".shadowmap", getShadowMap());
-
+			uniforms.setUniform(elementStr + ".shadowmap", getShadowMap());
 	}
 	////////////////// directional /////////////////////////////
 	
@@ -69,12 +63,8 @@ namespace yare { namespace graphics {
 		uniforms.setUniform(elementStr + ".ambient", _ambient);
 		uniforms.setUniform(elementStr + ".diffuse", _diffuse);
 		uniforms.setUniform(elementStr + ".specular", _specular);
-	}
-	void DirectionalLight::unloadTextures(TextureBlock& textures, int lightIndex) const
-	{
-		const std::string elementStr = "dir_lights[" + std::to_string(lightIndex) + "]";
 		if (Light::getShadowMap())
-			textures.setTexture(elementStr + ".shadowmap", getShadowMap());
+			uniforms.setUniform(elementStr + ".shadowmap", getShadowMap());
 	}
 	void DirectionalLight::setDirection(glm::vec3& direction)
 	{

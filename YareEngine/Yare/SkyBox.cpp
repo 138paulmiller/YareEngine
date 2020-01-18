@@ -31,7 +31,7 @@ namespace yare {
 		void SkyBox::setCubemap(Texture* cubemap)
 		{
 			_cubemap = cubemap;
-			Mesh::command.textures.setTexture("environment", _cubemap);
+			Mesh::command.uniforms.setUniform("environment", _cubemap);
 		}
 
 		void SkyBox::loadFace(const TexturePixels& pixels, const TextureFace& face)

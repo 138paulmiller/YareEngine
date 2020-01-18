@@ -25,7 +25,6 @@ namespace yare {
 		
 		void LightBlock::removeDirectionalLight(const std::string& name)
 		{
-
 			_directionalLights.erase(name);
 		}
 

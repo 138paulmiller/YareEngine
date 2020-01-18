@@ -6,7 +6,6 @@
 #include "Shader.hpp"
 #include "RenderTarget.hpp"
 #include "VertexArray.hpp"
-#include "TextureBlock.hpp"
 #include "UniformBlock.hpp"
 
 namespace yare {
@@ -81,7 +80,6 @@ namespace yare {
 	{
 		//Viewport
 		graphics::UniformBlock uniforms;
-		graphics::TextureBlock textures;
 
 		graphics::VertexArray * vertexArray = 0;
 		graphics::Shader * shader = 0;

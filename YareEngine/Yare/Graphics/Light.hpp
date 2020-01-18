@@ -2,7 +2,6 @@
 #pragma once
 #include <glm/glm.hpp>
 #include "UniformBlock.hpp"
-#include "TextureBlock.hpp"
 #include "Texture.hpp"
 #include "Camera.hpp"
 /*
@@ -23,7 +22,6 @@ namespace yare {
 			}
 			//Lights are placed into an array. So, index must be specified
 			virtual void unloadUniforms(UniformBlock& uniforms, int lightIndex) const= 0;
-			virtual void unloadTextures(TextureBlock& textures, int lightIndex) const = 0;
 			virtual void setcastShadow(bool castsShadow) { _castsShadow = castsShadow;};
 			virtual bool getCastShadow() const { return _castsShadow; }
 
@@ -50,7 +48,6 @@ namespace yare {
 			};
 			virtual ~PointLight() = default;
 			void unloadUniforms(UniformBlock& uniforms, int lightIndex) const override;
-			void unloadTextures(TextureBlock& textures, int lightIndex) const override;
 			void setPosition   (const glm::vec3 &position );
 			void setAmbient    (const glm::vec3 &ambient  );
 			void setDiffuse    (const glm::vec3 &diffuse  );
@@ -84,7 +81,6 @@ namespace yare {
 			};
 			virtual ~DirectionalLight() = default;
 			void unloadUniforms(UniformBlock& uniforms, int lightIndex)const override;
-			void unloadTextures(TextureBlock& textures, int lightIndex) const override;
 
 			void setDirection(glm::vec3& direction);
 			void setPosition(glm::vec3& position);

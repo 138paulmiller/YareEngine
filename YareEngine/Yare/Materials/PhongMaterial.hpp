@@ -11,7 +11,6 @@ namespace yare {
 			~PhongMaterial();
 			//Load uniform/textures into uniforms/texture block
 			void unloadUniforms(UniformBlock& uniforms) override ;
-			void unloadTextures(TextureBlock& textures) override ;
 
 			//Create a switch for using either map or float3
 			inline const Texture* getDiffuseTexture()  { return _diffuseTexture ; }

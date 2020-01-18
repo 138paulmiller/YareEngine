@@ -147,7 +147,6 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands, cons
 		//load the uniforms into the shader
 
 		command->uniforms.load(command->shader);
-		command->textures.load(command->shader);
 
 		command->vertexArray->bind();
 
@@ -263,6 +262,7 @@ void Renderer::setupRenderPasses()
 //the render deferred passes 
 void Renderer::render()
 {
+
 	renderPass(RenderPass::Geometry);
 	renderPass(RenderPass::Lighting);
 	renderPass(RenderPass::Forward);
@@ -428,8 +428,8 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 		}
 
 		dirLight->getShadowMap()->unbind();
-
-		shadowmaps[index]->blit(pass.target, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _width);
+		//set the lights shadow map
+		shadowmaps[index]->blit(pass.target, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
 
 		index++;
 	}

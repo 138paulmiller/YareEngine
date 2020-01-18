@@ -1,12 +1,13 @@
  #pragma once
 #include "Shader.hpp"
+#include "Texture.hpp"
 #include <unordered_map>
 
 namespace yare { 
 	namespace graphics {  
 		enum class UniformType
 		{
-			Int, Float, Float3, Int3, Mat4
+			Int, Float, Float3, Int3, Mat4, Texture
 		};
 
 		//Move to shader.hpp and use UBO
@@ -20,6 +21,7 @@ namespace yare {
 				glm::vec3 float3;
 				glm::dvec3 int3;
 				glm::mat4 mat4;
+				Texture * texture;
 			}
 			value;
 			UniformType type;
@@ -36,6 +38,7 @@ namespace yare {
 			void setUniform(const std::string& name, const glm::dvec3& int3);
 			void setUniform(const std::string& name, const glm::vec3& float3);
 			void setUniform(const std::string& name, const glm::mat4& mat4);
+			void setUniform(const std::string& name, Texture * texture);
 			
 			/*
 			Load all uniforms into shader
