@@ -77,6 +77,7 @@ namespace yare
 		
 		add<graphics::Texture>("container_diffuse"  , _engineContentDir + "Textures/container_diffuse.png"  );
 		add<graphics::Texture>("container_specular" , _engineContentDir + "Textures/container_specular.png" );
+		add<graphics::Texture>("ocean", _engineContentDir + "Textures/ocean.jpg");
 		
 		add<graphics::Cubemap>("skybox_cubemap"     , _engineContentDir + "Textures/skybox_cubemap.png"             );
 	}

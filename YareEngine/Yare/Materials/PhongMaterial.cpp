@@ -8,21 +8,28 @@ namespace yare {
 			command.shader = AssetManager::GetInstance().get<Shader>("phong_mesh");
 			command.mode = RenderMode::Mesh;
 			command.lighting = RenderLighting::Surface;
+
+			_diffuseTexture = nullptr;
+			_specularTexture = nullptr;
+			_emissiveTexture = nullptr;
+			_shininess = 1;
+
 		}
 		PhongMaterial::~PhongMaterial()
 		{
-			_diffuseTexture =  nullptr;
-			_specularTexture=  nullptr;
-			_emissiveTexture=  nullptr;
-
+			//does not own textures
 		}
 		//Load uniform/textures into uniforms/texture block
 		void PhongMaterial::unloadUniforms(UniformBlock& uniforms)
 		{
 			uniforms.setUniform("material.shininess", _shininess);
+			if(_diffuseTexture)
 			uniforms.setUniform("material.diffuse", _diffuseTexture);
-			uniforms.setUniform("material.specular", _specularTexture);
-			uniforms.setUniform("material.emissive", _emissiveTexture);
+
+			if(_specularTexture)
+				uniforms.setUniform("material.specular", _specularTexture);
+			if(_emissiveTexture)
+				uniforms.setUniform("material.emissive", _emissiveTexture);
 		}
 		
 

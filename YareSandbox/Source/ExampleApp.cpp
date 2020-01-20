@@ -97,6 +97,10 @@ void ExampleApp::onEnter()
 	Texture * specular = AssetManager::GetInstance().get<Texture>("container_specular");
 	specular->update(TextureWrap::Repeat);
 
+	Texture* oceanImage= AssetManager::GetInstance().get<Texture>("ocean");
+	oceanImage->update(TextureWrap::Repeat);
+
+
 	//All materials should set all textures as empty to default. Move this to texture class to get empty texture
 	Texture* empty = Texture::Create();
 	TexturePixels pixels = { 0, 0, 0};
@@ -111,15 +115,15 @@ void ExampleApp::onEnter()
 	_phongMaterial.reset(new PhongMaterial());
 	_phongMaterial->setDiffuseTexture(diffuse);
 	_phongMaterial->setSpecularTexture(specular);
-	_phongMaterial->setEmissiveTexture(empty);
+	//_phongMaterial->setEmissiveTexture(empty);
 	_phongMaterial->setShininess(2);
 
 	//Create an instance of the flat material. To be shared among meshes
 	_flatMaterial.reset(new FlatMaterial());
 	_flatMaterial->setBase(glm::vec3(1, 0, 0));
 
-	_floorMaterial.reset(new FlatMaterial());
-	_floorMaterial->setBase(glm::vec3(1, 1, 1));
+	_floorMaterial.reset(new PhongMaterial());	
+	_floorMaterial->setDiffuseTexture(oceanImage);
 
 	// --------------- Init Floor ---------------------------------------------------------------
 	_floorMesh.reset(new Mesh());

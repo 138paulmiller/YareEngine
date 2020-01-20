@@ -62,7 +62,7 @@ class ExampleApp : public App
 	std::vector< std::unique_ptr<Mesh > >       _pointLightMeshes;
 	std::vector< std::unique_ptr<Mesh>	>	_boxMeshes;
 
-	std::unique_ptr<FlatMaterial> _floorMaterial;
+	std::unique_ptr<PhongMaterial> _floorMaterial;
 	std::unique_ptr<FlatMaterial> _flatMaterial;
 	std::unique_ptr<PhongMaterial> _phongMaterial;
 

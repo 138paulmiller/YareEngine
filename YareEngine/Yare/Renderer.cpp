@@ -374,27 +374,6 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 	std::vector< RenderTarget*> shadowmaps;
 	shadowmaps.resize(lightCount);
 	
-	//Create a shadow map for each light.
-	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
-		
-		DirectionalLight * dirLight = value.second;
-		
-		if (dirLight->getCastShadow()) {
-			RenderTarget* shadowmap = RenderTarget::Create();
-			shadowmap->setup({
-				RenderTargetAttachment::Scene,
-				}
-			);
-			shadowmap->resize(_width, _height);
-			shadowmaps[index] = shadowmap;
-			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Scene));
-		}
-		else {
-			shadowmaps[index] = 0;
-		}
-		index++;
-		//add the newly create
-	}
 	//for point lights, create an Env RenderTargetAttachment for cubemap support!!!
 
 	//
@@ -405,7 +384,15 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
 		
 		DirectionalLight * dirLight = value.second;
-		if (dirLight->getShadowMap()) {
+		if (dirLight->getCastShadow()) {
+			RenderTarget* shadowmap = RenderTarget::Create();
+			shadowmap->setup({
+				RenderTargetAttachment::Scene,
+				}
+			);
+			shadowmap->resize(_width, _height);
+			shadowmaps[index] = shadowmap;
+			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Scene));
 			shadowmaps[index]->bind();
 			dirLight->getShadowMap()->bind();
 			lightDepthShader->bind();
@@ -435,9 +422,12 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 
 			dirLight->getShadowMap()->unbind();
 			//set the lights shadow map
-			//shadowmaps[index]->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
-			dirLight->setShadowMap(shadowmaps[index]->getTexture(RenderTargetAttachment::Scene));
-			}
+			shadowmaps[index]->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
+		}
+		else
+		{
+			shadowmaps[index] = 0;
+		}
 		index++;
 	}
 	index = 0 ;
