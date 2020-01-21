@@ -90,12 +90,9 @@ void Renderer::submit(Renderable * renderable)
 		case RenderLighting::Surface:
 			//surface, add commands to 
 			_passes[(int)RenderPass::Geometry].commands.push_back(command);
-			//todo add to transparent?
-			_passes[(int)RenderPass::Shadow].commands.push_back(command);
 			break;
 		case RenderLighting::Unlit:
 			_passes[(int)RenderPass::Forward].commands.push_back(command);
-			_passes[(int)RenderPass::Shadow].commands.push_back(command);
 			break;
 
 	}
@@ -200,12 +197,6 @@ void Renderer::setupLayers()
 	phongLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
 	_layers["phong"] = phongLayer;
 
-	Layer* shadowLayer = new Layer();
-	shadowLayer->setShader(AssetManager::GetInstance().get<Shader>("shadow_layer"));
-	shadowLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
-	_layers["shadow"] = shadowLayer;
-	shadowLayer->getState().colorMask = RenderColorMask::None;
-
 }
 
 void Renderer::setupRenderPasses()
@@ -239,13 +230,6 @@ void Renderer::setupRenderPasses()
 	forwardPass.inputs = { _targets["gbuffer"] };//uses gbuffers depth buffer 
 	forwardPass.target = _targets["scene"];
 
-	//Setup forward pass
-	RenderPassCommand & shadowPass = _passes[(const int)RenderPass::Shadow];
-	shadowPass.targetScalar = sceneBufferScalar;
-	shadowPass.render = &Renderer::renderPassShadow;
-	shadowPass.inputs = { _targets["gbuffer"] };//uses gbuffers depth buffer 
-	shadowPass.target = _targets["scene"];
-
 
 
 	//Setup scene pass
@@ -266,12 +250,8 @@ void Renderer::render()
 	renderPass(RenderPass::Geometry);
 	renderPass(RenderPass::Lighting);
 	renderPass(RenderPass::Forward);
-	if (_settings.debugShadowmaps) {
-		renderPass(RenderPass::Shadow);
-	}
-	else {
-		renderPass(RenderPass::Scene);
-	}//render post processes, initial post process should use scene as input. chaiun outputs into inputs
+	renderPass(RenderPass::Scene);
+	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
 	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
 	for (int i = 0; i < (const int)RenderPass::Count; i++)
 	{
@@ -307,18 +287,17 @@ void Renderer::renderPass(RenderPass pass)
 	if (passCommand.render)
 		(this->* (passCommand.render))(passCommand);
 
+	//unbind the rendered target
 	if (passCommand.target)
 		passCommand.target->unbind();
 
-
-	//unbind the rendered target
+	//set back to default viewport size
 	resizeViewport(_width, _height);
 }
 
 void Renderer::renderPassGeometry(const RenderPassCommand & pass)
 {
 	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
-
 	renderCommands(pass.commands, _cache.camera, _cache.lights);	
 }
 
@@ -326,7 +305,6 @@ void Renderer::renderPassGeometry(const RenderPassCommand & pass)
 void  Renderer::renderPassLighting(const RenderPassCommand & pass)
 {
 	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
-
 	renderLayer(_layers["phong"], _cache.camera, _cache.lights,pass.inputs, pass.target);
 }
 void  Renderer::renderPassForward(const RenderPassCommand & pass)
@@ -376,65 +354,33 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 	
 	//for point lights, create an Env RenderTargetAttachment for cubemap support!!!
 
-	//
 	//updateState(command->state);//cull front face!
 	
 	index = 0;
 	//for each light, render the scene depth.
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
-		
+		RenderTarget* shadowmap = 0;
 		DirectionalLight * dirLight = value.second;
 		if (dirLight->getCastShadow()) {
-			RenderTarget* shadowmap = RenderTarget::Create();
-			shadowmap->setup({
-				RenderTargetAttachment::Scene,
-				}
-			);
-			shadowmap->resize(_width, _height);
-			shadowmaps[index] = shadowmap;
-			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Scene));
-			shadowmaps[index]->bind();
-			dirLight->getShadowMap()->bind();
-			lightDepthShader->bind();
 			OrthographicCamera * camera = dynamic_cast<OrthographicCamera*>(dirLight->getCamera());
-			this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
-			float aspect = ((float)_width)/ _height;
-			float boundX = 10  * aspect;
-			float boundY = 10  ;
-			camera->setBounds(-1.0 * boundX, boundX, -1.0 * boundY, boundY);
-			//TODO OPTIMIZE!! - cull, sort, ubo, shader management
-			for (RenderCommand* command : pass.commands)
-			{
-				camera->unloadUniforms(command->uniforms);
-				command->uniforms.load(lightDepthShader);
-
-				command->vertexArray->bind();
-				switch (command->mode)
-				{
-				case RenderMode::Mesh:
-					renderMesh(command->vertexArray);
-					break;
-				case RenderMode::IndexedMesh:
-					renderIndexedMesh(command->vertexArray);
-					break;
-				}
-			}
-
-			dirLight->getShadowMap()->unbind();
-			//set the lights shadow map
-			shadowmaps[index]->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
+			shadowmap =generateShadowmapTarget(pass.commands, camera, lightDepthShader);
+			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Scene));
 		}
 		else
 		{
 			shadowmaps[index] = 0;
 		}
+		shadowmaps[index] = shadowmap;
+		if(shadowmaps[index])
+			shadowmaps[index]->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
+
 		index++;
 	}
 	index = 0 ;
 
 	//set uniform sampler2Ds and render shadow information to a buffer
 
-	renderLayer(_layers["shadow"], _cache.camera, _cache.lights, pass.inputs,0);
+	//renderLayer(_layers["shadow"], _cache.camera, _cache.lights, pass.inputs,0);
 	//pass.target->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
 
 	index = 0;
@@ -447,6 +393,43 @@ void Renderer::renderPassShadow(const RenderPassCommand& pass)
 		delete shadowmaps[index++];
 	}
 }
+
+
+RenderTarget* Renderer::generateShadowmapTarget(const std::vector<RenderCommand * >& commands, Camera* camera, Shader* shader)
+{
+	RenderTarget* target = RenderTarget::Create();
+	target->setup({
+		RenderTargetAttachment::Scene,
+		}
+	);
+	target->resize(_width, _height);
+	target->bind(RenderTargetMode::Draw);
+	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
+	float aspect = ((float)_width) / _height;
+	camera->setAspect(aspect);
+	shader->bind();
+
+	for (RenderCommand* command : commands)
+	{
+		camera->unloadUniforms(command->uniforms);
+		command->uniforms.load(shader);
+
+		command->vertexArray->bind();
+		switch (command->mode)
+		{
+		case RenderMode::Mesh:
+			renderMesh(command->vertexArray);
+			break;
+		case RenderMode::IndexedMesh:
+			renderIndexedMesh(command->vertexArray);
+			break;
+		}
+	}
+	target->unbind();
+
+	return target;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 
 //unloads all attachments toy default framebuffer

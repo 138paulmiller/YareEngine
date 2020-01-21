@@ -22,8 +22,6 @@ namespace yare {
 			template<class T>
 			using Lights = std::unordered_map<std::string, T>;
 
-
-
 			void setPointLight(const std::string & name, PointLight* light);
 			void setDirectionalLight(const std::string& name, DirectionalLight* light);
 			

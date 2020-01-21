@@ -20,7 +20,10 @@ namespace yare { namespace graphics {
 		virtual ~Camera(){
 
 		}
-
+		virtual void setAspect(float aspect)
+		{
+		
+		}
 
 		virtual void setUp(const glm::vec3& up)
 		{
@@ -72,9 +75,15 @@ namespace yare { namespace graphics {
 			const glm::vec3& forward = { 0,0,-1 }) :
 			Camera(up, forward)
 		{
+			_fovy = fovy;
 			_near = near;
 			_far = far;
 			Camera::setProjection(glm::perspective(fovy, aspect, near, far));
+		}
+		void setAspect(float aspect)
+		{
+			Camera::setProjection(glm::perspective(_fovy, aspect, _near, _far));
+
 		}
 
 		void unloadUniforms(UniformBlock& uniforms) const override {
@@ -83,14 +92,14 @@ namespace yare { namespace graphics {
 			uniforms.setUniform("far", _far);
 		}
 	private:
-		float _near, _far;
+		float _near, _far, _fovy;
 
 	};
 	class OrthographicCamera :public Camera
 	{
 	public:
 		OrthographicCamera(
-			float left = -10, float right  =10, float bottom = -10,  float top = 10,
+			float width  = 10, float height =10, 
 			float near = 1, float far = 100,
 			const glm::vec3& up = { 0,1,0 },
 			const glm::vec3& forward = { 0,0,-1 }) :
@@ -98,13 +107,17 @@ namespace yare { namespace graphics {
 		{
 			_near = near;
 			_far = far;
-			Camera::setProjection(glm::ortho(left, right, bottom, top, near, far));
-
+			_height = height;
+			_width = width;
+			setAspect(1.f);
 		}
 
-		void setBounds(float left, float right, float bottom, float top)
+		void setAspect(float aspect)
 		{
-			Camera::setProjection(glm::ortho(left, right, bottom, top, _near, _far));
+			float boundX = _width * aspect;
+			float boundY = _height;
+		
+			Camera::setProjection(glm::ortho(-1.f * boundX, boundX, -1.f * boundY, boundY, _near, _far));
 		}
 
 		void unloadUniforms(UniformBlock& uniforms) const override {
@@ -114,7 +127,7 @@ namespace yare { namespace graphics {
 		}
 	private:
 		float _near, _far;
-
+		float _width, _height;
 	};
 
 } }

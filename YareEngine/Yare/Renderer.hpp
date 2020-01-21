@@ -38,7 +38,6 @@ namespace yare {
 		Lighting,
 		//SSAO,
 		Forward,
-		Shadow, //shadow map creation and uses gbuffer to shade occluded pixels
 		Scene,
 		//post process here
 		Count 
@@ -144,6 +143,9 @@ namespace yare {
 		//renders the scene colors
 		void renderPassScene(const RenderPassCommand& pass);
 		
+		//Renders commands to shadowmap target 
+		RenderTarget* generateShadowmapTarget(const std::vector<RenderCommand  *> & commands, Camera * camera, Shader * shader);
+
 		//unloads all attachments toy default framebuffer
 		void debugRenderTarget(RenderTarget* target);
 
