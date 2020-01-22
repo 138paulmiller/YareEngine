@@ -53,8 +53,33 @@ uniform int dir_light_count;
 in vec2 frag_uv;
 //move lighting calc to lightpass layer
 
+//
+float calcShadowAmount(sampler2D shadowmap, mat4 light_space, vec3 world_pos, float bias)
+{
 
-vec3 calcDirectionalLightRadiance(DirectionalLight light, vec3 pos, vec3 normal, vec3 view_dir)
+	//calculate if in shadow or not
+	vec4 view_proj_pos = light_space * vec4(world_pos, 1.0); 
+	
+	//perspective divide, event tho it should be ortho
+	vec3 proj_coords = view_proj_pos.xyz  / view_proj_pos.w;
+	//screen to texture space -1,1 to 0-1 
+	proj_coords = proj_coords * 0.5 + 0.5;
+
+	//nearest depth from light perpective
+	float nearest_depth = texture(shadowmap, proj_coords.xy).r;
+	//depth of fragment from light perspective
+	float current_depth = proj_coords.z;
+	
+	float shadow = 0.0;
+	//pixel is occluded
+	if( (current_depth - bias) > nearest_depth)
+	{
+		shadow = 1.0;
+	}
+	return shadow;
+}
+
+vec3 calcDirectionalLightRadiance(DirectionalLight light, vec3 world_pos, vec3 normal, vec3 view_dir)
 {
 	vec3 light_dir = normalize(-light.direction);
 	//diffuse
@@ -64,37 +89,13 @@ vec3 calcDirectionalLightRadiance(DirectionalLight light, vec3 pos, vec3 normal,
 	float shininess = texture(specular, frag_uv).a;
 	float specular_coeff = pow(max(0.0, dot(view_dir, reflect_dir)), shininess);
 	
-	//calculate if in shadow or not
-	//perspective divide, event tho it should be ortho
 	float bias = 0.005;
-	mat4 bias_mat = mat4(
-		bias, 0.0, 0.0, 0.0,
-		0.0, bias, 0.0, 0.0,
-		0.0, 0.0, bias, 0.0,
-		bias, bias, bias, 1.0
-	);
-	
-	vec4 view_proj_pos = light.view_proj * vec4(pos, 1.0); 
-	vec3 proj_coords = view_proj_pos.xyz  / view_proj_pos.w;
-	proj_coords = proj_coords * 0.5 + 0.5;
-
-	//nearest depth from light perpective
-	float nearest_depth = texture(light.shadowmap, proj_coords.xy).r;
-	//depth of fragment from light perspective
-	float current_depth = proj_coords.z;
-	
-	float shadow = 0.0;
-	
-	if( (current_depth - 0.005) > nearest_depth)
-	{
-		shadow = 1.0;
-	}
+	float shadow = calcShadowAmount(light.shadowmap, light.view_proj, world_pos, bias);
 
 	//samples 
 	vec3 a = light.ambient  * texture(diffuse, frag_uv).xyz;
 	vec3 d = light.diffuse  * texture(diffuse, frag_uv).xyz  * diffuse_coeff;
 	vec3 s = light.specular * texture(specular, frag_uv).xyz * specular_coeff;
-	//return vec3(nearest_depth);
 	return a + (d + s) * (1.0-shadow);
 }
 
