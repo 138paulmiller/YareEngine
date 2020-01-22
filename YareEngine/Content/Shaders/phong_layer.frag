@@ -66,22 +66,29 @@ vec3 calcDirectionalLightRadiance(DirectionalLight light, vec3 pos, vec3 normal,
 	
 	//calculate if in shadow or not
 	//perspective divide, event tho it should be ortho
-	vec4 view_proj_pos = light.view_proj * vec4(pos ,1.0); 
-	vec3 proj_coords = view_proj_pos.xyz / view_proj_pos.w;
+	vec4 view_proj_pos = light.view_proj * vec4(pos, 1.0); 
+	vec3 proj_coords = view_proj_pos.xyz  / view_proj_pos.w;
 	proj_coords = proj_coords * 0.5 + 0.5;
 
 	//nearest depth from light perpective
 	float nearest_depth = texture(light.shadowmap, proj_coords.xy).r;
 	//depth of fragment from light perspective
 	float current_depth = proj_coords.z;
-
-	float shadow = current_depth > nearest_depth ? 255.0 : 0.0;
-
+	
+	float shadow = 0.0;
+	float bias = 0.005;
+	if(current_depth - bias> nearest_depth)
+	{
+		shadow = 1.0;
+	}
+	if(current_depth > 1.0)
+        shadow = 0.0;
 	//samples 
 	vec3 a = light.ambient  * texture(diffuse, frag_uv).xyz;
 	vec3 d = light.diffuse  * texture(diffuse, frag_uv).xyz  * diffuse_coeff;
 	vec3 s = light.specular * texture(specular, frag_uv).xyz * specular_coeff;
-	return vec3(shadow);
+	return a + (d + s) * (1.0-shadow);
+	//return vec3(nearest_depth);
 }
 
 vec3 calcPointLightRadiance(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
@@ -133,23 +140,12 @@ void main(void)
 
 	vec3 position = texture(position, frag_uv).rgb;
 	vec3 normal = texture(normal, frag_uv).rgb;
+	vec3 depth= texture(depth, frag_uv).rgb;
 
 
 	vec3 view_dir = normalize ( view_pos - position.xyz ) ;
 	out_scene = getColor(position, view_dir, normal);
 
-	out_scene = vec4(position,1.0);
 
-	return;
-
-	///render shadowmap onto the meshes
-	vec4 view_proj_pos = dir_lights[0].view_proj * vec4(position ,1.0); 
-	vec3 proj_coords = view_proj_pos.xyz / view_proj_pos.w;
-	proj_coords = proj_coords * 0.5 + 0.5;
-
-	//nearest depth from light perpective
-	float nearest_depth = texture(dir_lights[0].shadowmap, proj_coords.xy).r;
-	out_scene = vec4(position ,1.0);
-	
 
 }

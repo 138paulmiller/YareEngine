@@ -99,7 +99,7 @@ namespace yare { namespace graphics {
 	{
 	public:
 		OrthographicCamera(
-			float width  = 10, float height =10, 
+			float width  = 2, float height =2, 
 			float near = 1, float far = 100,
 			const glm::vec3& up = { 0,1,0 },
 			const glm::vec3& forward = { 0,0,-1 }) :

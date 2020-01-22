@@ -60,7 +60,7 @@ namespace yare
 			if (input)
 			{
 				input->bind(RenderTargetMode::Read);
-				input->bindTextures(offsetTextureUnit);
+				//input->bindTextures(offsetTextureUnit);
 				input->unloadUniforms(_uniforms);
 				offsetTextureUnit += input->getNumberOfAttachments();
 			}

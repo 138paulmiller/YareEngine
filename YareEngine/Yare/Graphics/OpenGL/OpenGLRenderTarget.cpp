@@ -293,7 +293,7 @@ namespace yare {
 				RenderTargetAttachment attachment = RenderTargetAttachment(i);
 				if (_buffers[i].used)
 				{
-					uniforms.setUniform(RenderTargetAttachmentUniformName(attachment), _buffers[i].unit);
+					uniforms.setUniform(RenderTargetAttachmentUniformName(attachment), _buffers[i].texture);
 
 				}
 			}

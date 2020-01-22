@@ -229,11 +229,6 @@ void Renderer::setupLayers()
 	phongLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
 	_layers["phong"] = phongLayer;
 
-	Layer* shadowLayer = new Layer();
-	shadowLayer->setShader(AssetManager::GetInstance().get<Shader>("shadow_layer"));
-	shadowLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
-	_layers["shadow"] = shadowLayer;
-
 
 }
 
@@ -398,9 +393,8 @@ void  Renderer::generateShadowmaps(std::vector<RenderTarget* >& targets, const s
 	//for point lights, create an Env RenderTargetAttachment for cubemap support!!!
 	RenderState shadowState;
 	//cull front face to prevent "peter-panning" effect
-	shadowState.cullFace = RenderCullFace::Front;
 	//enable blending to accumulate value 
-	pushState(shadowState);
+	updateState(shadowState);
 
 	//for each light, render the scene depth.
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
@@ -409,14 +403,13 @@ void  Renderer::generateShadowmaps(std::vector<RenderTarget* >& targets, const s
 			RenderTarget* target = targets[index];
 			renderShadowmap(target , commands, dirLight, lightDepthShader);
 			dirLight->setShadowMap(target->getTexture(RenderTargetAttachment::Scene));
-		
-			//target->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
-
+			//debug shad
+			//target->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0,0, _width, _height);
 			index++;
 		}
 	}
+	updateState(RenderState());
 
-	popState();
 }
 
 
