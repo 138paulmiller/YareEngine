@@ -20,6 +20,7 @@ namespace yare {
 		Diffuse, //RGBA floating
 		Specular, //RGBA floating
 		Emissive, //RGBA floating
+		Shadow,
 		Depth, // TODO - Do not use internal depth buffer write to depth on geom pass. 
 		//use depth pass to write this texture to depth instead of blitting to it
 		//Stencil, //

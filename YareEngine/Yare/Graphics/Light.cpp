@@ -36,7 +36,10 @@ namespace yare { namespace graphics {
 	{
 		const std::string elementStr = "pt_lights[" + std::to_string(lightIndex) +"]";
 		if (Light::getCamera())
-			uniforms.setUniform(elementStr + ".light_space", Light::getCamera()->getView());
+		{
+			const glm::mat4& lightSpace = Light::getCamera()->getProjection() * Light::getCamera()->getView();
+			uniforms.setUniform(elementStr + ".view_proj", lightSpace);
+		}
 
 
 		if (Light::getShadowMap()) {
@@ -61,8 +64,10 @@ namespace yare { namespace graphics {
 	{
 		const std::string elementStr = "dir_lights[" + std::to_string(lightIndex) + "]";
 		if (Light::getCamera())
-			uniforms.setUniform(elementStr + ".light_space", Light::getCamera()->getView());
-
+		{
+			const glm::mat4 & lightSpace = Light::getCamera()->getProjection() * Light::getCamera()->getView();
+			uniforms.setUniform(elementStr + ".view_proj", lightSpace);
+		}
 		if (Light::getShadowMap()) {
 
 			uniforms.setUniform(elementStr + ".shadowmap", getShadowMap());

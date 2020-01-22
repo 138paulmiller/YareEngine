@@ -1,6 +1,7 @@
 #version 330
 
 // --------------------------- Defs  ------------------------------
+//Move this to common
 #define POINT_LIGHT_COUNT 64
 #define DIRECTIONAL_LIGHT_COUNT 8
 
@@ -15,6 +16,7 @@ struct PointLight {
 	float radius;
 	int cast_shadow;
 	sampler3D shadowmap; //
+	mat4 view_proj;
 };
 
 struct DirectionalLight {
@@ -25,6 +27,7 @@ struct DirectionalLight {
 	float radius;
 	int cast_shadow;
 	sampler2D shadowmap; //
+	mat4 view_proj;
 };
 //shade is measured as 1.0/TOTAL_LIGHTCOUNT
 
@@ -50,7 +53,8 @@ uniform int dir_light_count;
 in vec2 frag_uv;
 //move lighting calc to lightpass layer
 
-vec3 calcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir)
+
+vec3 calcDirectionalLightRadiance(DirectionalLight light, vec3 pos, vec3 normal, vec3 view_dir)
 {
 	vec3 light_dir = normalize(-light.direction);
 	//diffuse
@@ -59,14 +63,28 @@ vec3 calcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir)
 	vec3 reflect_dir = reflect(-light_dir, normal);
 	float shininess = texture(specular, frag_uv).a;
 	float specular_coeff = pow(max(0.0, dot(view_dir, reflect_dir)), shininess);
+	
+	//calculate if in shadow or not
+	//perspective divide, event tho it should be ortho
+	vec4 view_proj_pos = light.view_proj * vec4(pos ,1.0); 
+	vec3 proj_coords = view_proj_pos.xyz / view_proj_pos.w;
+	proj_coords = proj_coords * 0.5 + 0.5;
+
+	//nearest depth from light perpective
+	float nearest_depth = texture(light.shadowmap, proj_coords.xy).r;
+	//depth of fragment from light perspective
+	float current_depth = proj_coords.z;
+
+	float shadow = current_depth > nearest_depth ? 255.0 : 0.0;
+
 	//samples 
 	vec3 a = light.ambient  * texture(diffuse, frag_uv).xyz;
 	vec3 d = light.diffuse  * texture(diffuse, frag_uv).xyz  * diffuse_coeff;
 	vec3 s = light.specular * texture(specular, frag_uv).xyz * specular_coeff;
-	return a + d + s;
+	return vec3(shadow);
 }
 
-vec3 calcPointLight(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
+vec3 calcPointLightRadiance(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
 {
 	vec3 light_dir = normalize(light.position - pos);
 	//diffuse
@@ -96,11 +114,11 @@ vec4 getColor(vec3 world_position, vec3 view_dir, vec3 normal)
 {
 	vec4 color = vec4(0);
 	for (int i = 0; i < dir_light_count; i++) {
-		color.xyz += calcDirectionalLight(dir_lights[i], normal, view_dir);
+		color.xyz += calcDirectionalLightRadiance(dir_lights[i], world_position, normal, view_dir);
 	}
 
 	for (int i = 0; i < pt_light_count; i++) {
-		color.xyz += calcPointLight(pt_lights[i], world_position, normal, view_dir);
+		color.xyz += calcPointLightRadiance(pt_lights[i], world_position, normal, view_dir);
 	}
 
 	color.w = 1.0;
@@ -119,5 +137,19 @@ void main(void)
 
 	vec3 view_dir = normalize ( view_pos - position.xyz ) ;
 	out_scene = getColor(position, view_dir, normal);
+
+	out_scene = vec4(position,1.0);
+
+	return;
+
+	///render shadowmap onto the meshes
+	vec4 view_proj_pos = dir_lights[0].view_proj * vec4(position ,1.0); 
+	vec3 proj_coords = view_proj_pos.xyz / view_proj_pos.w;
+	proj_coords = proj_coords * 0.5 + 0.5;
+
+	//nearest depth from light perpective
+	float nearest_depth = texture(dir_lights[0].shadowmap, proj_coords.xy).r;
+	out_scene = vec4(position ,1.0);
+	
 
 }

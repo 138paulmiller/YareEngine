@@ -93,12 +93,19 @@ void OpenGLTexture::load(
 
 	if (_isLoadedMap[(int)(face)])
 	{	
-		glTexSubImage2D(
-			target ,
-			level,
-			0, 0, //offsets
+		//if new width/height is differnet, then subimage update
+//		glTexSubImage2D(
+//			target ,
+//			level,
+//			0, 0, //offsets
+//			pixels.width, pixels.height,
+//			format, type, pixels.data);
+		glTexImage2D(target, level,
+			_internalFormat,
 			pixels.width, pixels.height,
+			0,//border 
 			format, type, pixels.data);
+
 	}
 	else
 	{

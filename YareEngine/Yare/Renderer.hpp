@@ -32,7 +32,7 @@ namespace yare {
 
 	enum class RenderPass
 	{
-		//renders position, color, normal to rendertarget geometry. all layers can access this
+		//renders position, color, normal to gbuffer
 		Geometry = 0,
 		//Uses Gbuffer data to write lit scene info to a buffer
 		Lighting,
@@ -43,6 +43,7 @@ namespace yare {
 		Count 
 	};
 
+	//
 	//Create a callback for pre and post pass hooks. The cretae classes for each pass type, will manage drawing its own layer and clearing
 	struct RenderPassCommand
 	{
@@ -82,6 +83,7 @@ namespace yare {
 			//Cached for begin/end blocks
 			const Camera* camera; //current cameras scene
 			LightBlock * lights; //all lights in the current scene
+			std::vector<RenderTarget* > shadowmapTargets;
 		} ;
 		
 		struct RenderSettings
@@ -137,14 +139,22 @@ namespace yare {
 		void renderPassLighting(const RenderPassCommand & pass);
 		//renders color directly to lit scene
 		void renderPassForward(const RenderPassCommand & pass);		
-		//renders the shadow maps for each light
-		void renderPassShadow(const RenderPassCommand& pass);
+
+		//TODO - this should use additive blending to write to the shade attachment. prevents multiple shadowmap targets
+		//then light will not have shadowmap attrib in lighting pass. it will read from shadow attachment whic is scalar from 0-number of lights
+		//void renderPassShadow(const RenderPassCommand& pass);
 
 		//renders the scene colors
 		void renderPassScene(const RenderPassCommand& pass);
-		
+
+
+		void setupShadowmapTargets();
+
+		//Renders commands to each lights shadowmap, returns a vector of render targets used. must be garbage collected when finished
+		void  generateShadowmaps(std::vector<RenderTarget* > & targets, const std::vector<RenderCommand* >& commands, LightBlock * lights);
+
 		//Renders commands to shadowmap target 
-		RenderTarget* generateShadowmapTarget(const std::vector<RenderCommand  *> & commands, Camera * camera, Shader * shader);
+		void renderShadowmap(RenderTarget* target, const std::vector<RenderCommand  *> & commands, Light* lights, Shader * shader);
 
 		//unloads all attachments toy default framebuffer
 		void debugRenderTarget(RenderTarget* target);

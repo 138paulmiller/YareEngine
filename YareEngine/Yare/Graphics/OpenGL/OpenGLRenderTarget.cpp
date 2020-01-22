@@ -20,6 +20,7 @@ namespace yare {
 			case RenderTargetAttachment::Emissive:
 			case RenderTargetAttachment::Position:
 			case RenderTargetAttachment::Normal:
+			case RenderTargetAttachment::Shadow:
 				return GL_COLOR_ATTACHMENT0 + unit;
 			case RenderTargetAttachment::Depth:
 				return GL_COLOR_ATTACHMENT0 + unit;
@@ -39,6 +40,7 @@ namespace yare {
 				return TextureFormat::RGBA8;
 			case RenderTargetAttachment::Position:
 			case RenderTargetAttachment::Normal:
+			case RenderTargetAttachment::Shadow:
 				return TextureFormat::RGB8;
 			case RenderTargetAttachment::Depth:
 				return TextureFormat::RGB8;
@@ -57,6 +59,7 @@ namespace yare {
 			case RenderTargetAttachment::Position:
 			case RenderTargetAttachment::Normal:
 			case RenderTargetAttachment::Depth:
+			case RenderTargetAttachment::Shadow:
 				return TextureType::Image;
 
 			}
@@ -80,6 +83,8 @@ namespace yare {
 				return "normal";
 			case RenderTargetAttachment::Depth:
 				return "depth";
+			case RenderTargetAttachment::Shadow:
+				return "shadow";
 
 			}
 		}

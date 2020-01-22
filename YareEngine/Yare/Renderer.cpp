@@ -42,6 +42,7 @@ Renderer::Renderer()
 	setupLayers();
 	setupTargets();
 	setupRenderPasses();
+	setupShadowmapTargets();
 }
 Renderer::~Renderer()
 {
@@ -53,7 +54,11 @@ Renderer::~Renderer()
 		delete it->second;
 		it->second;
 	}
-
+	for (RenderTarget* target : _cache.shadowmapTargets)
+	{
+		delete target;
+		target = 0;
+	}
 }
 
 void Renderer::resizeViewport(int width, int height)
@@ -80,6 +85,7 @@ void Renderer::begin(Scene* scene)
 	_cache.camera = scene->getCamera();
 	_cache.lights = &scene->getLights();
 
+
 }
 void Renderer::submit(Renderable * renderable)
 {
@@ -101,6 +107,13 @@ void Renderer::submit(Renderable * renderable)
 }
 void Renderer::end()
 {
+	
+	//cleanup
+
+	for (int i = 0; i < (const int)RenderPass::Count; i++)
+	{
+		_passes[i].commands.clear();
+	}
 	_cache.camera = 0;
 	_cache.lights = 0;
 }
@@ -160,6 +173,25 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands, cons
 	}
 }
 
+void Renderer::setupShadowmapTargets()
+{
+	int lightCount = Light::MAX_DIRECTIONAL_LIGHT_COUNT + Light::MAX_POINT_LIGHT_COUNT;
+	//create as many shadowmaps as there are lights
+	//should automatically create an array of render targets, equal to the number of maximum possible lights. prevents alloc/dealloc per frame 
+	_cache.shadowmapTargets.clear();
+	_cache.shadowmapTargets.resize(lightCount);
+	for (int i = 0; i < lightCount; i++)
+	{
+		RenderTarget * target = RenderTarget::Create();
+		target->setup({
+			RenderTargetAttachment::Scene,
+			}
+		);
+
+		_cache.shadowmapTargets[i] = target;
+	}
+}
+
 void Renderer::setupTargets()
 {
 
@@ -197,6 +229,12 @@ void Renderer::setupLayers()
 	phongLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
 	_layers["phong"] = phongLayer;
 
+	Layer* shadowLayer = new Layer();
+	shadowLayer->setShader(AssetManager::GetInstance().get<Shader>("shadow_layer"));
+	shadowLayer->setQuad({ -1,-1 }, { 2, 2 }); //fullscreen
+	_layers["shadow"] = shadowLayer;
+
+
 }
 
 void Renderer::setupRenderPasses()
@@ -213,6 +251,8 @@ void Renderer::setupRenderPasses()
 
 	float sceneBufferScalar = 1.0 ; 
 	//float sceneBufferScalar = 1.0 / 5.0;
+
+
 
 	//Setup lighting pass
 	RenderPassCommand & lightingPass = _passes[(const int)RenderPass::Lighting];
@@ -248,21 +288,20 @@ void Renderer::render()
 {
 
 	renderPass(RenderPass::Geometry);
+	//generate shadow maps
+	generateShadowmaps(_cache.shadowmapTargets, _passes[(int)RenderPass::Geometry].commands, _cache.lights);
+
 	renderPass(RenderPass::Lighting);
 	renderPass(RenderPass::Forward);
 	renderPass(RenderPass::Scene);
 	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
 	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
-	for (int i = 0; i < (const int)RenderPass::Count; i++)
-	{
-		_passes[i].commands.clear();
-	}
+
 
 	if (_settings.debugGBuffer)
 	{
 		debugRenderTarget(_targets["gbuffer"]);
 	}
-	
 }
 
 
@@ -304,9 +343,14 @@ void Renderer::renderPassGeometry(const RenderPassCommand & pass)
 
 void  Renderer::renderPassLighting(const RenderPassCommand & pass)
 {
+
+	//render the lit scene
 	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
 	renderLayer(_layers["phong"], _cache.camera, _cache.lights,pass.inputs, pass.target);
+	//cleanup
 }
+
+
 void  Renderer::renderPassForward(const RenderPassCommand & pass)
 {
 
@@ -340,78 +384,55 @@ void  Renderer::renderPassScene(const RenderPassCommand& pass)
 	
 }
 
-//renders the shadow maps for each light
-void Renderer::renderPassShadow(const RenderPassCommand& pass)
+
+void  Renderer::generateShadowmaps(std::vector<RenderTarget* >& targets, const std::vector<RenderCommand* >& commands, LightBlock * lights)
 {
-	Shader * lightDepthShader = (AssetManager::GetInstance().get<Shader>("light_depth"));
-	LightBlock::Lights<PointLight*>        pointLights = _cache.lights->getPointLights();
-	LightBlock::Lights<DirectionalLight*> directionalLights = _cache.lights->getDirectionalLights();
+	Shader* lightDepthShader = (AssetManager::GetInstance().get<Shader>("light_depth"));
+	LightBlock::Lights<PointLight*>        pointLights = lights->getPointLights();
+	LightBlock::Lights<DirectionalLight*> directionalLights = lights->getDirectionalLights();
 	int lightCount = pointLights.size() + directionalLights.size();
 	//create as many shadowmaps as there are lights? 
 	int index = 0;
-	std::vector< RenderTarget*> shadowmaps;
-	shadowmaps.resize(lightCount);
-	
-	//for point lights, create an Env RenderTargetAttachment for cubemap support!!!
 
-	//updateState(command->state);//cull front face!
-	
-	index = 0;
+
+	//for point lights, create an Env RenderTargetAttachment for cubemap support!!!
+	RenderState shadowState;
+	//cull front face to prevent "peter-panning" effect
+	shadowState.cullFace = RenderCullFace::Front;
+	//enable blending to accumulate value 
+	pushState(shadowState);
+
 	//for each light, render the scene depth.
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
-		RenderTarget* shadowmap = 0;
-		DirectionalLight * dirLight = value.second;
+		DirectionalLight* dirLight = value.second;
 		if (dirLight->getCastShadow()) {
-			OrthographicCamera * camera = dynamic_cast<OrthographicCamera*>(dirLight->getCamera());
-			shadowmap =generateShadowmapTarget(pass.commands, camera, lightDepthShader);
-			dirLight->setShadowMap(shadowmap->getTexture(RenderTargetAttachment::Scene));
+			RenderTarget* target = targets[index];
+			renderShadowmap(target , commands, dirLight, lightDepthShader);
+			dirLight->setShadowMap(target->getTexture(RenderTargetAttachment::Scene));
+		
+			//target->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
+
+			index++;
 		}
-		else
-		{
-			shadowmaps[index] = 0;
-		}
-		shadowmaps[index] = shadowmap;
-		if(shadowmaps[index])
-			shadowmaps[index]->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
-
-		index++;
 	}
-	index = 0 ;
 
-	//set uniform sampler2Ds and render shadow information to a buffer
-
-	//renderLayer(_layers["shadow"], _cache.camera, _cache.lights, pass.inputs,0);
-	//pass.target->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0, 0, _width, _height);
-
-	index = 0;
-	//cleanup
-	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
-		DirectionalLight * dirLight = value.second;
-
-		dirLight->setShadowMap(0);
-		//deleteing render target removes the textures
-		delete shadowmaps[index++];
-	}
+	popState();
 }
 
 
-RenderTarget* Renderer::generateShadowmapTarget(const std::vector<RenderCommand * >& commands, Camera* camera, Shader* shader)
+void Renderer::renderShadowmap(RenderTarget* target, const std::vector<RenderCommand * >& commands, Light * light, Shader* shader)
 {
-	RenderTarget* target = RenderTarget::Create();
-	target->setup({
-		RenderTargetAttachment::Scene,
-		}
-	);
 	target->resize(_width, _height);
 	target->bind(RenderTargetMode::Draw);
 	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
 	float aspect = ((float)_width) / _height;
-	camera->setAspect(aspect);
+	light->getCamera()->setAspect(aspect);
 	shader->bind();
 
 	for (RenderCommand* command : commands)
 	{
-		camera->unloadUniforms(command->uniforms);
+		const glm::mat4& lightSpace = light->getCamera()->getProjection() * light->getCamera()->getView();
+		light->getCamera()->unloadUniforms(command->uniforms);
 		command->uniforms.load(shader);
 
 		command->vertexArray->bind();
@@ -427,7 +448,6 @@ RenderTarget* Renderer::generateShadowmapTarget(const std::vector<RenderCommand 
 	}
 	target->unbind();
 
-	return target;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

@@ -13,8 +13,13 @@
 namespace yare {
 	namespace graphics {
 
+
+
 		class Light {
 		public:
+			//see glsl code
+			static const int MAX_POINT_LIGHT_COUNT       = 64;
+			static const int MAX_DIRECTIONAL_LIGHT_COUNT = 8;
 
 			Light() { _camera = 0; }
 			virtual ~Light() {
@@ -22,7 +27,7 @@ namespace yare {
 			}
 			//Lights are placed into an array. So, index must be specified
 			virtual void unloadUniforms(UniformBlock& uniforms, int lightIndex) const= 0;
-			virtual void setcastShadow(bool castsShadow) { _castsShadow = castsShadow;};
+			virtual void setCastShadow(bool castsShadow) { _castsShadow = castsShadow;};
 			virtual bool getCastShadow() const { return _castsShadow; }
 
 			virtual void setShadowMap(Texture* shadowMap) { _shadowMap = shadowMap; };
@@ -34,7 +39,7 @@ namespace yare {
 
 
 		private:
-			bool _castsShadow = true;
+			bool _castsShadow = false;
 			Texture* _shadowMap = 0;
 			Camera * _camera;
 		};
