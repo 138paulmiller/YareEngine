@@ -66,6 +66,14 @@ vec3 calcDirectionalLightRadiance(DirectionalLight light, vec3 pos, vec3 normal,
 	
 	//calculate if in shadow or not
 	//perspective divide, event tho it should be ortho
+	float bias = 0.005;
+	mat4 bias_mat = mat4(
+		bias, 0.0, 0.0, 0.0,
+		0.0, bias, 0.0, 0.0,
+		0.0, 0.0, bias, 0.0,
+		bias, bias, bias, 1.0
+	);
+	
 	vec4 view_proj_pos = light.view_proj * vec4(pos, 1.0); 
 	vec3 proj_coords = view_proj_pos.xyz  / view_proj_pos.w;
 	proj_coords = proj_coords * 0.5 + 0.5;
@@ -76,19 +84,18 @@ vec3 calcDirectionalLightRadiance(DirectionalLight light, vec3 pos, vec3 normal,
 	float current_depth = proj_coords.z;
 	
 	float shadow = 0.0;
-	float bias = 0.005;
-	if(current_depth - bias> nearest_depth)
+	
+	if( (current_depth - 0.005) > nearest_depth)
 	{
 		shadow = 1.0;
 	}
-	if(current_depth > 1.0)
-        shadow = 0.0;
+
 	//samples 
 	vec3 a = light.ambient  * texture(diffuse, frag_uv).xyz;
 	vec3 d = light.diffuse  * texture(diffuse, frag_uv).xyz  * diffuse_coeff;
 	vec3 s = light.specular * texture(specular, frag_uv).xyz * specular_coeff;
-	return a + (d + s) * (1.0-shadow);
 	//return vec3(nearest_depth);
+	return a + (d + s) * (1.0-shadow);
 }
 
 vec3 calcPointLightRadiance(PointLight light, vec3 pos, vec3 normal, vec3 view_dir)
@@ -145,7 +152,5 @@ void main(void)
 
 	vec3 view_dir = normalize ( view_pos - position.xyz ) ;
 	out_scene = getColor(position, view_dir, normal);
-
-
 
 }

@@ -150,11 +150,12 @@ void ExampleApp::onEnter()
 	_directionalLight->setDiffuse(glm::vec3(0.654f, 0.652f, 0.652f));
 	_directionalLight->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
 	_directionalLight->setCastShadow(true);
-	_directionalLight->setPosition(glm::vec3( 10, 0, 0 ));
+	_directionalLight->setPosition(glm::vec3( 5, 5, 0 ));
 	_directionalLight->setDirection(glm::normalize(glm::vec3(0) - _directionalLight->getPosition()));
 	
 	_directionalLightMesh.reset(new Mesh());
 	_directionalLightMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
+	_directionalLightMesh->setModel(glm::translate(_directionalLight->getPosition()));
 	_directionalLightMesh->setMaterial(_flatMaterial.get());
 	
 
@@ -237,7 +238,7 @@ void ExampleApp::onRender() {
 	// set matrix : projection + view
 	
 	_camera.reset(new PerspectiveCamera(45.0f,getWindowRatio(), 1.0f, 200.0f));
-	_camera->setPosition({ 0, 0, 10 });
+	_camera->setPosition({ 0, 0, 15 });
 	_camera->setForward(glm::normalize( glm::vec3(0) -  _camera->getPosition() ));
 	
 

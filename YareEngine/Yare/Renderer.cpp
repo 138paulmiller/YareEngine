@@ -286,10 +286,13 @@ void Renderer::render()
 	//generate shadow maps
 	generateShadowmaps(_cache.shadowmapTargets, _passes[(int)RenderPass::Geometry].commands, _cache.lights);
 
-	renderPass(RenderPass::Lighting);
-	renderPass(RenderPass::Forward);
-	renderPass(RenderPass::Scene);
-	//render post processes, initial post process should use scene as input. chaiun outputs into inputs
+	if (!_settings.debugShadowmap)
+	{
+		renderPass(RenderPass::Lighting);
+		renderPass(RenderPass::Forward);
+		renderPass(RenderPass::Scene);
+	}
+//render post processes, initial post process should use scene as input. chaiun outputs into inputs
 	//as of now, only geometry passa and forward use commands. all other are just layer draws of buffer copies
 
 
@@ -392,6 +395,7 @@ void  Renderer::generateShadowmaps(std::vector<RenderTarget* >& targets, const s
 
 	//for point lights, create an Env RenderTargetAttachment for cubemap support!!!
 	RenderState shadowState;
+	shadowState.cullFace = RenderCullFace::Front;
 	//cull front face to prevent "peter-panning" effect
 	//enable blending to accumulate value 
 	updateState(shadowState);
@@ -404,7 +408,8 @@ void  Renderer::generateShadowmaps(std::vector<RenderTarget* >& targets, const s
 			renderShadowmap(target , commands, dirLight, lightDepthShader);
 			dirLight->setShadowMap(target->getTexture(RenderTargetAttachment::Scene));
 			//debug shad
-			//target->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0,0, _width, _height);
+			if(_settings.debugShadowmap)
+				target->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0,0, _width, _height);
 			index++;
 		}
 	}

@@ -37,9 +37,12 @@ OpenGLTexture::OpenGLTexture(TextureType type, TextureFormat internalFormat )
 		break;
 	case TextureFormat::RGB8:
 		_internalFormat = GL_RGB8;
-		break;		
+		break;
 	case TextureFormat::RGBA8:
 		_internalFormat = GL_RGBA8;
+		break;
+	case TextureFormat::XYZ:
+		_internalFormat = GL_RGB32F;
 		break;
 	default :
 		YARE_ASSERT(false, "Incorrect Texture format");
@@ -78,6 +81,9 @@ void OpenGLTexture::load(
 		
 	case TextureFormat::RGBA8:
 		format = GL_RGBA;
+		break;
+	case TextureFormat::XYZ:
+		format = GL_RGB;
 		break;
 	default:
 		YARE_LOG("Invalid format!");
