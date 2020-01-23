@@ -72,7 +72,7 @@ float calcShadowAmount(sampler2D shadowmap, mat4 light_space, vec3 world_pos, fl
 	
 	float shadow = 0.0;
 	//pixel is occluded
-	if( (current_depth - bias) > nearest_depth)
+	if( (current_depth + bias) > nearest_depth)
 	{
 		shadow = 1.0;
 	}
@@ -89,7 +89,10 @@ vec3 calcDirectionalLightRadiance(DirectionalLight light, vec3 world_pos, vec3 n
 	float shininess = texture(specular, frag_uv).a;
 	float specular_coeff = pow(max(0.0, dot(view_dir, reflect_dir)), shininess);
 	
-	float bias = 0.005;
+	float bias = 0.0001;
+	//bias toward light
+	bias = max((bias + 0.001) * (1.0 - dot(normal, light_dir)), bias);
+
 	float shadow = calcShadowAmount(light.shadowmap, light.view_proj, world_pos, bias);
 
 	//samples 

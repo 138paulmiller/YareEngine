@@ -13,7 +13,8 @@ namespace yare
 		{
 			None = 0,
 			R8, RG8, RGB8, RGBA8, 
-			XYZ, //32 bit floating point 
+			XYZ16, //16 bit floating point
+			XYZ32, //32 bit floating point 
 
 		};
 		enum class TextureType

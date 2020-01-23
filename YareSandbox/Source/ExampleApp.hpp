@@ -32,34 +32,27 @@ class ExampleApp : public App
 	void onEnter() override;
 	void onExit() override;
 
+	//move these to update method in ECS like system
+	void updateCamera(); 
+	void updateSkybox();
+	void updateBoxes();
 
-	void demoMovingBoxesAndLights(float time);
-	void demoRotatingBoxes(float time);
 
  private:
 	float _elapsedTime = 0.f;
 	int _frames = 0;
-	const int _size = 100;
-
-	// shader
-
-
-	// shader matrix uniform
-	glm::mat4 _model = glm::mat4(1.0); 
-	
 	Scene _scene;
 	std::unique_ptr<PerspectiveCamera >_camera;
-	const int  LIGHT_COUNT = 1;
-	const int  BOX_COUNT = 1;
+
 	//Use asset manager to load these class from files and manage their gc 
 	std::unique_ptr<SkyBox>		_skybox;
 	std::unique_ptr<Mesh >       _floorMesh;
 	
-	std::unique_ptr<DirectionalLight > _directionalLight;
+	std::vector<std::unique_ptr<DirectionalLight >> _directionalLights;
+	std::vector<std::unique_ptr<Mesh >>       _directionalLightMeshes;
 
-	std::unique_ptr<Mesh >       _directionalLightMesh;
-	std::vector< std::unique_ptr<PointLight > > _pointLights;
-	std::vector< std::unique_ptr<Mesh > >       _pointLightMeshes;
+
+
 	std::vector< std::unique_ptr<Mesh>	>	_boxMeshes;
 
 	std::unique_ptr<PhongMaterial> _floorMaterial;

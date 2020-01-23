@@ -18,7 +18,7 @@ Mesh::Mesh( )
 	Renderable::command.state.primitive = RenderPrimitive::Triangles;
 	Renderable::command.mode = RenderMode::IndexedMesh;
 
-	_model = glm::mat4(1);
+	_transform = glm::mat4(1);
 }
 
 Mesh::~Mesh()
@@ -69,14 +69,14 @@ void Mesh::onBind()
 
 } 
 
-glm::mat4& Mesh::getModel()
+glm::mat4& Mesh::getTransform()
 {
-	return _model;
+	return _transform;
 }
-void Mesh::setModel(glm::mat4& model)
+void Mesh::setTransform(glm::mat4& model)
 {
-	_model = model;
-	Renderable::command.uniforms.setUniform("model", _model);
+	_transform = model;
+	Renderable::command.uniforms.setUniform("model", _transform);
 
 }
 const Material* Mesh::getMaterial()

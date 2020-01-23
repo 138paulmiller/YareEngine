@@ -21,10 +21,8 @@ namespace yare {
 			case RenderTargetAttachment::Position:
 			case RenderTargetAttachment::Normal:
 			case RenderTargetAttachment::Shadow:
-				return GL_COLOR_ATTACHMENT0 + unit;
 			case RenderTargetAttachment::Depth:
 				return GL_COLOR_ATTACHMENT0 + unit;
-				//					return GL_DEPTH_STENCIL_ATTACHMENT;
 			}
 		}
 
@@ -38,11 +36,11 @@ namespace yare {
 			case RenderTargetAttachment::Specular:
 			case RenderTargetAttachment::Emissive:
 			case RenderTargetAttachment::Shadow:
-			case RenderTargetAttachment::Depth:
 				return TextureFormat::RGB8;
+			case RenderTargetAttachment::Depth:
 			case RenderTargetAttachment::Position:
 			case RenderTargetAttachment::Normal:
-				return TextureFormat::XYZ;
+				return TextureFormat::XYZ16;
 
 
 			}
@@ -195,7 +193,7 @@ namespace yare {
 		void OpenGLRenderTarget::setup(const std::vector<RenderTargetAttachment>& attachments)
 		{
 			_numUsed = attachments.size();
-			unsigned int* layout = new unsigned int[attachments.size()];
+			std::vector<unsigned int> layout;
 			int unit = 0;
 			bind();
 			for (const RenderTargetAttachment & attachment : attachments)
@@ -209,11 +207,9 @@ namespace yare {
 					if (_numUsed < 0)_numUsed = 0;
 					return;
 				}
-				//if (attachment != RenderTargetAttachment::Depth) 
-				{
-					unsigned int target = GetOpenGLAttachment(attachment, unit);
-					layout[unit] = target;
-				}
+				unsigned int target = GetOpenGLAttachment(attachment, unit);
+				layout.push_back(target) ;
+		
 				//create texture
 				buffer.used = true;
 				buffer.unit = unit;
@@ -225,10 +221,9 @@ namespace yare {
 			}
 			//setup draw buffer
 			//count number of used buffers to allocat
-			glDrawBuffers(getNumberOfAttachments(), layout);
+			glDrawBuffers(getNumberOfAttachments(), layout.data());
 			OpenGLCheckError();
 
-			delete[]layout;
 
 			unbind();
 

@@ -25,8 +25,8 @@ namespace yare {
 			void loadVertexArray(std::unique_ptr<VertexArray>& vertexArray);
 
 
-			glm::mat4& getModel();
-			void setModel(glm::mat4& model);
+			glm::mat4& getTransform();
+			void setTransform(glm::mat4& model);
 
 			const Material* getMaterial();
 			void setMaterial(Material * material);
@@ -42,8 +42,8 @@ namespace yare {
 	
 		private:
 			void loadVerticesImpl(const void* vertices, const int size, const BufferLayout & vertexLayout);
-
-			glm::mat4 _model;
+			//local to world transform
+			glm::mat4 _transform;
 
 			std::unique_ptr<VertexArray>  _vertexArray;
 

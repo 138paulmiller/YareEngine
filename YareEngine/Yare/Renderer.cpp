@@ -184,7 +184,7 @@ void Renderer::setupShadowmapTargets()
 	{
 		RenderTarget * target = RenderTarget::Create();
 		target->setup({
-			RenderTargetAttachment::Scene,
+			RenderTargetAttachment::Depth,
 			}
 		);
 
@@ -394,11 +394,6 @@ void  Renderer::generateShadowmaps(std::vector<RenderTarget* >& targets, const s
 
 
 	//for point lights, create an Env RenderTargetAttachment for cubemap support!!!
-	RenderState shadowState;
-	shadowState.cullFace = RenderCullFace::Front;
-	//cull front face to prevent "peter-panning" effect
-	//enable blending to accumulate value 
-	updateState(shadowState);
 
 	//for each light, render the scene depth.
 	for (LightBlock::Lights<DirectionalLight*>::value_type value : directionalLights) {
@@ -406,14 +401,14 @@ void  Renderer::generateShadowmaps(std::vector<RenderTarget* >& targets, const s
 		if (dirLight->getCastShadow()) {
 			RenderTarget* target = targets[index];
 			renderShadowmap(target , commands, dirLight, lightDepthShader);
-			dirLight->setShadowMap(target->getTexture(RenderTargetAttachment::Scene));
+			dirLight->setShadowMap(target->getTexture(RenderTargetAttachment::Depth));
 			//debug shad
 			if(_settings.debugShadowmap)
-				target->blit(0, RenderTargetAttachment::Scene, RenderTargetAttachment::Scene, 0,0, _width, _height);
+				target->blit(0, RenderTargetAttachment::Depth, RenderTargetAttachment::Scene, 0,0, _width, _height);
 			index++;
 		}
 	}
-	updateState(RenderState());
+
 
 }
 
@@ -426,6 +421,10 @@ void Renderer::renderShadowmap(RenderTarget* target, const std::vector<RenderCom
 	float aspect = ((float)_width) / _height;
 	light->getCamera()->setAspect(aspect);
 	shader->bind();
+	RenderState shadowState;
+	shadowState.cullFace = RenderCullFace::Front;	//cull front face to prevent "peter-panning" effect
+	//TODO - enable blending to accumulate value 
+	updateState(shadowState);
 
 	for (RenderCommand* command : commands)
 	{
@@ -444,6 +443,7 @@ void Renderer::renderShadowmap(RenderTarget* target, const std::vector<RenderCom
 			break;
 		}
 	}
+	updateState(RenderState());
 	target->unbind();
 
 }

@@ -13,6 +13,10 @@ namespace yare { namespace graphics {
 static int FormatToComponentCount(TextureFormat format){
 	switch (format)
 	{
+	case TextureFormat::XYZ16:
+		return 3;
+	case TextureFormat::XYZ32:
+		return 3;
 	case TextureFormat::RGBA8:
 		return 4;
 	case TextureFormat::RGB8:
@@ -84,7 +88,6 @@ void Texture::ReadFile(const std::string & filepath, TexturePixels & pixels)
 		{
 		case 4:
 			pixels.format = TextureFormat::RGBA8;
-
 			break;
 		case 3:
 			pixels.format = TextureFormat::RGB8;
