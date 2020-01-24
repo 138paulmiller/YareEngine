@@ -72,7 +72,7 @@ float calcShadowAmount(sampler2D shadowmap, mat4 light_space, vec3 world_pos, fl
 	
 	float shadow = 0.0;
 	//pixel is occluded
-	if( (current_depth + bias) > nearest_depth)
+	if( (current_depth - bias) > nearest_depth)
 	{
 		shadow = 1.0;
 	}
