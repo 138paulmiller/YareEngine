@@ -24,7 +24,13 @@ VertexArray::~VertexArray()
 
 void VertexArray::addVertexBuffer(VertexBuffer * buffer)
 {
-//If the buffer being added is an index buffer. reset the indexbufferreference
+	if (_vertexBuffers.size() == 0) {
+		_vertexCount = buffer->getVertexCount();
+	}
+	else
+	{
+		_vertexCount += buffer->getVertexCount();
+	}
 	_vertexBuffers.push_back(std::unique_ptr<VertexBuffer>(buffer) );
 	this->attachVertexBuffer(buffer);
 
@@ -32,8 +38,12 @@ void VertexArray::addVertexBuffer(VertexBuffer * buffer)
 
 void VertexArray::setVertexBuffer(VertexBuffer * buffer, int i )
 {
+	//dec by old amount
+	_vertexCount -= _vertexBuffers[i]->getVertexCount();
+
 	//If the buffer being added is an index buffer. reset the indexbufferreference
 	_vertexBuffers[i].reset(buffer);
+	_vertexCount += buffer->getVertexCount();
 	this->attachVertexBuffer(buffer);
 
 }

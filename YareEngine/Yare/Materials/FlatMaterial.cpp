@@ -6,7 +6,7 @@ namespace yare {
 		{
 			RenderCommand & command = getCommand();
 			command.shader = AssetManager::GetInstance().get<Shader>("unlit_mesh");
-			command.mode = RenderMode::Mesh;
+			command.mode = RenderMode::IndexedMesh;
 			command.lighting = RenderLighting::Unlit;
 		}
 		FlatMaterial::~FlatMaterial()

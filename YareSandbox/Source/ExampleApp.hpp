@@ -39,8 +39,13 @@ class ExampleApp : public App
 
 
  private:
+	//FPS calc
 	float _elapsedTime = 0.f;
 	int _frames = 0;
+	
+	const int BOX_COUNT = 50;
+	const int LIGHT_COUNT = 4;
+
 	Scene _scene;
 	std::unique_ptr<PerspectiveCamera >_camera;
 
@@ -50,7 +55,6 @@ class ExampleApp : public App
 	
 	std::vector<std::unique_ptr<DirectionalLight >> _directionalLights;
 	std::vector<std::unique_ptr<Mesh >>       _directionalLightMeshes;
-
 
 
 	std::vector< std::unique_ptr<Mesh>	>	_boxMeshes;

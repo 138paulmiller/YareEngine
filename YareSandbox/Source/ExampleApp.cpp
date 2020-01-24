@@ -131,12 +131,12 @@ void ExampleApp::onEnter()
 	_floorMesh->loadVertexArray(geometry::Box::CreateVertexArray({ 1, 1, 1 }));
 
 	glm::mat4 floorTransform = glm::rotate(-3.14159f / 6.f, glm::vec3(0, 0, 1));
-	floorTransform *= glm::translate(glm::vec3({ 0,-3,0 }));
-	floorTransform *= glm::scale(glm::vec3(4, 0.120, 5.0));
+	floorTransform *= glm::translate(glm::vec3({ 0,-3,-5 }));
+	floorTransform *= glm::scale(glm::vec3(10, 0.120, 5.0));
 	_floorMesh->setTransform(floorTransform);
 	//--------------------------------- Init boxes -------------------------------------------
-	_boxMeshes.resize(3);
-	for (int i = 0; i < 3; i++)
+	_boxMeshes.resize(BOX_COUNT);
+	for (int i = 0; i < BOX_COUNT; i++)
 	{ //phong mesh
 		_boxMeshes[i].reset(new Mesh());
 		_boxMeshes[i]->loadVertexArray(geometry::Box::CreateVertexArray({ 1,1,1 }));
@@ -145,39 +145,34 @@ void ExampleApp::onEnter()
 
 
 	//--------------------------------- Init lights and corresponding meshes -------------------------------------------
-	_directionalLights.resize(2);
-	_directionalLightMeshes.resize(2);
-	//light 0
-	_directionalLights[0].reset(new DirectionalLight());
-	_directionalLights[0]->setAmbient(glm::vec3(0.15f, 0.15f, 0.15f));
-	_directionalLights[0]->setDiffuse(glm::vec3(0.654f, 0.652f, 0.652f));
-	_directionalLights[0]->setSpecular(glm::vec3(1.0f, 1.0f, 1.0f));
-	_directionalLights[0]->setCastShadow(true);
-	_directionalLights[0]->setPosition(glm::vec3( 7, 5, 0 ));
-	_directionalLights[0]->setDirection(glm::normalize(glm::vec3(0) - _directionalLights[0]->getPosition()));
+	_directionalLights.resize(LIGHT_COUNT);
+	_directionalLightMeshes.resize(LIGHT_COUNT);
+	float radius = 8;
+	float freq = 3.1514 / 50;
+	float phase= 3.1514 / 9;
+	for (int i = 0; i < LIGHT_COUNT; i++)
+	{
+		glm::vec3 position = {
+			radius * sin(i * freq + phase ) * cos(i * freq + phase),
+			radius * sin(i * freq + phase ) * sin(i * freq + phase) ,
+			radius * cos(i * freq + phase ) 
+		};
+		//light 0
+		_directionalLights[i].reset(new DirectionalLight());
+		_directionalLights[i]->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
+		_directionalLights[i]->setDiffuse(glm::vec3(0.254f, 0.252f, 0.252f));
+		_directionalLights[i]->setSpecular(glm::vec3(0.15f, 0.15f, 0.15f));
+		_directionalLights[i]->setCastShadow(true);
+		_directionalLights[i]->setPosition(position);
+		_directionalLights[i]->setDirection(glm::normalize(glm::vec3(0) - _directionalLights[i]->getPosition()));
 	
 
-	_directionalLightMeshes[0].reset(new Mesh());
-	_directionalLightMeshes[0]->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
-	_directionalLightMeshes[0]->setTransform(glm::translate(_directionalLights[0]->getPosition()));
-	_directionalLightMeshes[0]->setMaterial(_flatMaterial.get());
+		_directionalLightMeshes[i].reset(new Mesh());
+		_directionalLightMeshes[i]->loadVertexArray(geometry::Sphere::CreateVertexArray(0.05, 50, 50));
+		_directionalLightMeshes[i]->setTransform(glm::translate(_directionalLights[i]->getPosition()));
+		_directionalLightMeshes[i]->setMaterial(_flatMaterial.get());
+	}
 	
-	//light 1
-
-	_directionalLights[1].reset(new DirectionalLight());
-	_directionalLights[1]->setAmbient(glm::vec3(0.05f, 0.05f, 0.05f));
-	_directionalLights[1]->setDiffuse(glm::vec3(0.654f, 0.652f, 0.652f));
-	_directionalLights[1]->setSpecular(glm::vec3(0.8f, 0.8f, 0.8f));
-	_directionalLights[1]->setCastShadow(true);
-	_directionalLights[1]->setPosition(glm::vec3(-1, 6, 0));
-	_directionalLights[1]->setDirection(glm::normalize(glm::vec3(0) - _directionalLights[1]->getPosition()));
-
-
-	_directionalLightMeshes[1].reset(new Mesh());
-	_directionalLightMeshes[1]->loadVertexArray(geometry::Box::CreateVertexArray({ 0.15,0.15,0.15 }));
-	_directionalLightMeshes[1]->setTransform(glm::translate(_directionalLights[1]->getPosition()));
-	_directionalLightMeshes[1]->setMaterial(_flatMaterial.get());
-
 
 
 	//--------------------------------- Set  up Sky box---------------------------------
@@ -199,13 +194,13 @@ void ExampleApp::onEnter()
 	index = 0;
 	for (const std::unique_ptr<DirectionalLight>& directionalLight : _directionalLights)
 	{
-		_scene.getLights().setDirectionalLight("DirectionalLight_" + std::to_string(index), _directionalLights[index].get());
+		_scene.getLights().setDirectionalLight("DirectionalLight_" + std::to_string(index), directionalLight.get());
 		index++;
 	}
 	index = 0;
 	for (const std::unique_ptr<Mesh>& directionalLight : _directionalLightMeshes)
 	{
-		_scene.add("DirectionalLightMesh_" + std::to_string(index), _directionalLightMeshes[index].get());
+		_scene.add("DirectionalLightMesh_" + std::to_string(index), directionalLight.get());
 		index++;
 	}
 
@@ -248,7 +243,7 @@ void ExampleApp::onRender() {
 void ExampleApp::updateCamera()
 {
 	_camera.reset(new PerspectiveCamera(45.0f, getWindowRatio(), 1.0f, 200.0f));
-	_camera->setPosition({ 0, 0, 15 });
+	_camera->setPosition({ 5, 5, 15 });
 	_camera->setForward(glm::normalize(glm::vec3(0) - _camera->getPosition()));
 
 }
@@ -263,30 +258,27 @@ void ExampleApp::updateSkybox()
 void ExampleApp::updateBoxes()
 {
 	float speed = 0.25;
-	glm::mat4 transform = glm::mat4(1);
+	glm::mat4 scale, rotate, translate;
 	float radians= getTime() * (speed);
-	glm::vec3 position;
+	float i = 0;
+	float radius = 5;
+	float freq = 3.1514 / BOX_COUNT;
 	//update box 1
-	position = { 0,0,0 };
-//	transform = glm::scale(glm::vec3(0.3, 0.3, 0.3));
-	transform = glm::translate(transform, position);
-	transform *= glm::rotate(transform, radians, glm::vec3(0,1,0));
-	_boxMeshes[0]->setTransform(transform);
+	for (const std::unique_ptr<Mesh>& boxMesh : _boxMeshes)
+	{
+		glm::vec3 position = {
+			radius * sin(i * freq) * cos(i * freq),
+			radius * sin(i * freq) * sin(i * freq) ,
+			radius * cos(i * freq)
+		};
+
+		scale = glm::scale(glm::vec3(0.13, 0.13 ,0.13));
+		translate = glm::translate(position);
+		rotate = glm::rotate(radians, glm::vec3(sin(i),cos(i),sin(i)));
+		boxMesh->setTransform(translate * scale * rotate);
+		i++;
+	}
 	
-	//update box 2
-
-	position = { 3,1,0 };
-//	transform = glm::scale(glm::vec3(0.1, 0.1, 0.1 ));
-	transform = glm::translate(position);
-	transform *= glm::rotate(radians, glm::vec3( 1.f,1.f,0.f));
-	_boxMeshes[1]->setTransform(transform);
-
-
-	position = { 1,-3,0 };
-	//	transform = glm::scale(glm::vec3(0.1, 0.1, 0.1 ));
-	transform = glm::translate(position);
-	_boxMeshes[2]->setTransform(transform);
-
 
 }
 

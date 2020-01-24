@@ -18,6 +18,7 @@ public:
 	void bind() const override;
 	void unbind() const override;
 
+	unsigned int getVertexCount() const override;
 	const BufferLayout& getLayout() const override ;
 	void setLayout(const BufferLayout& layout) override;
 
@@ -26,6 +27,8 @@ private:
 	//handle to Vertex Buffer Object
 	unsigned int _vbo;
 	BufferLayout _layout;
+	unsigned int _count;
+
 };
 
 

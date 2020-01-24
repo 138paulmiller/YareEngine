@@ -20,7 +20,8 @@ OpenGLVertexBuffer::~OpenGLVertexBuffer()
 
 void OpenGLVertexBuffer::load(const void* data, unsigned int size, bool isDynamic )
 {
-
+	//stride is size of vertex block, so total size / styride is number of vertices
+	_count = size / _layout.getStride();
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
 
 	glBufferData(GL_ARRAY_BUFFER, size, data, isDynamic ? GL_DYNAMIC_DRAW  : GL_STATIC_DRAW);
@@ -47,6 +48,10 @@ void OpenGLVertexBuffer::setLayout(const BufferLayout& layout)
 	_layout = layout;
 }
 
+unsigned int OpenGLVertexBuffer::getVertexCount() const
+{
+	return _count;
+}
 ////////////////////////////// Index Buffer /////////////////////////////////////////
 OpenGLIndexBuffer::OpenGLIndexBuffer()
 
