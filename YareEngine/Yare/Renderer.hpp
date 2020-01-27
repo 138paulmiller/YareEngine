@@ -119,6 +119,8 @@ namespace yare {
 		virtual void updateState(const RenderState & state) =0 ;
 
 		//Render the command given the camera and lights
+		
+		
 		void renderCommands(const std::vector<RenderCommand * > & commands, const Camera * camera = 0, const LightBlock * lights = 0);
 		void renderLayer(Layer* layer, const Camera* camera, const LightBlock* lights, const std::vector<RenderTarget*> & inputs, RenderTarget* target);
 
@@ -133,12 +135,13 @@ namespace yare {
 
 		//Renders the given pass, binds and resizes target and calls the appropriate method below
 		void renderPass(RenderPass pass);
-		//renders lit objects to gbuffer
+		//renders surface objects to gbuffer. also create shadowmaps
 		void renderPassGeometry(const RenderPassCommand & pass);
 		//uses gbuffer to render lit scene to scene buffer
 		void renderPassLighting(const RenderPassCommand & pass);
 		//renders color directly to lit scene
 		void renderPassForward(const RenderPassCommand & pass);		
+	
 
 		//TODO - this should use additive blending to write to the shade attachment. prevents multiple shadowmap targets
 		//then light will not have shadowmap attrib in lighting pass. it will read from shadow attachment whic is scalar from 0-number of lights
@@ -147,8 +150,6 @@ namespace yare {
 		//renders the scene colors
 		void renderPassScene(const RenderPassCommand& pass);
 
-
-		void setupShadowmapTargets();
 
 		//Renders commands to each lights shadowmap, returns a vector of render targets used. must be garbage collected when finished
 		void  generateShadowmaps(std::vector<RenderTarget* > & targets, const std::vector<RenderCommand* >& commands, LightBlock * lights);

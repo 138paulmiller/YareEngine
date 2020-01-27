@@ -80,7 +80,6 @@ namespace yare {
 	{
 		//Viewport
 		graphics::UniformBlock uniforms;
-
 		graphics::VertexArray * vertexArray = 0;
 		graphics::Shader * shader = 0;
 

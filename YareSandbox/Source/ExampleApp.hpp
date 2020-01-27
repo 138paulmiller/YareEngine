@@ -43,8 +43,8 @@ class ExampleApp : public App
 	float _elapsedTime = 0.f;
 	int _frames = 0;
 	
-	const int BOX_COUNT = 100;
-	const int LIGHT_COUNT = 2;
+	const int BOX_COUNT = 80;
+	const int LIGHT_COUNT = 3;
 
 	Scene _scene;
 	std::unique_ptr<PerspectiveCamera >_camera;

@@ -42,7 +42,6 @@ Renderer::Renderer()
 	setupLayers();
 	setupTargets();
 	setupRenderPasses();
-	setupShadowmapTargets();
 }
 Renderer::~Renderer()
 {
@@ -96,6 +95,7 @@ void Renderer::submit(Renderable * renderable)
 		case RenderLighting::Surface:
 			//surface, add commands to 
 			_passes[(int)RenderPass::Geometry].commands.push_back(command);
+
 			break;
 		case RenderLighting::Unlit:
 			_passes[(int)RenderPass::Forward].commands.push_back(command);
@@ -137,18 +137,13 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands, cons
 	//TODO OPTIMIZE!! - cull, sort, ubo, shader management
 	for (RenderCommand* command : commands)
 	{
-
 		updateState(command->state);
-
 		command->shader->bind();
-
 		/*
 		Instead of loading all uniforms and texture each frame. Create Shader Instances that are copies of a base shader.
 		Will only have to bind when dirty. Since they are copies, they should not be affected by other renderables that share the same parent shader
 		Potentially do this at the material level and have materials instances maintain *blocks.
 		*/
-
-
 		//get the uniforms from the scene
 		if(camera)
 			camera->unloadUniforms(command->uniforms);
@@ -157,9 +152,7 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands, cons
 		//load the uniforms into the shader
 
 		command->uniforms.load(command->shader);
-
 		command->vertexArray->bind();
-
 		switch (command->mode)
 		{
 		case RenderMode::Mesh:
@@ -173,24 +166,6 @@ void Renderer::renderCommands(const std::vector<RenderCommand* >& commands, cons
 	}
 }
 
-void Renderer::setupShadowmapTargets()
-{
-	int lightCount = Light::MAX_DIRECTIONAL_LIGHT_COUNT + Light::MAX_POINT_LIGHT_COUNT;
-	//create as many shadowmaps as there are lights
-	//should automatically create an array of render targets, equal to the number of maximum possible lights. prevents alloc/dealloc per frame 
-	_cache.shadowmapTargets.clear();
-	_cache.shadowmapTargets.resize(lightCount);
-	for (int i = 0; i < lightCount; i++)
-	{
-		RenderTarget * target = RenderTarget::Create();
-		target->setup({
-			RenderTargetAttachment::Depth,
-			}
-		);
-
-		_cache.shadowmapTargets[i] = target;
-	}
-}
 
 void Renderer::setupTargets()
 {
@@ -220,6 +195,22 @@ void Renderer::setupTargets()
 
 	_targets["gbuffer"] = gbuffer;
 	_targets["scene"] = scene;
+
+	//generate shadowmap targets
+	int lightCount = Light::MAX_DIRECTIONAL_LIGHT_COUNT + Light::MAX_POINT_LIGHT_COUNT;
+	//create as many shadowmaps as there are lights
+	//should automatically create an array of render targets, equal to the number of maximum possible lights. prevents alloc/dealloc per frame 
+	_cache.shadowmapTargets.clear();
+	_cache.shadowmapTargets.resize(lightCount);
+	for (int i = 0; i < lightCount; i++)
+	{
+		RenderTarget* target = RenderTarget::Create();
+		target->setup({
+			RenderTargetAttachment::Depth,
+			}
+		);
+		_cache.shadowmapTargets[i] = target;
+	}
 
 }
 void Renderer::setupLayers()
@@ -283,9 +274,7 @@ void Renderer::render()
 {
 
 	renderPass(RenderPass::Geometry);
-	//generate shadow maps
-	generateShadowmaps(_cache.shadowmapTargets, _passes[(int)RenderPass::Geometry].commands, _cache.lights);
-
+	
 	if (!_settings.debugShadowmap)
 	{
 		renderPass(RenderPass::Lighting);
@@ -336,12 +325,14 @@ void Renderer::renderPassGeometry(const RenderPassCommand & pass)
 {
 	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
 	renderCommands(pass.commands, _cache.camera, _cache.lights);	
+	//generate shadow maps
+	generateShadowmaps(_cache.shadowmapTargets, pass.commands, _cache.lights);
+
 }
 
 
 void  Renderer::renderPassLighting(const RenderPassCommand & pass)
 {
-
 	//render the lit scene
 	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
 	renderLayer(_layers["phong"], _cache.camera, _cache.lights,pass.inputs, pass.target);
