@@ -383,7 +383,7 @@ void  Renderer::generateShadowmaps(std::vector<RenderTarget* >& targets, const s
 	//create as many shadowmaps as there are lights? 
 	int index = 0;
 
-
+	lightDepthShader->bind();
 	//for point lights, create an Env RenderTargetAttachment for cubemap support!!!
 
 	//for each light, render the scene depth.
@@ -391,6 +391,7 @@ void  Renderer::generateShadowmaps(std::vector<RenderTarget* >& targets, const s
 		DirectionalLight* dirLight = value.second;
 		if (dirLight->getCastShadow()) {
 			RenderTarget* target = targets[index];
+
 			renderShadowmap(target , commands, dirLight, lightDepthShader);
 			dirLight->setShadowMap(target->getTexture(RenderTargetAttachment::Depth));
 			//debug shad
@@ -411,7 +412,7 @@ void Renderer::renderShadowmap(RenderTarget* target, const std::vector<RenderCom
 	this->clear(RenderBufferFlag::Depth | RenderBufferFlag::Color);
 	float aspect = ((float)_width) / _height;
 	light->getCamera()->setAspect(aspect);
-	shader->bind();
+	//shader->bind();
 	RenderState shadowState;
 	shadowState.cullFace = RenderCullFace::Front;	//cull front face to prevent "peter-panning" effect
 	//TODO - enable blending to accumulate value 

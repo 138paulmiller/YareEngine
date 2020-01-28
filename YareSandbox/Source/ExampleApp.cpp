@@ -243,7 +243,7 @@ void ExampleApp::onRender() {
 void ExampleApp::updateCamera()
 {
 	_camera.reset(new PerspectiveCamera(45.0f, getWindowRatio(), 1.0f, 200.0f));
-	_camera->setPosition({ 5, 5, 15 });
+	_camera->setPosition({ 5, 5, 10 });
 	_camera->setForward(glm::normalize(glm::vec3(0) - _camera->getPosition()));
 
 }

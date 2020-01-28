@@ -41,6 +41,9 @@ OpenGLTexture::OpenGLTexture(TextureType type, TextureFormat internalFormat )
 	case TextureFormat::RGBA8:
 		_internalFormat = GL_RGBA8;
 		break;
+	case TextureFormat::R16F:
+		_internalFormat = GL_R16F;
+		break;
 	case TextureFormat::XYZ16:
 		_internalFormat = GL_RGB16F;
 		break;
@@ -84,6 +87,9 @@ void OpenGLTexture::load(
 		
 	case TextureFormat::RGBA8:
 		format = GL_RGBA;
+		break;
+	case TextureFormat::R16F:
+		format = GL_RED;
 		break;
 	case TextureFormat::XYZ16:
 	case TextureFormat::XYZ32:

@@ -12,7 +12,7 @@ namespace yare
 		enum class TextureFormat
 		{
 			None = 0,
-			R8, RG8, RGB8, RGBA8, 
+			R8, RG8, RGB8, RGBA8, R16F,
 			XYZ16, //16 bit floating point
 			XYZ32, //32 bit floating point 
 

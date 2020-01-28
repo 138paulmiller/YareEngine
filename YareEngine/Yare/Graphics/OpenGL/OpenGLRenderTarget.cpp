@@ -37,10 +37,11 @@ namespace yare {
 			case RenderTargetAttachment::Emissive:
 			case RenderTargetAttachment::Shadow:
 				return TextureFormat::RGB8;
-			case RenderTargetAttachment::Depth:
 			case RenderTargetAttachment::Position:
 			case RenderTargetAttachment::Normal:
 				return TextureFormat::XYZ16;
+			case RenderTargetAttachment::Depth:
+				return TextureFormat::R16F;
 
 
 			}
