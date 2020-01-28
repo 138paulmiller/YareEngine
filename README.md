@@ -20,7 +20,7 @@ All dependencies are located under [YareEngine/ThirdParty](YareEngine/ThirdParty
 
 - Windows
 
-1. `mkdir 
+1. Generate Engine and Sandbox Projects `cmake . -BProject`
 2. Open Project/Yare.sln
 3. Set YareSandbox as the Starup Project, and run!
 
@@ -32,10 +32,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE "path/to/YareEngine")
 target_link_libraries(${PROJECT_NAME} PUBLIC YareEngine)
 ```
 Where `path/to/YareEngine` is the relative path from your CMakeLIsts.txt file to the YareEngine directory. 
+
 NOTE : this is located under YareEngine/YareEngine if you clone the repo.
 
 -----------------------------------------------------------
 
-## Screenshots
+## Examples
 Dynamic Shadows with 8 boxes and 8 directional lights
-![](Docs\Images\demo_8_boxes_8_dir_lights)
+![](./Docs/Images/demo_8_boxes_8_dir_lights)
