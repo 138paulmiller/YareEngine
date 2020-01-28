@@ -62,7 +62,7 @@ namespace yare
 	//Defulat engine assets. Should load from config file
 	void AssetManager::loadEngineContent()
 	{
-		//AUTOMATE THIS !
+		//AUTOMATE THIS ! Create Mount point registration system that maps full/path to path/ Do not use engine content dir attribute!
 		//By default . Should be one for each lighting model
 		add<graphics::Shader>("unlit_mesh"           , _engineContentDir + "Shaders/unlit_mesh"             );
 		add<graphics::Shader>("phong_mesh"          , _engineContentDir + "Shaders/phong_mesh"            );
@@ -77,8 +77,12 @@ namespace yare
 		
 		add<graphics::Texture>("container_diffuse"  , _engineContentDir + "Textures/container_diffuse.png"  );
 		add<graphics::Texture>("container_specular" , _engineContentDir + "Textures/container_specular.png" );
-		add<graphics::Texture>("ocean", _engineContentDir + "Textures/ocean.jpg");
-		
+		add<graphics::Texture>("brick_ao", _engineContentDir + "Textures/Brick/brick_ao.jpg");
+		add<graphics::Texture>("brick_base", _engineContentDir + "Textures/Brick/brick_base.jpg");
+		add<graphics::Texture>("brick_bump", _engineContentDir + "Textures/Brick/brick_bump.jpg");
+		add<graphics::Texture>("brick_normal", _engineContentDir + "Textures/Brick/brick_normal.jpg");
+		add<graphics::Texture>("brick_roughness", _engineContentDir + "Textures/Brick/brick_roughness.jpg");
+
 		add<graphics::Cubemap>("skybox_cubemap"     , _engineContentDir + "Textures/skybox_cubemap.png"             );
 	}
 
