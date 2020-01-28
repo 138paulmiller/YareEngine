@@ -39,4 +39,4 @@ NOTE : this is located under YareEngine/YareEngine if you clone the repo.
 
 ## Examples
 Dynamic Shadows with 8 boxes and 8 directional lights
-![](./Docs/Images/demo_8_boxes_8_dir_lights.png)
+![](./Docs/Images/demo_8_boxes_8_dir_lights.PNG)
