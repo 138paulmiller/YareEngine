@@ -97,8 +97,8 @@ void ExampleApp::onEnter()
 	Texture * specular = AssetManager::GetInstance().get<Texture>("container_specular");
 	specular->update(TextureWrap::Repeat);
 
-	Texture* oceanImage= AssetManager::GetInstance().get<Texture>("ocean");
-	oceanImage->update(TextureWrap::Repeat);
+	Texture* brickDiffuse= AssetManager::GetInstance().get<Texture>("brick_base");
+	brickDiffuse->update(TextureWrap::Repeat);
 
 
 	//All materials should set all textures as empty to default. Move this to texture class to get empty texture
@@ -123,7 +123,7 @@ void ExampleApp::onEnter()
 	_flatMaterial->setBase(glm::vec3(1, 0, 0));
 
 	_floorMaterial.reset(new PhongMaterial());	
-	_floorMaterial->setDiffuseTexture(oceanImage);
+	_floorMaterial->setDiffuseTexture(brickDiffuse);
 
 	// --------------- Init Floor ---------------------------------------------------------------
 	_floorMesh.reset(new Mesh());
